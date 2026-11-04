@@ -1,4 +1,5 @@
 # **프론트엔드 아키텍처 및 개발 워크플로우 정리**
+
 프레임워크 : React, JavaScript, Vite
 스타일 : Tailwind CSS
 배포 : Vercel
@@ -7,7 +8,6 @@
 
 화면은 pages/, 기능은 features/, 공통 코드는 shared/에 둔다.
 작업은 브랜치에서 하고, 검사와 PR 확인을 마친 뒤 병합한다.
-
 
 ### 데이터 흐름 :apiClient → features/{domain}/api → TanStack Query hook → 화면 컴포넌트
 
@@ -31,10 +31,10 @@
 - 커밋은 `feat(scope): 변경 내용` 형식으로 작성한다.
 - 허용 type: `feat`, `fix`, `design`, `style`, `refactor`, `perf`, `test`, `docs`, `chore`, `build`, `ci`, `revert`.
 - PR 전에 아래 검사를 실행한다.
-    - `format:check`: 코드 모양 확인
-    - `test`: 기능 시험
-    - `lint`: 코드 실수 확인
-    - `build`: 실행 가능한 상태로 만들어지는지 확인
+  - `format:check`: 코드 모양 확인
+  - `test`: 기능 시험
+  - `lint`: 코드 실수 확인
+  - `build`: 실행 가능한 상태로 만들어지는지 확인
 
 ```
 npm run format:check
@@ -51,9 +51,7 @@ npm run build
 화면 주소와 이름은 `routes.md`를 확인
 
 > :화면은 `pages/`, 기능은 `features/`, 공통 코드는 `shared/`에 둔다.
-> 
-> 
+>
 > 작업은 브랜치에서 하고, 검사와 PR 확인을 마친 뒤 병합한다.
-> 
 
 작업은 브랜치에서 하고, 검사와 PR 확인을 마친 뒤 병합한다.
