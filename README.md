@@ -8,22 +8,6 @@
 화면은 pages/, 기능은 features/, 공통 코드는 shared/에 둔다.
 작업은 브랜치에서 하고, 검사와 PR 확인을 마친 뒤 병합한다.
 
-### 코드 구조: 
-프로젝트 루트/
-├── README.md
-├── package.json
-├── vite.config.js
-└── src/
-    ├── assets/       # 이미지, 아이콘 등 정적 리소스
-    ├── components/   # 여러 화면에서 재사용할 공통 UI
-    ├── constants/    # 여러 기능에서 함께 쓰는 상수
-    ├── features/     # 접수, 변론, 판결 등 기능별 코드
-    ├── pages/        # 기능과 컴포넌트를 조합하는 화면
-    ├── routes/       # 페이지 주소와 라우트 정의
-    ├── App.css
-    ├── App.jsx
-    ├── index.css
-    └── main.jsx
 
 ### 데이터 흐름 :apiClient → features/{domain}/api → TanStack Query hook → 화면 컴포넌트
 
