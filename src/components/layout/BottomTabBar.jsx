@@ -118,7 +118,7 @@ const InactiveIcon = ({ tabKey }) => {
  * - `paths`: 탭별 이동 주소
  *
  * @example
- * <BottomTabBar current="home" paths={{ home: '/', board: '/board', cases: '/cases' }} />
+ * <BottomTabBar current="home" paths={{ home: '/', board: '/community', cases: '/court' }} />
  */
 export const BottomTabBar = ({ current, paths }) => (
   <nav

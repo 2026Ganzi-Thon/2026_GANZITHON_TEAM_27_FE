@@ -1,8 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { configure, fireEvent, render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { routes } from '@/routes/router'
+
+// mock 서버가 단계마다 잠깐(300ms) 기다리므로, 느린 환경(CI)에서도 통과하도록 비동기 대기 시간을 늘린다.
+configure({ asyncUtilTimeout: 5000 })
 
 /** 홈 화면이 사건 목록을 불러오므로 테스트마다 새 QueryClient로 감싼다. */
 const renderAt = (path) => {
