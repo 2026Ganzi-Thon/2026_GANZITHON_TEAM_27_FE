@@ -6,6 +6,7 @@ import { lazy } from 'react'
  */
 export const HomePage = lazy(() => import('@/pages/HomePage'))
 export const CaseIntakePage = lazy(() => import('@/pages/CaseIntakePage'))
+export const CaseCardPage = lazy(() => import('@/pages/CaseCardPage'))
 export const LoginPage = lazy(() => import('@/pages/LoginPage'))
 export const SignupPage = lazy(() => import('@/pages/SignupPage'))
 export const ConsentPage = lazy(() => import('@/pages/ConsentPage'))

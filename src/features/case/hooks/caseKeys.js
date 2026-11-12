@@ -2,4 +2,5 @@
 export const caseKeys = {
   all: ['cases'],
   list: () => [...caseKeys.all, 'list'],
+  detail: (id) => [...caseKeys.all, 'detail', id],
 }
