@@ -8,7 +8,7 @@ import {
   RecentCaseList,
   ResumeCaseCard,
 } from '@/features/home'
-import { ROUTE_PATHS } from '@/routes/paths'
+import { TAB_PATHS } from '@/routes/paths'
 
 /**
  * 홈 화면(재방문) 입구. 위쪽에 진행 중인 사건을 보여주고 이어하기·삭제·새 사건 접수를 제공한다.
@@ -23,11 +23,7 @@ const HomeResumePage = () => (
     </div>
     <NewCaseButton label="새 사건 접수하기" className="mt-8" />
     <RecentCaseList cases={mockRecentCases} className="mt-7.5" />
-    <BottomTabBar
-      homePath={ROUTE_PATHS.home}
-      boardPath={ROUTE_PATHS.board}
-      summaryPath={ROUTE_PATHS.summary}
-    />
+    <BottomTabBar current="home" paths={TAB_PATHS} />
   </div>
 )
 

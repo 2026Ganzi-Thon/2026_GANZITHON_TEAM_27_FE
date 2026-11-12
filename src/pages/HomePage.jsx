@@ -6,7 +6,7 @@ import {
   NewCaseButton,
   RecentCaseList,
 } from '@/features/home'
-import { ROUTE_PATHS } from '@/routes/paths'
+import { TAB_PATHS } from '@/routes/paths'
 
 /**
  * 홈 화면(신규) 입구. 로고, 마스코트, 접수 버튼, 최근 사건, 탭바를 조합한다.
@@ -18,11 +18,7 @@ const HomePage = () => (
     <HomeHero />
     <NewCaseButton />
     <RecentCaseList cases={mockRecentCases} />
-    <BottomTabBar
-      homePath={ROUTE_PATHS.home}
-      boardPath={ROUTE_PATHS.board}
-      summaryPath={ROUTE_PATHS.summary}
-    />
+    <BottomTabBar current="home" paths={TAB_PATHS} />
   </div>
 )
 
