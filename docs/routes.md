@@ -16,8 +16,8 @@
 | 회원가입     | `/signup`    | `SignupPage`     | —             | 주소는 피그마 `화면 이동` 확인 필요                         |
 | 동의         | `/consent`   | `ConsentPage`    | —             | 주소는 피그마 `화면 이동` 확인 필요                         |
 | 사건 접수    | `/cases/new` | `CaseIntakePage` | —             | 홈에서 진입. 주소는 피그마 `화면 이동` 확인 필요            |
-| community    | `/community` | `BoardPage`      | —             | 하단 탭바(게시판). 내용은 피그마 확인 후 교체               |
-| court        | `/court`     | `CaseListPage`   | —             | 하단 탭바(사건목록). 내용은 피그마 확인 후 교체             |
+| community    | `/community` | `CommunityPage`  | —             | 하단 탭바. 게시판. 내용은 피그마 확인 후 교체               |
+| court        | `/court`     | `CourtPage`      | —             | 하단 탭바. 접수한 사건파일 전체 목록(사건 목록)             |
 | 찾을 수 없음 | `*`          | `NotFoundPage`   | —             | 정의되지 않은 모든 주소                                     |
 
 <!-- TODO(피그마 확인 필요): 피그마 `화면 이동` 페이지의 화면 주소를 이 표에 추가한다. -->

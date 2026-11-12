@@ -30,7 +30,10 @@ export const CaseList = ({
   onSelectCase,
 }) => (
   <section aria-labelledby="case-list-title" className={className}>
-    <h2 id="case-list-title" className="mb-3 pl-5.25 text-base font-semibold text-ink">
+    <h2
+      id="case-list-title"
+      className="mb-3 pl-5.25 text-base leading-[normal] font-semibold text-ink"
+    >
       {title}
     </h2>
     {isLoading ? (

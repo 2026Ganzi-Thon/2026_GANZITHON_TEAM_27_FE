@@ -79,4 +79,34 @@ describe('router', () => {
       await screen.findByRole('button', { name: /친구가 답장이 없다.*감정 기록 없음/ }),
     ).toBeInTheDocument()
   })
+
+  it('사건 목록(court) 화면에서 접수한 사건을 목록으로 보여준다', async () => {
+    localStorage.setItem(
+      'mock-case-files',
+      JSON.stringify([
+        {
+          id: 'case-1',
+          title: '회의 발표 사건',
+          thought: '회의에서 발표를 망쳤다',
+          emotion: { type: 'anxiety', intensity: 80 },
+          emotion_after: { type: 'anxiety', intensity: 40 },
+          status: 'closed',
+          created_at: '2026-07-20T03:00:00.000Z',
+        },
+      ]),
+    )
+    renderAt('/court')
+
+    expect(await screen.findByRole('heading', { name: '사건 목록' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '최근 사건파일' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('button', { name: /회의 발표 사건.*July 20,2026.*불안 80 → 40/ }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /court/ })).toHaveAttribute('aria-current', 'page')
+  })
+
+  it('사건이 없으면 사건 목록(court) 화면에 빈 상태를 보여준다', async () => {
+    renderAt('/court')
+    expect(await screen.findByText('아직 접수한 사건이 없어요.')).toBeInTheDocument()
+  })
 })
