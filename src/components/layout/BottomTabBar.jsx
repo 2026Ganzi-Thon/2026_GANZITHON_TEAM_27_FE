@@ -10,8 +10,8 @@ import homeInactiveUrl from '@/assets/nav/nav-home-inactive.svg'
 /** 탭 목록. 순서가 화면 순서이고, `key`는 `current`와 `paths`의 키로 쓴다. */
 const TABS = [
   { key: 'home', label: 'home' },
-  { key: 'board', label: 'community' },
-  { key: 'cases', label: 'court' },
+  { key: 'community', label: 'community' },
+  { key: 'court', label: 'court' },
 ]
 
 /**
@@ -21,8 +21,8 @@ const TABS = [
  */
 const PILL_LAYOUT = {
   home: { pill: 'w-28.75', label: 'left-[50.9px]', icon: 'left-[19px] top-[10px]' },
-  board: { pill: 'w-36.5', label: 'left-[47px]', icon: 'left-[18px] top-[9px]' },
-  cases: { pill: 'w-26.25', label: 'left-[14.6px]', icon: 'left-[63px] top-[7.3px]' },
+  community: { pill: 'w-36.5', label: 'left-[47px]', icon: 'left-[18px] top-[9px]' },
+  court: { pill: 'w-26.25', label: 'left-[14.6px]', icon: 'left-[63px] top-[7.3px]' },
 }
 
 /** 법봉 아이콘의 회전된 조각. 시안(Figma)의 좌표를 그대로 옮겼다. */
@@ -75,7 +75,7 @@ const GavelIcon = ({ active }) => {
 /** 선택된 탭(검은 알약) 안에 들어가는 하늘색 아이콘. */
 const ActiveIcon = ({ tabKey }) => {
   if (tabKey === 'home') return <img src={homeUrl} alt="" width={23} height={25} />
-  if (tabKey === 'board') return <img src={clipboardActiveUrl} alt="" width={22} height={28} />
+  if (tabKey === 'community') return <img src={clipboardActiveUrl} alt="" width={22} height={28} />
   return <GavelIcon active />
 }
 
@@ -87,7 +87,7 @@ const InactiveIcon = ({ tabKey }) => {
   return (
     <>
       <img src={ellipseUrl} alt="" className="absolute inset-0 size-full" />
-      {tabKey === 'board' ? (
+      {tabKey === 'community' ? (
         <img
           src={clipboardUrl}
           alt=""
@@ -111,14 +111,14 @@ const InactiveIcon = ({ tabKey }) => {
  * 공통 코드는 routes에 의존할 수 없어서 이동 주소는 페이지가 `ROUTE_PATHS`에서 골라 넘긴다.
  *
  * @param {{
- *   current: 'home' | 'board' | 'cases',
- *   paths: { home: string, board: string, cases: string },
+ *   current: 'home' | 'community' | 'court',
+ *   paths: { home: string, community: string, court: string },
  * }} props
  * - `current`: 지금 보고 있는 탭
  * - `paths`: 탭별 이동 주소
  *
  * @example
- * <BottomTabBar current="home" paths={{ home: '/', board: '/community', cases: '/court' }} />
+ * <BottomTabBar current="home" paths={{ home: '/', community: '/community', court: '/court' }} />
  */
 export const BottomTabBar = ({ current, paths }) => (
   <nav
