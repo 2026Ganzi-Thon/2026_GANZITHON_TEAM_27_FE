@@ -64,6 +64,14 @@
   --font-sans:
     'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', 'Noto Sans KR',
     sans-serif;
+
+  /* Figma 측정값: 변론 화면 추천 질문 패널 — 보기 카드 모서리 / 카드 그림자 / 배경 블러 / 카드 높이 / 제목 글자 크기
+     (노드 데이터 없이 내보낸 3배 PNG를 재서 구했다. 블러는 흐린 말풍선 테두리 밝기 단면이 Figma와 같은 값이다.) */
+  --radius-suggest: 15px;
+  --shadow-suggest: 0 2px 4px rgb(0 0 0 / 0.25);
+  --blur-suggest: 1.5px;
+  --spacing-suggest-card: 51.33px;
+  --text-suggest-title: 17px;
 }
 
 @layer base {
