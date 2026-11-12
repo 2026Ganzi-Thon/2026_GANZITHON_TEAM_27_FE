@@ -34,6 +34,20 @@ describe('router', () => {
     expect(screen.getByRole('link', { name: '홈으로 가기' })).toHaveAttribute('href', '/')
   })
 
+  it('사건 접수 화면에서는 처음에 아무 감정도 선택되어 있지 않다', async () => {
+    renderAt('/cases/new')
+
+    const radios = await screen.findAllByRole('radio')
+    expect(radios).toHaveLength(6)
+    radios.forEach((radio) => expect(radio).not.toBeChecked())
+    expect(screen.getByRole('slider', { name: '감정의 강도' })).toBeDisabled()
+
+    fireEvent.click(screen.getByRole('radio', { name: '분노' }))
+    expect(screen.getByRole('radio', { name: '분노' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: '불안' })).not.toBeChecked()
+    expect(screen.getByRole('slider', { name: '감정의 강도' })).toBeEnabled()
+  })
+
   it('사건을 접수하면 홈의 최근 사건파일에 사건이 나타난다', async () => {
     renderAt('/')
 
@@ -41,11 +55,25 @@ describe('router', () => {
     fireEvent.change(await screen.findByLabelText(/자유롭게 적어주세요/), {
       target: { value: '회의에서 발표를 망쳤다' },
     })
+    fireEvent.click(screen.getByRole('radio', { name: '불안' }))
     fireEvent.click(screen.getByRole('button', { name: '다음' }))
 
     expect(await screen.findByRole('link', { name: '새 사건 접수하기' })).toBeInTheDocument()
     expect(
       await screen.findByRole('button', { name: /회의에서 발표를 망쳤다.*감정 변화 불안 40/ }),
+    ).toBeInTheDocument()
+  })
+
+  it('감정을 고르지 않아도 사건을 접수할 수 있다', async () => {
+    renderAt('/cases/new')
+
+    fireEvent.change(await screen.findByLabelText(/자유롭게 적어주세요/), {
+      target: { value: '친구가 답장이 없다' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: '다음' }))
+
+    expect(
+      await screen.findByRole('button', { name: /친구가 답장이 없다.*감정 기록 없음/ }),
     ).toBeInTheDocument()
   })
 })

@@ -24,7 +24,7 @@ const THOUGHT_MAX_LENGTH = 300
  */
 export const IntakeForm = ({ onCreated }) => {
   const [thought, setThought] = useState('')
-  const [emotionKey, setEmotionKey] = useState(EMOTIONS[0].key)
+  const [emotionKey, setEmotionKey] = useState(null)
   const [intensity, setIntensity] = useState(EMOTION_INTENSITY_RANGE.default)
   const idempotencyKeyRef = useRef(crypto.randomUUID())
   const { mutate, isPending, isError, data } = useCreateCase()
@@ -47,7 +47,8 @@ export const IntakeForm = ({ onCreated }) => {
     mutate(
       {
         thought: trimmed,
-        emotion: { type: emotion.apiType, intensity },
+        // API 규칙: 감정 type과 강도는 둘 다 보내거나 둘 다 생략한다.
+        emotion: emotion ? { type: emotion.apiType, intensity } : undefined,
         idempotencyKey: idempotencyKeyRef.current,
       },
       {
@@ -98,7 +99,11 @@ export const IntakeForm = ({ onCreated }) => {
 
       <h2 className="mt-7.75 ml-4 text-base font-semibold text-ink">감정의 강도는 어떤가요</h2>
       <div className="mx-4">
-        <IntensitySlider value={intensity} onChange={changeInput(setIntensity)} />
+        <IntensitySlider
+          disabled={!emotionKey}
+          value={intensity}
+          onChange={changeInput(setIntensity)}
+        />
       </div>
 
       {support && (

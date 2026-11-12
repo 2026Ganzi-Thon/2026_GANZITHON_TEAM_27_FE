@@ -2,10 +2,11 @@ import { EMOTIONS } from '@/constants/emotions'
 
 /**
  * 감정 선택 버튼 6개(3열 × 2행). 하나만 고를 수 있어서 라디오 버튼으로 만들었다.
- * 방향키로 옮길 수 있고, 선택된 버튼은 검은 배경으로 보인다.
+ * 처음에는 아무것도 선택되어 있지 않다. 버튼을 누르면 검은 배경으로 선택된다(마우스를 올려도 색은 바뀌지 않는다).
+ * 방향키로도 옮길 수 있다.
  *
  * @param {{ value: string, onChange: (key: string) => void }} props
- * - `value`: 선택된 감정의 `key`
+ * - `value`: 선택된 감정의 `key`. 아직 고르지 않았으면 `null`
  * - `onChange`: 감정을 고르면 그 감정의 `key`와 함께 호출한다
  */
 export const EmotionPicker = ({ value, onChange }) => (
