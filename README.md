@@ -48,7 +48,7 @@ npm run build
 
 ## 라우트 참고
 
-화면 주소와 이름은 `routes.md`를 확인
+화면 주소와 이름은 `docs/routes.md`를 확인
 
 > :화면은 `pages/`, 기능은 `features/`, 공통 코드는 shared(`components/`, `constants/`, `hooks/`, `lib/`)에 둔다.
 >

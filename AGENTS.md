@@ -6,7 +6,7 @@
 > 한 줄 요약: 화면은 `pages/`, 기능은 `features/`, 공통 코드는 shared에 둔다.
 > 작업은 `dev`에서 딴 브랜치에서 하고, 검사와 PR 확인을 마친 뒤 `dev`에 병합한다.
 
-관련 문서: [api-spec.md](api-spec.md)(API 명세), [routes.md](routes.md)(라우트), [development-workflow.md](development-workflow.md)(개발 절차), [architecture.md](architecture.md)(구조)
+관련 문서: [api-spec.md](docs/api-spec.md)(API 명세), [routes.md](docs/routes.md)(라우트), [development-workflow.md](docs/development-workflow.md)(개발 절차), [architecture.md](docs/architecture.md)(구조)
 
 ## 1. 기술 스택
 
@@ -26,9 +26,13 @@
 ```text
 프로젝트 루트/
 ├── AGENTS.md
+├── CLAUDE.md
 ├── README.md
-├── api-spec.md
-├── routes.md
+├── docs/
+│   ├── api-spec.md
+│   ├── architecture.md
+│   ├── development-workflow.md
+│   └── routes.md
 ├── package.json
 ├── vite.config.js
 └── src/
@@ -68,7 +72,7 @@ apiClient → features/{domain}/api → TanStack Query hook → 화면 컴포넌
 - 식별 헤더(`X-Demo-Id`)는 `apiClient`의 request interceptor 한 곳에서만 붙인다.
 - 서버 데이터는 TanStack Query에서만 다룬다. Zustand에 서버 데이터를 복사하지 않는다.
 - Mutation은 자동 재시도하지 않는다(`queryClient` 기본값 `retry: false`).
-- API 세부 동작은 [api-spec.md](api-spec.md)를 따른다. 명세에 없는 필드나 동작은 추측하지 말고 `// TODO(API 확인 필요)`를 남긴다.
+- API 세부 동작은 [api-spec.md](docs/api-spec.md)를 따른다. 명세에 없는 필드나 동작은 추측하지 말고 `// TODO(API 확인 필요)`를 남긴다.
 
 ## 5. 화면과 스타일 (모바일 웹)
 
@@ -134,10 +138,10 @@ apiClient → features/{domain}/api → TanStack Query hook → 화면 컴포넌
 
 - 한 브랜치는 기능(도메인) 하나만 다루고 작게 유지한다. 서로 다른 `features/{domain}`을 나눠 맡아 충돌을 줄인다.
 - 공통 영역(`components/`, `constants/`, `lib/`, `routes/`, `src/index.css`, `RootLayout`, `apiClient`, 설정 파일)을 고칠 때는 "동료와 공유가 필요한 변경"이라고 알리고, 가능하면 별도 PR로 나눈다.
-- 라우트 주소와 이름은 [routes.md](routes.md)가 기준이다. 라우트를 추가하면 `routes.md`도 함께 갱신한다.
-  - URL은 피그마 `화면 이동` 페이지를 기준으로 정한다. `api-spec.md`는 동적 파라미터 이름과 검색 파라미터를 맞추는 데만 쓴다.
+- 라우트 주소와 이름은 [routes.md](docs/routes.md)가 기준이다. 라우트를 추가하면 `docs/routes.md`도 함께 갱신한다.
+  - URL은 피그마 `화면 이동` 페이지를 기준으로 정한다. `docs/api-spec.md`는 동적 파라미터 이름과 검색 파라미터를 맞추는 데만 쓴다.
   - 게시판 검색은 `GET /board/posts`의 쿼리 파라미터 `tag`, `q`를 그대로 쓴다.
-  - 확정되지 않은 동적 파라미터는 `routes.md` 표에 "API 확인 필요"라고 적고, 코드에는 `// TODO(API 확인 필요)`를 남긴다.
+  - 확정되지 않은 동적 파라미터는 `docs/routes.md` 표에 "API 확인 필요"라고 적고, 코드에는 `// TODO(API 확인 필요)`를 남긴다.
 
 ## 9. 피그마 → 코드 규칙
 

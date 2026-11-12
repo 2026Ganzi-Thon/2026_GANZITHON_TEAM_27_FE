@@ -1,6 +1,6 @@
 # 프론트엔드 아키텍처
 
-React 19, JavaScript(`.js`, `.jsx`), Vite를 사용합니다. 규칙의 기준은 [AGENTS.md](AGENTS.md)이고, 이 문서는 현재 구조를 설명합니다.
+React 19, JavaScript(`.js`, `.jsx`), Vite를 사용합니다. 규칙의 기준은 [AGENTS.md](../AGENTS.md)이고, 이 문서는 현재 구조를 설명합니다.
 
 ## 파일 구조
 
