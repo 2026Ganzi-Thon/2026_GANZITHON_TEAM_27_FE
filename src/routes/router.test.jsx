@@ -109,4 +109,10 @@ describe('router', () => {
     renderAt('/court')
     expect(await screen.findByText('아직 접수한 사건이 없어요.')).toBeInTheDocument()
   })
+
+  it('사건요약 주소에서 사건요약 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/cases/case-1/summary')
+    expect(await screen.findByRole('heading', { name: '사건파일 요약' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '확인' })).toHaveAttribute('href', '/')
+  })
 })
