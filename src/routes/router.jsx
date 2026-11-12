@@ -12,6 +12,7 @@ import {
   SignupPage,
 } from '@/routes/lazyPages'
 import { ROUTE_PATHS } from '@/routes/paths'
+import { CaseClosingPage } from '@/routes/lazyPages'
 
 /**
  * 앱 라우트 정의. 모든 페이지는 RootLayout 안에서 lazy loading으로 렌더링한다.
@@ -32,6 +33,7 @@ export const routes = [
           { path: ROUTE_PATHS.community, element: <CommunityPage /> },
           { path: ROUTE_PATHS.court, element: <CourtPage /> },
           { path: '*', element: <NotFoundPage /> },
+          { path: ROUTE_PATHS.caseClosing, element: <CaseClosingPage /> },
         ],
       },
     ],
