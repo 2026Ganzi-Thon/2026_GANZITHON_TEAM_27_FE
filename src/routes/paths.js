@@ -6,6 +6,8 @@ export const ROUTE_PATHS = {
   home: '/',
   // TODO(피그마 확인 필요): 사건 접수 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
   caseNew: '/cases/new',
+  // TODO(피그마 확인 필요): 사건 카드 화면 주소(사건 종결 후). `화면 이동` 페이지 기준으로 확정한다.
+  caseCard: '/cases/:caseId/card',
   // TODO(피그마 확인 필요): `화면 이동` 페이지 기준으로 주소를 확정한다.
   login: '/login',
   signup: '/signup',
@@ -14,6 +16,9 @@ export const ROUTE_PATHS = {
   community: '/community',
   court: '/court',
 }
+
+/** 사건 카드 화면 주소를 사건 ID로 만든다. 예: `getCaseCardPath('abc')` → `/cases/abc/card` */
+export const getCaseCardPath = (caseId) => `/cases/${caseId}/card`
 
 /** 하단 탭바(BottomTabBar)에 넘기는 탭별 이동 주소. */
 export const TAB_PATHS = {

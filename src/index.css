@@ -22,6 +22,8 @@
   /* Figma 변수: 홈 화면 하늘색(별 띠·강조 카드·말풍선) / 세 번째 카드 회색 */
   --color-sky: #c1eaff;
   --color-card-gray: #bbc3c4;
+  /* Figma 변수: 사건 카드 종이 색(흰 #f1f1f1) */
+  --color-paper: #f1f1f1;
   /* TODO(Figma 확인 필요): 오류 색상은 디자인에 없어 임시 값이다. */
   --color-danger: #b91c1c;
 
