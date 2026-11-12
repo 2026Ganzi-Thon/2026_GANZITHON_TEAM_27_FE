@@ -1,7 +1,15 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { RootLayout } from '@/components/layout/RootLayout'
 import RouteErrorPage from '@/pages/RouteErrorPage'
-import { ConsentPage, HomePage, LoginPage, NotFoundPage, SignupPage } from '@/routes/lazyPages'
+import {
+  BoardPage,
+  CaseListPage,
+  ConsentPage,
+  HomePage,
+  LoginPage,
+  NotFoundPage,
+  SignupPage,
+} from '@/routes/lazyPages'
 import { ROUTE_PATHS } from '@/routes/paths'
 
 /**
@@ -19,6 +27,8 @@ export const routes = [
           { path: ROUTE_PATHS.login, element: <LoginPage /> },
           { path: ROUTE_PATHS.signup, element: <SignupPage /> },
           { path: ROUTE_PATHS.consent, element: <ConsentPage /> },
+          { path: ROUTE_PATHS.board, element: <BoardPage /> },
+          { path: ROUTE_PATHS.cases, element: <CaseListPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },
