@@ -15,8 +15,8 @@
 | 로그인       | `/login`   | `LoginPage`     | —             | 주소는 피그마 `화면 이동` 확인 필요   |
 | 회원가입     | `/signup`  | `SignupPage`    | —             | 주소는 피그마 `화면 이동` 확인 필요   |
 | 동의         | `/consent` | `ConsentPage`   | —             | 주소는 피그마 `화면 이동` 확인 필요   |
-| 게시판       | `/board`   | `BoardPage`     | —             | 하단 탭바. 내용은 피그마 확인 후 교체 |
-| 사건목록     | `/cases`   | `CaseListPage`  | —             | 하단 탭바. 내용은 피그마 확인 후 교체 |
+| community    | `/board`   | `BoardPage`     | —             | 하단 탭바. 내용은 피그마 확인 후 교체 |
+| court        | `/cases`   | `CaseListPage`  | —             | 하단 탭바. 내용은 피그마 확인 후 교체 |
 | 찾을 수 없음 | `*`        | `NotFoundPage`  | —             | 정의되지 않은 모든 주소               |
 
 <!-- TODO(피그마 확인 필요): 피그마 `화면 이동` 페이지의 화면 주소를 이 표에 추가한다. -->
