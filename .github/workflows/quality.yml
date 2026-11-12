@@ -3,7 +3,7 @@ name: Quality
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, dev]
 
 permissions:
   contents: read
@@ -25,6 +25,8 @@ jobs:
         include:
           - name: format
             script: format:check
+          - name: test
+            script: test
           - name: lint
             script: lint
           - name: build
