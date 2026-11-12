@@ -14,6 +14,26 @@
   --color-surface: #ffffff;
   --color-backdrop: #e5e7eb;
   --color-focus: #2563eb;
+
+  /* Figma 변수: 검 / 흰 / 배경흰 */
+  --color-ink: #2f2f2f;
+  --color-field: #e7e7e7;
+  --color-canvas: #f7f7f7;
+  /* TODO(Figma 확인 필요): 오류 색상은 디자인에 없어 임시 값이다. */
+  --color-danger: #b91c1c;
+
+  /* Figma 치수: 입력 카드 높이·모서리, 큰 버튼 높이 (로그인·회원가입·동의 공통) */
+  --spacing-field: 83px;
+  --spacing-button: 68px;
+  --radius-field: 5px;
+
+  /* Figma 제목 글자 크기: 회원가입 제목 / 동의 제목 */
+  --text-display: 40px;
+  --text-headline: 30px;
+
+  --font-sans:
+    'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', 'Noto Sans KR',
+    sans-serif;
 }
 
 @layer base {
