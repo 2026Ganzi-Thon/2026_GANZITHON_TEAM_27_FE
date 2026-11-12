@@ -4,8 +4,8 @@
  */
 export const ROUTE_PATHS = {
   home: '/',
-  // TODO(피그마 확인 필요): 재방문 홈은 진행 중인 사건 유무로 `/`에서 분기할지, 별도 주소를 쓸지 정한다.
-  homeResume: '/home/resume',
+  // TODO(피그마 확인 필요): 사건 접수 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
+  caseNew: '/cases/new',
   // TODO(피그마 확인 필요): `화면 이동` 페이지 기준으로 주소를 확정한다.
   login: '/login',
   signup: '/signup',
