@@ -138,3 +138,11 @@ apiClient → features/{domain}/api → TanStack Query hook → 화면 컴포넌
   - URL은 피그마 `화면 이동` 페이지를 기준으로 정한다. `api-spec.md`는 동적 파라미터 이름과 검색 파라미터를 맞추는 데만 쓴다.
   - 게시판 검색은 `GET /board/posts`의 쿼리 파라미터 `tag`, `q`를 그대로 쓴다.
   - 확정되지 않은 동적 파라미터는 `routes.md` 표에 "API 확인 필요"라고 적고, 코드에는 `// TODO(API 확인 필요)`를 남긴다.
+
+## 9. 피그마 → 코드 규칙
+
+- 화면은 Figma MCP로 디자인 정보를 가져와서 구현한다. 스크린샷만 보고 추측하지 않는다.
+- Figma 변수(색, 간격, 폰트, radius)는 `src/index.css` 토큰으로 옮기고, 임의 값을 하드코딩하지 않는다.
+- `components/`에 이미 있는 공용 부품은 새로 만들지 않고 재사용한다.
+- Figma가 내주는 코드는 참고용이다. 그대로 붙이지 말고 폴더 구조, 의존 방향, 접근성 규칙에 맞게 고친다.
+- 디자인 기준 크기는 Figma 프레임 크기(iPhone 18 Pro 기준)이며, 값은 `src/index.css`의 `--app-width`, `--app-height` 토큰을 따른다.
