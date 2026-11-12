@@ -45,7 +45,12 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/components/**/*.{js,jsx}', 'src/constants/**/*.{js,jsx}'],
+    files: [
+      'src/components/**/*.{js,jsx}',
+      'src/constants/**/*.{js,jsx}',
+      'src/hooks/**/*.{js,jsx}',
+      'src/lib/**/*.{js,jsx}',
+    ],
     rules: {
       'no-restricted-imports': [
         'error',
