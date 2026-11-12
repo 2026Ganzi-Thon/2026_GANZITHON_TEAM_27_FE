@@ -8,4 +8,6 @@ export const ROUTE_PATHS = {
   login: '/login',
   signup: '/signup',
   consent: '/consent',
+  // TODO(피그마 확인 필요): `화면 이동` 페이지 기준으로 주소를 확정한다. :id는 사건 ID(UUID)다.
+  prosecution: '/cases/:id/prosecution',
 }
