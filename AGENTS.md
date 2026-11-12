@@ -107,6 +107,7 @@ apiClient → features/{domain}/api → TanStack Query hook → 화면 컴포넌
   - type은 허용 목록에서만 고른다: `feat`, `fix`, `design`, `style`, `refactor`, `perf`, `test`, `docs`, `chore`, `build`, `ci`, `revert`
 - 작업을 시작하기 전과 PR을 올리기 전에 최신 `dev`를 내 브랜치에 반영한다(rebase 또는 merge).
 - 커밋 메시지: `type(scope): 변경 내용` (scope는 필수이고 kebab-case로 쓴다)
+  - 커밋 메시지와 PR 설명에 AI 도구의 공동 작성자 줄(`Co-Authored-By: Claude ...`)이나 "Generated with ..." 문구를 넣지 않는다. GitHub는 공동 작성자 줄이 있는 커밋을 그 계정의 기여로 집계하기 때문이다. AI 코딩 도구가 커밋을 만들 때도 같다.
 - Husky와 lint-staged가 커밋 전에 ESLint와 Prettier를 실행하고, Commitlint가 메시지 형식을 검사한다.
 - PR을 올리기 전에 아래 4개를 반드시 통과시킨다.
 
