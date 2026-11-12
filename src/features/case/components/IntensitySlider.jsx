@@ -11,13 +11,16 @@ const THUMB =
  * @param {{ value: number, onChange: (value: number) => void }} props
  * - `value`: 현재 강도
  * - `onChange`: 슬라이더를 움직이면 새 강도(숫자)와 함께 호출한다
+ * - `disabled`: 감정을 고르기 전에는 강도를 정할 수 없어서 비활성으로 보여준다
  */
-export const IntensitySlider = ({ value, onChange }) => {
+export const IntensitySlider = ({ value, onChange, disabled = false }) => {
   const { min, max } = EMOTION_INTENSITY_RANGE
   const percent = ((value - min) / (max - min)) * 100
 
   return (
-    <div className="mt-4.75 flex items-start gap-5.5">
+    <div
+      className={`mt-4.75 flex items-start gap-5.5 transition-opacity ${disabled ? 'opacity-40' : ''}`}
+    >
       <img src={faceUrl} alt="" width={43} height={43} className="shrink-0" aria-hidden="true" />
       <div className="w-58.5 shrink-0">
         <div className="relative h-5.5">
@@ -33,6 +36,7 @@ export const IntensitySlider = ({ value, onChange }) => {
             max={max}
             step={1}
             value={value}
+            disabled={disabled}
             onChange={(event) => onChange(Number(event.target.value))}
             aria-label="감정의 강도"
             aria-valuetext={`${value}`}
