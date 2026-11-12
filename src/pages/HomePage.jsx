@@ -1,12 +1,7 @@
+import { CaseList } from '@/components/CaseList'
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
 import { useCases, useDeleteCase } from '@/features/case'
-import {
-  HomeHeader,
-  HomeHero,
-  NewCaseButton,
-  RecentCaseList,
-  ResumeCaseCard,
-} from '@/features/home'
+import { HomeHeader, HomeHero, NewCaseButton, ResumeCaseCard } from '@/features/home'
 import { ROUTE_PATHS, TAB_PATHS } from '@/routes/paths'
 
 /**
@@ -39,7 +34,7 @@ const HomePage = () => {
       ) : (
         <NewCaseButton to={ROUTE_PATHS.caseNew} />
       )}
-      <RecentCaseList
+      <CaseList
         cases={cases}
         isLoading={isPending}
         isError={isError}
