@@ -19,6 +19,9 @@
   --color-ink: #2f2f2f;
   --color-field: #e7e7e7;
   --color-canvas: #f7f7f7;
+  /* Figma 변수: 홈 화면 하늘색(별 띠·강조 카드·말풍선) / 세 번째 카드 회색 */
+  --color-sky: #c1eaff;
+  --color-card-gray: #bbc3c4;
   /* TODO(Figma 확인 필요): 오류 색상은 디자인에 없어 임시 값이다. */
   --color-danger: #b91c1c;
 
@@ -34,6 +37,16 @@
   --font-sans:
     'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', 'Noto Sans KR',
     sans-serif;
+}
+
+/* 모바일 화면처럼 보이도록 스크롤은 되지만 스크롤바는 숨긴다. */
+@utility scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {
