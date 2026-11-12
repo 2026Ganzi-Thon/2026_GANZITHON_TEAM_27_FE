@@ -1,10 +1,31 @@
 /** 변론 답변 최대 길이 (docs/api-spec.md §5, 앞뒤 공백 제거 후 기준) */
 export const MAX_ANSWER_LENGTH = 1000
 
+/** 질문 하나를 쉬운 문장으로 바꿀 수 있는 최대 횟수 (docs/api-spec.md §6.3) */
+export const MAX_SIMPLIFY_PER_QUESTION = 2
+
 /**
- * 대화 목록을 화면에 그릴 말풍선 목록으로 바꾼다. AI 질문 다음에 내 답이 온다.
- * 건너뛰기·"떠오르지 않아요"처럼 글이 없는 답은 말풍선을 만들지 않는다.
- * TODO(피그마 확인 필요): 건너뛰기·떠오르지 않아요를 대화에 어떻게 보여줄지 디자인이 없다.
+ * 추천 질문 보기 (Figma `추천질문` 문구 그대로, 위에서부터 순서대로).
+ * - `simplify`: 질문을 쉽게 바꿔 달라는 요청 (`POST …/simplify`)
+ * - `not_sure`, `skip`: 답변 action 값 그대로 (`PUT …/answer`)
+ */
+export const SUGGESTION_OPTIONS = [
+  { key: 'simplify', label: '질문을 쉽게 바꿔주세요.' },
+  { key: 'not_sure', label: '떠오르지 않아요.' },
+  { key: 'skip', label: '이 질문 건너뛰기' },
+]
+
+/** 답변 action별로 내 말풍선에 보여줄 문구 */
+const ACTION_LABELS = {
+  not_sure: '떠오르지 않아요.',
+  skip: '이 질문 건너뛰기',
+}
+
+/**
+ * 대화 목록을 화면에 그릴 말풍선 목록으로 바꾼다.
+ * AI 질문 → (쉽게 바꾼 문장들, 새 AI 말풍선) → 내 답 순서다.
+ * 건너뛰기·"떠오르지 않아요"는 그 보기 문구를 내 말풍선으로 보여준다.
+ * TODO(피그마 확인 필요: 건너뛰기·모름 말풍선 표시 여부) 디자인이 없어 기존 내 말풍선 모양을 그대로 쓴다.
  * @param {import('./api/defense').DefenseThreadItem[]} thread 질문과 답 목록
  * @returns {Array<{key: string, from: 'ai' | 'me', text: string}>}
  */
@@ -12,13 +33,27 @@ export const toChatMessages = (thread) =>
   thread.flatMap((item, index) => {
     const messages = []
     if (item.question) {
-      messages.push({ key: `q-${item.question.id}`, from: 'ai', text: item.question.prompt })
+      const { id, prompt, simplifiedPrompts = [] } = item.question
+      messages.push({ key: `q-${id}`, from: 'ai', text: prompt })
+      simplifiedPrompts.forEach((text, n) =>
+        messages.push({ key: `q-${id}-s${n + 1}`, from: 'ai', text }),
+      )
     }
-    if (item.answer?.action === 'answer' && item.answer.text) {
-      messages.push({ key: `a-${item.question?.id ?? index}`, from: 'me', text: item.answer.text })
+    const answerText =
+      item.answer?.action === 'answer' ? item.answer.text : ACTION_LABELS[item.answer?.action]
+    if (answerText) {
+      messages.push({ key: `a-${item.question?.id ?? index}`, from: 'me', text: answerText })
     }
     return messages
   })
+
+/**
+ * 이 질문을 더 쉽게 바꿀 수 있는지. 질문당 2회까지 가능하다.
+ * @param {import('./api/defense').DefenseQuestion | null} question 답할 질문
+ * @returns {boolean}
+ */
+export const canSimplify = (question) =>
+  Boolean(question) && (question.simplifiedPrompts?.length ?? 0) < MAX_SIMPLIFY_PER_QUESTION
 
 /**
  * 아직 답하지 않은 질문을 찾는다. 없으면 null.

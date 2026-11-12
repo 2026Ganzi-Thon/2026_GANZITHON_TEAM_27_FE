@@ -4,6 +4,7 @@ import {
   mockCase,
   recordMockAnswer,
   resolveMock,
+  simplifyMockQuestion,
   USE_DEFENSE_MOCK,
 } from '../mocks/defenseMocks'
 
@@ -11,8 +12,9 @@ import {
  * @typedef {object} DefenseQuestion
  * @property {string} id 질문 ID
  * @property {number} sequence 질문 순번 (사건당 최대 3개)
- * @property {string} prompt 질문 문장
+ * @property {string} prompt 질문 문장 (처음 받은 문장)
  * @property {number} revision 질문 문장 버전. 답할 때 최신 값을 보내야 한다.
+ * @property {string[]} [simplifiedPrompts] "질문을 쉽게 바꿔주세요."로 받은 문장들 (화면에서만 쌓는다)
  */
 
 /**
@@ -63,6 +65,24 @@ export const submitDefenseAnswer = async (caseId, questionId, body) => {
   }
   const { data } = await apiClient.put(
     `/cases/${caseId}/defense/questions/${questionId}/answer`,
+    body,
+  )
+  return data
+}
+
+/**
+ * 질문을 더 쉬운 문장으로 바꿔 달라고 요청한다. 순번은 그대로이고 revision만 오른다(질문당 최대 2회).
+ * TODO(API 확인 필요): 응답 필드 이름(`prompt`, `revision`)을 확인한다.
+ * TODO(API 확인 필요): 오래된 revision이면 409가 온다. GET /cases/{id}로 다시 조회하는 흐름은 API 연결 때 붙인다.
+ * @param {string} caseId 사건 ID (UUID)
+ * @param {string} questionId 질문 ID
+ * @param {{revision: number}} body 현재 revision
+ * @returns {Promise<{prompt: string, revision: number}>} 새 문장과 새 revision
+ */
+export const simplifyDefenseQuestion = async (caseId, questionId, body) => {
+  if (USE_DEFENSE_MOCK) return resolveMock(simplifyMockQuestion(questionId))
+  const { data } = await apiClient.post(
+    `/cases/${caseId}/defense/questions/${questionId}/simplify`,
     body,
   )
   return data
