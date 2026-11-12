@@ -1,11 +1,6 @@
+import { CaseList } from '@/components/CaseList'
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
-import {
-  HomeHeader,
-  HomeHero,
-  mockRecentCases,
-  NewCaseButton,
-  RecentCaseList,
-} from '@/features/home'
+import { HomeHeader, HomeHero, mockRecentCases, NewCaseButton } from '@/features/home'
 import { TAB_PATHS } from '@/routes/paths'
 
 /**
@@ -17,7 +12,7 @@ const HomePage = () => (
     <HomeHeader />
     <HomeHero />
     <NewCaseButton />
-    <RecentCaseList cases={mockRecentCases} />
+    <CaseList cases={mockRecentCases} />
     <BottomTabBar current="home" paths={TAB_PATHS} />
   </div>
 )

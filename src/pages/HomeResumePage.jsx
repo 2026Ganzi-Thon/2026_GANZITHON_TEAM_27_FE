@@ -1,3 +1,4 @@
+import { CaseList } from '@/components/CaseList'
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
 import {
   HomeHeader,
@@ -5,7 +6,6 @@ import {
   mockRecentCases,
   mockResumeCase,
   NewCaseButton,
-  RecentCaseList,
   ResumeCaseCard,
 } from '@/features/home'
 import { TAB_PATHS } from '@/routes/paths'
@@ -22,7 +22,7 @@ const HomeResumePage = () => (
       <ResumeCaseCard {...mockResumeCase} />
     </div>
     <NewCaseButton label="새 사건 접수하기" className="mt-8" />
-    <RecentCaseList cases={mockRecentCases} className="mt-7.5" />
+    <CaseList cases={mockRecentCases} className="mt-7.5" />
     <BottomTabBar current="home" paths={TAB_PATHS} />
   </div>
 )
