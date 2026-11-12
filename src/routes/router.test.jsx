@@ -109,4 +109,13 @@ describe('router', () => {
     renderAt('/court')
     expect(await screen.findByText('아직 접수한 사건이 없어요.')).toBeInTheDocument()
   })
+
+  it('위기 안내 주소에서 위기 안내 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/support')
+    expect(await screen.findByRole('heading', { name: '지금, 괜찮으신가요?' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '자살예방 상담전화 109에 전화 걸기' })).toHaveAttribute(
+      'href',
+      'tel:109',
+    )
+  })
 })
