@@ -18,6 +18,7 @@
 | 기소         | `/cases/:id/prosecution` | `ProsecutionPage` | `id`          | 피그마 `2-1 기소` (API 확인 필요)   |
 | 변론         | `/cases/:id/defense`     | `DefensePage`     | `id`          | 피그마 `Ai챗봇` (API 확인 필요)     |
 | 찾을 수 없음 | `*`                      | `NotFoundPage`    | —             | 정의되지 않은 모든 주소             |
+| 판결         | `/cases/:id/decision`    | `DecisionPage`    | `id`          | 피그마 `2-4 판결` (API 확인 필요)   |
 
 <!-- TODO(피그마 확인 필요): 피그마 `화면 이동` 페이지의 화면 주소를 이 표에 추가한다. -->
 
