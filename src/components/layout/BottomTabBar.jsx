@@ -9,10 +9,21 @@ import homeInactiveUrl from '@/assets/nav/nav-home-inactive.svg'
 
 /** 탭 목록. 순서가 화면 순서이고, `key`는 `current`와 `paths`의 키로 쓴다. */
 const TABS = [
-  { key: 'home', label: '홈' },
-  { key: 'board', label: '게시판' },
-  { key: 'cases', label: '사건목록' },
+  { key: 'home', label: 'home' },
+  { key: 'board', label: 'community' },
+  { key: 'cases', label: 'court' },
 ]
+
+/**
+ * 선택된 탭(검은 알약)의 너비와 안쪽 글자·아이콘 위치. 시안(Figma)의 좌표를 그대로 옮겼다.
+ * 글꼴이 달라져도 모양이 변하지 않도록 너비를 고정하고 글자와 아이콘을 절대 위치로 둔다.
+ * court만 시안에서 아이콘이 글자 오른쪽에 있다.
+ */
+const PILL_LAYOUT = {
+  home: { pill: 'w-28.75', label: 'left-[50.9px]', icon: 'left-[19px] top-[10px]' },
+  board: { pill: 'w-36.5', label: 'left-[47px]', icon: 'left-[18px] top-[9px]' },
+  cases: { pill: 'w-26.25', label: 'left-[14.6px]', icon: 'left-[63px] top-[7.3px]' },
+}
 
 /** 법봉 아이콘의 회전된 조각. 시안(Figma)의 좌표를 그대로 옮겼다. */
 const GavelPiece = ({ boxClass, pieceClass, toneClass }) => (
@@ -94,7 +105,8 @@ const InactiveIcon = ({ tabKey }) => {
 }
 
 /**
- * 하단 공통 탭바(홈, 게시판, 사건목록). 프레임 안에서 `sticky`로 아래에 붙는다.
+ * 하단 공통 탭바(home, community, court). 프레임 안에서 `sticky`로 아래에 붙는다.
+ * 바 크기는 어느 탭이 선택돼도 같다(너비 299px, 높이 72px). 탭 사이는 균등 간격이다.
  * 현재 탭은 하늘색 아이콘과 이름이 있는 검은 알약으로, 나머지 탭은 아이콘만 있는 흰 동그라미로 보여준다.
  * 공통 코드는 routes에 의존할 수 없어서 이동 주소는 페이지가 `ROUTE_PATHS`에서 골라 넘긴다.
  *
@@ -111,7 +123,7 @@ const InactiveIcon = ({ tabKey }) => {
 export const BottomTabBar = ({ current, paths }) => (
   <nav
     aria-label="주요 메뉴"
-    className="sticky bottom-5.75 z-10 mx-auto mt-auto flex h-18 w-fit shrink-0 items-center justify-center gap-3.5 rounded-[55px] bg-ink/20 px-4"
+    className="sticky bottom-5.75 z-10 mx-auto mt-auto flex h-18 w-74.75 shrink-0 items-center justify-evenly rounded-[55px] bg-ink/20"
   >
     {TABS.map(({ key, label }) =>
       key === current ? (
@@ -119,10 +131,14 @@ export const BottomTabBar = ({ current, paths }) => (
           key={key}
           to={paths[key]}
           aria-current="page"
-          className="flex h-11.75 shrink-0 items-center justify-center gap-2.25 rounded-[23px] bg-black px-4.5 text-base font-semibold text-sky"
+          className={`relative h-11.75 shrink-0 rounded-[23px] bg-black text-base font-semibold whitespace-nowrap text-sky ${PILL_LAYOUT[key].pill}`}
         >
-          <ActiveIcon tabKey={key} />
-          {label}
+          <span className={`absolute ${PILL_LAYOUT[key].icon}`}>
+            <ActiveIcon tabKey={key} />
+          </span>
+          <span className={`absolute top-1/2 -translate-y-1/2 ${PILL_LAYOUT[key].label}`}>
+            {label}
+          </span>
         </Link>
       ) : (
         <Link

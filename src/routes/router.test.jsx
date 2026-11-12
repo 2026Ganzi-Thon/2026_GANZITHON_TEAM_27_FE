@@ -1,17 +1,29 @@
-import { render, screen } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { routes } from '@/routes/router'
 
+/** 홈 화면이 사건 목록을 불러오므로 테스트마다 새 QueryClient로 감싼다. */
 const renderAt = (path) => {
   const router = createMemoryRouter(routes, { initialEntries: [path] })
-  render(<RouterProvider router={router} />)
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  render(
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
+  )
 }
 
 describe('router', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   it('홈 주소에서 홈 화면을 lazy loading으로 보여준다', async () => {
     renderAt('/')
-    expect(await screen.findByRole('heading', { name: '체포하겠어' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Thought Court' })).toBeInTheDocument()
+    expect(await screen.findByText('아직 접수한 사건이 없어요.')).toBeInTheDocument()
   })
 
   it('없는 주소에서는 찾을 수 없음 화면과 홈 링크를 보여준다', async () => {
@@ -20,5 +32,20 @@ describe('router', () => {
       await screen.findByRole('heading', { name: '페이지를 찾을 수 없어요' }),
     ).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '홈으로 가기' })).toHaveAttribute('href', '/')
+  })
+
+  it('사건을 접수하면 홈의 최근 사건파일에 사건이 나타난다', async () => {
+    renderAt('/')
+
+    fireEvent.click(await screen.findByRole('link', { name: '사건 접수하기' }))
+    fireEvent.change(await screen.findByLabelText(/자유롭게 적어주세요/), {
+      target: { value: '회의에서 발표를 망쳤다' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: '다음' }))
+
+    expect(await screen.findByRole('link', { name: '새 사건 접수하기' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('button', { name: /회의에서 발표를 망쳤다.*감정 변화 불안 40/ }),
+    ).toBeInTheDocument()
   })
 })

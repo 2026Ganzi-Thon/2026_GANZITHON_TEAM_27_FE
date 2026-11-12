@@ -3,10 +3,10 @@ import { RootLayout } from '@/components/layout/RootLayout'
 import RouteErrorPage from '@/pages/RouteErrorPage'
 import {
   BoardPage,
+  CaseIntakePage,
   CaseListPage,
   ConsentPage,
   HomePage,
-  HomeResumePage,
   LoginPage,
   NotFoundPage,
   SignupPage,
@@ -25,7 +25,7 @@ export const routes = [
         errorElement: <RouteErrorPage />,
         children: [
           { path: ROUTE_PATHS.home, element: <HomePage /> },
-          { path: ROUTE_PATHS.homeResume, element: <HomeResumePage /> },
+          { path: ROUTE_PATHS.caseNew, element: <CaseIntakePage /> },
           { path: ROUTE_PATHS.login, element: <LoginPage /> },
           { path: ROUTE_PATHS.signup, element: <SignupPage /> },
           { path: ROUTE_PATHS.consent, element: <ConsentPage /> },
