@@ -15,7 +15,7 @@ import { Outlet } from 'react-router-dom'
 export const RootLayout = () => (
   <div className="flex h-dvh w-full overflow-hidden bg-surface preview:items-center preview:justify-center preview:bg-backdrop">
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-surface pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] text-body preview:h-[min(var(--app-height),100dvh)] preview:w-(--app-width) preview:shadow-lg">
-      <main className="flex flex-1 flex-col overflow-y-auto">
+      <main className="scrollbar-hidden flex flex-1 flex-col overflow-y-auto">
         <Suspense
           fallback={
             <p role="status" className="m-auto text-muted">
