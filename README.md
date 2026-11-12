@@ -6,7 +6,7 @@
 
 # 협업
 
-화면은 pages/, 기능은 features/, 공통 코드는 shared/에 둔다.
+화면은 pages/, 기능은 features/, 공통 코드는 shared(components/, constants/, hooks/, lib/)에 둔다.
 작업은 브랜치에서 하고, 검사와 PR 확인을 마친 뒤 병합한다.
 
 ### 데이터 흐름 :apiClient → features/{domain}/api → TanStack Query hook → 화면 컴포넌트
@@ -27,7 +27,7 @@
 
 ### 작업과 협업
 
-- 작업은 브랜치를 만들어 진행한다. 예: `feat/login-page`
+- 작업은 `dev`에서 브랜치를 따서 진행하고 PR 대상은 `dev`로 한다. 예: `feat/login-page`
 - 커밋은 `feat(scope): 변경 내용` 형식으로 작성한다.
 - 허용 type: `feat`, `fix`, `design`, `style`, `refactor`, `perf`, `test`, `docs`, `chore`, `build`, `ci`, `revert`.
 - PR 전에 아래 검사를 실행한다.
@@ -43,14 +43,14 @@ npm run lint
 npm run build
 ```
 
-- PR 검토와 필수 검사가 끝난 뒤 병합한다. `main`에 직접 push하지 않는다.
-- 기능 브랜치와 PR은 미리보기로 확인하고, `main` 병합 후 실제 배포한다.
+- PR 검토와 필수 검사가 끝난 뒤 병합한다. `main`, `dev`에 직접 push하지 않는다.
+- 기능 브랜치와 PR은 Preview로 확인하고, `dev`에서 확인 → `main` 병합 시 Production 배포한다.
 
 ## 라우트 참고
 
 화면 주소와 이름은 `routes.md`를 확인
 
-> :화면은 `pages/`, 기능은 `features/`, 공통 코드는 `shared/`에 둔다.
+> :화면은 `pages/`, 기능은 `features/`, 공통 코드는 shared(`components/`, `constants/`, `hooks/`, `lib/`)에 둔다.
 >
 > 작업은 브랜치에서 하고, 검사와 PR 확인을 마친 뒤 병합한다.
 
