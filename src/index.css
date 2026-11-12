@@ -39,6 +39,13 @@
   --font-sans:
     'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', 'Noto Sans KR',
     sans-serif;
+
+  /* Figma 값: 휴정 안내 모달 — 휴정하기 버튼 진한 검정 / 모달·버튼 모서리 / 배경 블러 / 버튼 높이
+     (블러는 Figma 레이어 블러 55의 절반. Figma 블러 값은 CSS blur의 약 2배다.) */
+  --color-ink-deep: #1f1f1f;
+  --radius-modal: 30px;
+  --blur-recess: 27.5px;
+  --spacing-modal-button: 61.66px;
 }
 
 /* 모바일 화면처럼 보이도록 스크롤은 되지만 스크롤바는 숨긴다. */
