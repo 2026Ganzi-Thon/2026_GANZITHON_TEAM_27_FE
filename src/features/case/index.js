@@ -1,5 +1,4 @@
 export { IntakeForm } from './components/IntakeForm'
-export { IntakeHeader } from './components/IntakeHeader'
 export { useCase } from './hooks/useCase'
 export { useCases } from './hooks/useCases'
 export { useCreateCase } from './hooks/useCreateCase'

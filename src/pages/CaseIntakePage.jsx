@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import { IntakeForm, IntakeHeader } from '@/features/case'
+import { BackHomeHeader } from '@/components/BackHomeHeader'
+import { IntakeForm } from '@/features/case'
 import { ROUTE_PATHS } from '@/routes/paths'
 
 /**
@@ -11,7 +12,7 @@ const CaseIntakePage = () => {
 
   return (
     <section className="flex flex-1 flex-col bg-canvas pt-16.25">
-      <IntakeHeader homeTo={ROUTE_PATHS.home} onBack={() => navigate(-1)} />
+      <BackHomeHeader title="사건 접수" homeTo={ROUTE_PATHS.home} onBack={() => navigate(-1)} />
       <IntakeForm onCreated={() => navigate(ROUTE_PATHS.home)} />
     </section>
   )

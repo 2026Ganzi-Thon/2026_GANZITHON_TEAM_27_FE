@@ -2,7 +2,8 @@ import { readCases, wait } from './mockCaseStore'
 
 /**
  * 화면 확인용 예시 사건. 주소의 사건 ID가 `sample`이면 이 사건을 돌려준다.
- * TODO(API 확인 필요): 서버가 준비되고 사건 종결 흐름이 만들어지면 지운다.
+ * `/cases/sample/card`, `/cases/sample/share`로 사건 카드와 게시판 공유 화면을 언제든 볼 수 있도록 유지한다.
+ * 서버(`apiClient`)로 바꾼 뒤에도 `sample`은 서버를 거치지 않고 이 값을 돌려줘야 한다.
  */
 const SAMPLE_CASE = {
   id: 'sample',
