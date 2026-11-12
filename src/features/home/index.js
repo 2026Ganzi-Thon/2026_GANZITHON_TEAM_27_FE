@@ -1,0 +1,6 @@
+export { HomeHeader } from './components/HomeHeader'
+export { HomeHero } from './components/HomeHero'
+export { NewCaseButton } from './components/NewCaseButton'
+export { RecentCaseList } from './components/RecentCaseList'
+export { ResumeCaseCard } from './components/ResumeCaseCard'
+export { mockRecentCases, mockResumeCase } from './api/mockCases'

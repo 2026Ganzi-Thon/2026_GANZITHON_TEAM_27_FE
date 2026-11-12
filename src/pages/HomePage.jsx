@@ -1,10 +1,29 @@
+import { BottomTabBar } from '@/components/layout/BottomTabBar'
+import {
+  HomeHeader,
+  HomeHero,
+  mockRecentCases,
+  NewCaseButton,
+  RecentCaseList,
+} from '@/features/home'
+import { ROUTE_PATHS } from '@/routes/paths'
+
 /**
- * 홈 화면 입구. 피그마 화면이 확정되면 feature 화면을 조합한다.
+ * 홈 화면(신규) 입구. 로고, 마스코트, 접수 버튼, 최근 사건, 탭바를 조합한다.
+ * TODO(API 확인 필요): 목록은 `GET /cases` 연동 전까지 임시 데이터를 쓴다.
  */
 const HomePage = () => (
-  <section className="grid flex-1 place-items-center p-6">
-    <h1 className="text-2xl font-semibold text-heading">체포하겠어</h1>
-  </section>
+  <div className="flex min-h-full flex-1 flex-col bg-canvas">
+    <HomeHeader />
+    <HomeHero />
+    <NewCaseButton />
+    <RecentCaseList cases={mockRecentCases} />
+    <BottomTabBar
+      homePath={ROUTE_PATHS.home}
+      boardPath={ROUTE_PATHS.board}
+      summaryPath={ROUTE_PATHS.summary}
+    />
+  </div>
 )
 
 export default HomePage
