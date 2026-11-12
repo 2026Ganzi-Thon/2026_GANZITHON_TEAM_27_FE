@@ -79,4 +79,13 @@ describe('router', () => {
       await screen.findByRole('button', { name: /친구가 답장이 없다.*감정 기록 없음/ }),
     ).toBeInTheDocument()
   })
+
+  it('감정 변화 주소에서 감정 변화 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/cases/case-1/emotion')
+    expect(await screen.findByRole('heading', { name: '감정 확인' })).toBeInTheDocument()
+    expect(screen.getByRole('slider', { name: '지금 감정의 강도' })).toHaveAttribute(
+      'aria-valuenow',
+      '40',
+    )
+  })
 })
