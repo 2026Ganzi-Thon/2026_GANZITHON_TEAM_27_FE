@@ -32,6 +32,8 @@ export const ROUTE_PATHS = {
   crisisSupport: '/support',
   // TODO(피그마 확인 필요): `화면 이동` 페이지 기준으로 주소를 확정한다. :id는 사건 ID(UUID)다.
   caseClosing: '/cases/:id/closing',
+  // TODO(피그마 확인 필요): `화면 이동` 페이지 기준으로 주소를 확정한다. :id는 사건 ID(UUID)다.
+  caseSummary: '/cases/:id/summary',
 }
 
 /** 사건 카드 화면 주소를 사건 ID로 만든다. 예: `getCaseCardPath('abc')` → `/cases/abc/card` */
