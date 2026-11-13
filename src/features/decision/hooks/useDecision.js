@@ -50,4 +50,8 @@ export const useRephraseDecision = (caseId) => {
  * @param {string | undefined} caseId 사건 ID
  */
 export const useFinalizeDecision = (caseId) =>
-  useMutation({ mutationFn: (body) => finalizeDecision(caseId, body) })
+  useMutation({
+    mutationFn: (body) => finalizeDecision(caseId, body),
+    // 위기 안내(support_required)로 바뀌면 보낸 최종 진술문이 요청 기록에 남지 않도록, 화면이 reset하면 바로 지운다.
+    gcTime: 0,
+  })

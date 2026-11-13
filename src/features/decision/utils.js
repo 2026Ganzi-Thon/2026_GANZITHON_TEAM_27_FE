@@ -63,3 +63,10 @@ export const getDecisionErrorState = (error) => {
     canRetry: true,
   }
 }
+
+/**
+ * 서버 응답이 위기 지원 안내로 바뀌었는지. 최종 진술문은 자유 입력이라 HTTP 200이어도 먼저 확인한다(명세 §6.2).
+ * @param {unknown} response 서버 응답
+ * @returns {boolean}
+ */
+export const isSupportRequired = (response) => response?.outcome === 'support_required'

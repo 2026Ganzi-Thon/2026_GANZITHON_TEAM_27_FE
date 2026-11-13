@@ -111,3 +111,59 @@ describe('감정 변화 화면: 접수 당시 감정', () => {
     )
   })
 })
+
+describe('감정 변화 "다음": 판결 확정 응답이 위기 안내일 때', () => {
+  const RISKY = '사실 요즘 죽고 싶다는 생각이 든다'
+
+  beforeEach(() => {
+    localStorage.clear()
+    sessionStorage.clear()
+    seedCase({ id: 'case-risk', emotion: { type: 'anxiety', intensity: 70 } })
+    vi.mocked(apiClient.put)
+      .mockReset()
+      .mockResolvedValue({
+        data: { outcome: 'support_required', support: { message: '...', contacts: [] } },
+      })
+  })
+
+  it('위기 안내 화면(/support)으로 replace 이동하고, 최종 진술문 원문을 화면·이동 기록·요청 기록·저장소·주소에 남기지 않는다', async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const router = createMemoryRouter(routes, {
+      initialEntries: [
+        '/cases/case-risk/decision',
+        {
+          pathname: '/cases/case-risk/emotion',
+          state: { decision: { decision_type: 'reframed', final_statement: RISKY } },
+        },
+      ],
+      initialIndex: 1,
+    })
+    render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>,
+    )
+    await screen.findByText('접수 당시: 70')
+    fireEvent.click(screen.getByRole('button', { name: '다음' }))
+
+    expect(await screen.findByRole('heading', { name: '지금, 괜찮으신가요?' })).toBeInTheDocument()
+    expect(apiClient.put).toHaveBeenCalledTimes(1)
+    expect(router.state.location.pathname).toBe('/support')
+    expect(router.state.historyAction).toBe('REPLACE')
+
+    const { location } = router.state
+    expect(document.body.textContent).not.toContain('죽고')
+    expect(`${location.pathname}${location.search}${location.hash}`).not.toContain('죽고')
+    expect(JSON.stringify(location.state ?? null)).not.toContain('죽고')
+    expect(JSON.stringify({ ...localStorage })).not.toContain('죽고')
+    expect(JSON.stringify({ ...sessionStorage })).not.toContain('죽고')
+    expect(
+      queryClient
+        .getMutationCache()
+        .getAll()
+        .filter((mutation) => JSON.stringify(mutation.state.variables ?? null).includes('죽고')),
+    ).toHaveLength(0)
+    // 종결 화면으로 가지 않는다.
+    expect(screen.queryByRole('heading', { name: '사건이 종결되었습니다' })).not.toBeInTheDocument()
+  })
+})

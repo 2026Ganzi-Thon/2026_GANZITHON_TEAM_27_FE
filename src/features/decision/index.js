@@ -5,4 +5,4 @@ export {
   useFinalizeDecision,
   useRephraseDecision,
 } from './hooks/useDecision'
-export { getDecisionErrorState, toFinalRequest } from './utils'
+export { getDecisionErrorState, isSupportRequired, toFinalRequest } from './utils'

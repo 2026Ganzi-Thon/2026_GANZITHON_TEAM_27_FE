@@ -1,9 +1,14 @@
 import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCase } from '@/features/case'
-import { getDecisionErrorState, toFinalRequest, useFinalizeDecision } from '@/features/decision'
+import {
+  getDecisionErrorState,
+  isSupportRequired,
+  toFinalRequest,
+  useFinalizeDecision,
+} from '@/features/decision'
 import { EmotionChangeView, toIntakeEmotion } from '@/features/emotion'
-import { getCaseClosingPath, getDecisionPath } from '@/routes/paths'
+import { getCaseClosingPath, getDecisionPath, ROUTE_PATHS } from '@/routes/paths'
 
 /**
  * 감정 변화 화면 입구 (Figma `2-6 감정변화`). 주소의 사건 ID를 emotion feature에 넘긴다.
@@ -46,10 +51,17 @@ const EmotionChangePage = () => {
       return
     }
     finalizeMutation.mutate(toFinalRequest(decision, emotionAfter), {
-      onSuccess: () => {
-        // TODO(API 확인 필요): 응답 outcome이 support_required이면 위기 안내 화면(/support)으로 보낸다.
-        // 판결 확정에 성공하면 같은 사건의 종결 화면(Figma `2-8 종결`)으로 간다.
+      onSuccess: (response) => {
         setIsLeaving(true)
+        if (isSupportRequired(response)) {
+          // 최종 진술문에서 위기 신호가 감지되면 법정 흐름을 멈추고 위기 안내 화면으로 간다.
+          // replace로 이동해 판결 내용(최종 진술문)을 담은 이 화면의 이동 기록(location.state)을 지우고,
+          // 요청 기록(mutation)도 지운다. 주소에는 아무 내용도 담지 않는다.
+          finalizeMutation.reset()
+          navigate(ROUTE_PATHS.crisisSupport, { replace: true })
+          return
+        }
+        // 판결 확정에 성공하면 같은 사건의 종결 화면(Figma `2-8 종결`)으로 간다.
         navigate(getCaseClosingPath(caseId))
       },
     })

@@ -1,3 +1,5 @@
+import { CRISIS_SCREEN_CONTACTS } from '@/constants/crisisContacts'
+import { includesCrisisWord } from '@/constants/crisisWords'
 import { saveMockCaseDecision } from '@/lib/mockCaseDecisions'
 
 /**
@@ -51,6 +53,16 @@ export const mockFinalResult = { status: 'closed' }
  * @returns {{status: 'closed'}} 응답 목업
  */
 export const recordMockFinal = (caseId, body) => {
+  // 서버처럼 자유 입력(최종 진술문)에 위기 신호가 있으면 저장하지 않고 지원 안내를 돌려준다(접수 목업과 같은 기준).
+  if (includesCrisisWord(body.final_statement)) {
+    return {
+      outcome: 'support_required',
+      support: {
+        message: '지금은 재판보다 도움을 받는 것이 먼저예요. 아래 전화로 이야기해 보세요.',
+        contacts: CRISIS_SCREEN_CONTACTS.map((contact) => `${contact.name} ${contact.number}`),
+      },
+    }
+  }
   saveMockCaseDecision(caseId, {
     decision: { type: body.decision_type, final_statement: body.final_statement ?? null },
     emotion_after: body.emotion_after ?? null,

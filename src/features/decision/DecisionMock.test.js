@@ -31,3 +31,22 @@ describe('판결 확정 목업(PUT decision/final)', () => {
     })
   })
 })
+
+describe('판결 확정 목업: 최종 진술문 위기 신호', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('최종 진술문에 위기 단어가 있으면 저장하지 않고 support_required를 돌려준다(접수 목업과 같은 기준)', () => {
+    const response = recordMockFinal('case-risk', {
+      decision_type: 'reframed',
+      final_statement: '요즘은 정말 죽고 싶어요',
+      emotion_after: { type: 'anxiety', intensity: 30 },
+    })
+
+    expect(response.outcome).toBe('support_required')
+    expect(response.support.contacts.length).toBeGreaterThan(0)
+    expect(readMockCaseDecision('case-risk')).toBeNull()
+    expect(JSON.stringify({ ...localStorage })).not.toContain('죽고')
+  })
+})
