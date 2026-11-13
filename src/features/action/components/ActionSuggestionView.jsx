@@ -32,14 +32,18 @@ const BUTTON_BASE =
 export const ActionSuggestionView = ({ caseId, onBack, homeTo, onDone, onSupportRequired }) => {
   const [selectedId, setSelectedId] = useState(MOCK_DEFAULT_OPTION_ID)
   const followUp = useFollowUp()
+  // 저장에 성공해 다음 화면으로 넘어가는 중이면 버튼·카드를 다시 누를 수 없게 한다.
+  const [isLeaving, setIsLeaving] = useState(false)
+  const isBusy = followUp.isPending || isLeaving
   const selected = MOCK_ACTION_OPTIONS.find((option) => option.id === selectedId)
 
   /** 고른 동작을 저장하고 결과에 따라 다음 화면으로 넘긴다. */
   const submit = async (choice) => {
-    if (followUp.isPending) return
+    if (isBusy) return
     const body = buildFollowUpBody(choice, selected?.description)
     try {
       const response = await followUp.mutateAsync({ caseId, body })
+      setIsLeaving(true)
       if (isSupportRequired(response)) onSupportRequired(response)
       else onDone(choice)
     } catch {
@@ -68,7 +72,7 @@ export const ActionSuggestionView = ({ caseId, onBack, homeTo, onDone, onSupport
           options={MOCK_ACTION_OPTIONS}
           value={selectedId}
           onChange={setSelectedId}
-          disabled={followUp.isPending}
+          disabled={isBusy}
         />
       </div>
 
@@ -79,12 +83,12 @@ export const ActionSuggestionView = ({ caseId, onBack, homeTo, onDone, onSupport
         </p>
       )}
 
-      <div className="mt-auto flex flex-col gap-2 pt-6 pb-9.5" aria-busy={followUp.isPending}>
+      <div className="mt-auto flex flex-col gap-2 pt-6 pb-9.5" aria-busy={isBusy}>
         {/* Figma: LET’S DO IT x 15, w 371 / 오늘은 쉬기 x 16, w 370, 높이 58 */}
         <button
           type="button"
           onClick={() => submit(FOLLOW_UP_CHOICE.action)}
-          disabled={followUp.isPending || !selected}
+          disabled={isBusy || !selected}
           className={`${BUTTON_BASE} mr-4 ml-3.75 bg-ink pb-[1.33px] pl-[1.67px] text-base font-semibold text-white`}
         >
           LET’S DO IT
@@ -92,7 +96,7 @@ export const ActionSuggestionView = ({ caseId, onBack, homeTo, onDone, onSupport
         <button
           type="button"
           onClick={() => submit(FOLLOW_UP_CHOICE.rest)}
-          disabled={followUp.isPending}
+          disabled={isBusy}
           className={`${BUTTON_BASE} mx-4 bg-field pb-1.5 text-sm text-ink`}
         >
           오늘은 쉬기

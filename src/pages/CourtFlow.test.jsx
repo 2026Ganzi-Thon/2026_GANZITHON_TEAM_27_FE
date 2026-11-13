@@ -39,7 +39,7 @@ const renderAt = (path) => {
 
 const pathOf = (router) => router.state.location.pathname
 
-describe('법정 화면 연결: 변론 → 판결 → 감정 변화', () => {
+describe('법정 화면 연결: 변론 → 판결 → 감정 변화 → 행동 제안', () => {
   let resolvePut
 
   beforeEach(() => {
@@ -140,9 +140,10 @@ describe('법정 화면 연결: 변론 → 판결 → 감정 변화', () => {
     fireEvent.click(busy)
     expect(apiClient.put).toHaveBeenCalledTimes(1)
 
-    // 성공하면 (행동 제안이 아직 없어) 홈으로 간다.
+    // 성공하면 같은 사건의 행동 제안 화면으로 간다.
     resolvePut({ data: { status: 'closed' } })
-    await waitFor(() => expect(pathOf(router)).toBe('/'))
+    await waitFor(() => expect(pathOf(router)).toBe('/cases/case-7/action'))
+    expect(await screen.findByRole('heading', { name: 'YOUR NEXTMOVE.' })).toBeInTheDocument()
   }, 15000)
 
   it('판결 확정에 실패하면 감정 변화 화면에 남아 오류를 보여주고 다시 누를 수 있다', async () => {

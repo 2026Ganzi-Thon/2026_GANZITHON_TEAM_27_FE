@@ -87,17 +87,21 @@ describe('행동 제안 화면', () => {
     expect(apiClient.put).toHaveBeenCalledWith('/cases/case-1/follow-up', { choice: 'rest' })
   })
 
-  it('저장하는 동안에는 버튼과 카드를 누를 수 없다', async () => {
+  it('저장하는 동안과 저장 뒤 다음 화면으로 넘어가는 동안에는 버튼과 카드를 누를 수 없다', async () => {
     let resolve
     vi.mocked(apiClient.put).mockReturnValue(new Promise((r) => (resolve = r)))
-    renderView()
+    const { onDone } = renderView()
     fireEvent.click(screen.getByRole('button', { name: '오늘은 쉬기' }))
 
     await waitFor(() => expect(screen.getByRole('button', { name: 'LET’S DO IT' })).toBeDisabled())
     expect(screen.getByRole('button', { name: '오늘은 쉬기' })).toBeDisabled()
     radios().forEach((radio) => expect(radio).toBeDisabled())
     resolve({ data: {} })
-    await waitFor(() => expect(screen.getByRole('button', { name: '오늘은 쉬기' })).toBeEnabled())
+    await waitFor(() => expect(onDone).toHaveBeenCalledWith('rest'))
+    // 다음 화면이 열릴 때까지 다시 누를 수 없다.
+    expect(screen.getByRole('button', { name: '오늘은 쉬기' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: '오늘은 쉬기' }))
+    expect(apiClient.put).toHaveBeenCalledTimes(1)
   })
 
   it('응답이 support_required면 다음 화면 대신 위기 안내로 넘긴다', async () => {
