@@ -26,7 +26,8 @@ import {
 /**
  * 사건 정보를 조회한다. 변론 화면에서는 사건번호 표시에만 쓴다.
  * TODO(API 확인 필요): 응답 구조가 미확정이다. 사건번호 필드가 `case_number`인지 확인한다.
- * TODO(공통화 검토): 기소 화면에도 같은 함수가 있다. 사건(case) 도메인이 생기면 그쪽으로 옮긴다.
+ * TODO(동료 getCase 실제 API 전환 후 useCase로 통일) 기소·변론·사건요약이 같은 사건을 따로 조회한다(D19).
+ *   동료의 `getCase`가 실제 API(`GET /cases/{id}`)로 바뀌면 이 함수를 지우고 `@/features/case`의 `useCase`를 쓴다.
  * @param {string} caseId 사건 ID (UUID)
  * @returns {Promise<{id: string, case_number?: string, status: string}>} 사건 정보
  */
