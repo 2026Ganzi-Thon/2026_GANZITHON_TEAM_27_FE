@@ -33,6 +33,7 @@ export const ProsecutionView = ({ caseId, onDefenseStart, onRecess }) => {
   const draftQuery = useProsecutionDraft(caseId)
   const submitMutation = useSubmitEvidence(caseId)
   const [isRecessOpen, setIsRecessOpen] = useState(false)
+  const [isLeaving, setIsLeaving] = useState(false)
   const backButtonRef = useRef(null)
   const restoreFocusRef = useRef(false)
 
@@ -50,11 +51,18 @@ export const ProsecutionView = ({ caseId, onDefenseStart, onRecess }) => {
     setIsRecessOpen(false)
   }
 
-  /** 기소 초안을 그대로 확정하고, 성공하면 변론 단계로 넘어간다. */
+  /** 기소 초안을 그대로 확정하고, 성공하면 변론 단계로 넘어간다. 요청 중·이동 중에는 다시 보내지 않는다. */
   const handleStart = () => {
-    if (!draftQuery.data) return
-    // TODO(API 확인 필요): 응답 outcome이 support_required이면 지원 안내 화면으로 보낸다.
-    submitMutation.mutate(toEvidencePayload(draftQuery.data), { onSuccess: onDefenseStart })
+    if (!draftQuery.data || submitMutation.isPending || isLeaving) return
+    submitMutation.mutate(toEvidencePayload(draftQuery.data), {
+      onSuccess: () => {
+        // TODO(API 확인 필요): 응답 outcome이 support_required이면 변론으로 가지 않고 위기 안내 화면(/support)으로 보낸다.
+        // 위기 안내 화면(feat/crisis-support)이 이 브랜치에 합쳐지면 연결한다.
+        // 다음 화면을 불러오는 동안 버튼이 다시 눌리지 않도록 이동 중 상태로 둔다.
+        setIsLeaving(true)
+        onDefenseStart()
+      },
+    })
   }
 
   const renderBody = () => {
@@ -103,7 +111,10 @@ export const ProsecutionView = ({ caseId, onDefenseStart, onRecess }) => {
             {submitError}
           </p>
         )}
-        <ProsecutionStartButton onStart={handleStart} isLoading={submitMutation.isPending} />
+        <ProsecutionStartButton
+          onStart={handleStart}
+          isLoading={submitMutation.isPending || isLeaving}
+        />
       </>
     )
   }
