@@ -27,6 +27,8 @@
 | 감정 변화    | `/cases/:caseId/emotion`     | `EmotionChangePage`    | `caseId` (API 확인 필요) | 피그마 `2-6 감정변화`. 판결 화면 "사건파일 저장하기"에서 진입. "다음"에서 판결을 확정(`PUT /cases/{caseId}/decision/final`)                                                               |
 | 행동 제안    | `/cases/:caseId/action`      | `ActionSuggestionPage` | `caseId` (API 확인 필요) | 피그마 `2-7 행동제안`. 감정 변화 "다음"(판결 확정 성공)에서 진입. "LET’S DO IT"·"오늘은 쉬기"는 `PUT /cases/{caseId}/follow-up` 후 홈(종결 화면 연결 전). `/cases/sample/action`은 확인용 |
 | 위기 안내    | `/support`                   | `CrisisSupportPage`    | —                        | 피그마 `5-1 위기 안내`. 어느 화면에서든 서버가 `support_required`를 돌려주면 이동(법정 흐름 중단). 모든 버튼은 홈으로                                                                     |
+| 사건 종결    | `/cases/:caseId/closing`     | `CaseClosingPage`      | `caseId` (API 확인 필요) | 피그마 `2-8 종결`. 고정 문구 화면(API 없음)                                                                                                                                               |
+| 사건요약     | `/cases/:caseId/summary`     | `CaseSummaryPage`      | `caseId` (API 확인 필요) | 피그마 `사건요약`. 사건번호·처음 든 생각·최종판결·감정 변화 그래프                                                                                                                        |
 | 찾을 수 없음 | `*`                          | `NotFoundPage`         | —                        | 정의되지 않은 모든 주소                                                                                                                                                                   |
 
 <!-- TODO(피그마 확인 필요): 피그마 `화면 이동` 페이지의 화면 주소를 이 표에 추가한다. -->

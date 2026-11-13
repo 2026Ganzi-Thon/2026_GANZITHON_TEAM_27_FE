@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 // 사건 접수 화면(동료)의 뒤로가기 아이콘과 같은 에셋이다. 복사하지 않고 그대로 가져다 쓴다.
-import backUrl from '@/assets/intake/back.svg'
+import backUrl from '@/assets/back.svg'
 import shareIconUrl from '@/assets/summary/icon-share.svg'
 import { PageHeader } from '@/components/PageHeader'
 

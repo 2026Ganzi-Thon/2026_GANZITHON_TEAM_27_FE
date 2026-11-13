@@ -10,8 +10,8 @@ import { ROUTE_PATHS } from '@/routes/paths'
  * TODO(피그마 확인 필요): 공유 동작이 정해지지 않아 onShare를 넘기지 않는다(공유 버튼 비활성).
  */
 const CaseSummaryPage = () => {
-  const { id } = useParams()
-  return <SummaryView caseId={id} confirmTo={ROUTE_PATHS.home} makeCardTo={ROUTE_PATHS.home} />
+  const { caseId } = useParams()
+  return <SummaryView caseId={caseId} confirmTo={ROUTE_PATHS.home} makeCardTo={ROUTE_PATHS.home} />
 }
 
 export default CaseSummaryPage
