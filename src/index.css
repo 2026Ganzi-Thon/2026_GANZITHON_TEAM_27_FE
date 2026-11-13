@@ -15,7 +15,7 @@
   --color-backdrop: #e5e7eb;
   --color-focus: #2563eb;
 
-  /* Figma 변수: 검 / 흰 / 배경흰 */
+  /* Figma 변수: 검 / 흰 / 배경흰 / 파(말풍선·사건번호) / 증거 카드 배경(변수 아님, 기소 화면 값) */
   --color-ink: #2f2f2f;
   --color-field: #e7e7e7;
   --color-canvas: #f7f7f7;
@@ -24,6 +24,8 @@
   --color-card-gray: #bbc3c4;
   /* Figma 변수: 사건 카드 종이 색(흰 #f1f1f1) */
   --color-paper: #f1f1f1;
+  --color-bubble: #c1eaff;
+  --color-evidence: #bbc3c4;
   /* TODO(Figma 확인 필요): 오류 색상은 디자인에 없어 임시 값이다. */
   --color-danger: #b91c1c;
 
@@ -35,6 +37,24 @@
   /* Figma 제목 글자 크기: 회원가입 제목 / 동의 제목 */
   --text-display: 40px;
   --text-headline: 30px;
+
+  /* Figma 줄 높이: 자동(글꼴 기본) / 기소 문구 140% */
+  --leading-auto: normal;
+  --leading-claim: 1.4;
+
+  /* Figma 치수: 기기 상태바 높이 (상태바는 그리지 않고 자리만 비운다) */
+  --spacing-status-bar: 44px;
+  /* Figma 치수: 기소 화면 뱃지·태그 (소수점 값 그대로) */
+  --spacing-charge-pill-w: 56.3052px;
+  --spacing-evidence-pill-w: 101.5504px;
+  --spacing-evidence-pill-h: 30.45px;
+  --spacing-pattern-tag-w: 91.3913px;
+  --spacing-pattern-tag-h: 31.7504px;
+  --spacing-pattern-card-gap: 15.4126px;
+  --spacing-pattern-card-h: 87.5874px;
+  --spacing-pattern-card-pt: 7.7587px;
+  --spacing-pattern-tags-gap: 8.7587px;
+  --spacing-evidence-pill-top: 9.45px;
 
   --font-sans:
     'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', 'Noto Sans KR',
