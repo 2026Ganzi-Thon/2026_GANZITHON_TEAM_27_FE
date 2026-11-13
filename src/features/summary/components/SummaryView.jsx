@@ -86,7 +86,7 @@ export const SummaryView = ({ caseId, confirmTo, makeCardTo, onShare, scrollTarg
           tone="ink"
           className="mt-2.75"
         />
-        {/* TODO(API 확인 필요): "사건 유형"에 대응하는 응답 필드가 명세에 없다(목업은 case_type 임시 필드). */}
+        {/* 사건 유형: 확정한 사고 패턴 중 대표 1개(toSummaryView). TODO(API 확인 필요: 대표 패턴을 서버가 정하는지) */}
         <SummaryCard title="사건 유형" content={view.caseType} tone="slate" className="mt-2.75" />
         <EmotionChangeChart ref={emotionRef} emotion={view.emotion} />
       </>
