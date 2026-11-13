@@ -42,6 +42,9 @@ export const getCaseCardPath = (caseId) => `/cases/${caseId}/card`
 /** 게시판 공유 화면 주소를 사건 ID로 만든다. 예: `getCommunitySharePath('abc')` → `/cases/abc/share` */
 export const getCommunitySharePath = (caseId) => `/cases/${caseId}/share`
 
+/** 기소 화면 주소를 사건 ID로 만든다. 예: `getProsecutionPath('abc')` → `/cases/abc/prosecution` */
+export const getProsecutionPath = (caseId) => `/cases/${caseId}/prosecution`
+
 /** 변론(AI 챗봇) 화면 주소를 사건 ID로 만든다. 예: `getDefensePath('abc')` → `/cases/abc/defense` */
 export const getDefensePath = (caseId) => `/cases/${caseId}/defense`
 

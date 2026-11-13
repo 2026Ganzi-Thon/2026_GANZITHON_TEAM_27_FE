@@ -72,7 +72,7 @@ describe('router', () => {
     expect(screen.getByRole('slider', { name: '감정의 강도' })).toBeEnabled()
   })
 
-  it('사건을 접수하면 홈의 최근 사건파일에 사건이 나타난다', async () => {
+  it('홈에서 사건을 접수하면 저장되고 그 사건의 기소 화면으로 넘어간다', async () => {
     renderAt('/')
 
     fireEvent.click(await screen.findByRole('link', { name: '사건 접수하기' }))
@@ -82,10 +82,12 @@ describe('router', () => {
     fireEvent.click(screen.getByRole('radio', { name: '불안' }))
     fireEvent.click(screen.getByRole('button', { name: '다음' }))
 
-    expect(await screen.findByRole('link', { name: '새 사건 접수하기' })).toBeInTheDocument()
-    expect(
-      await screen.findByRole('button', { name: /회의에서 발표를 망쳤다.*감정 변화 불안 40/ }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '기소' })).toBeInTheDocument()
+    const [saved] = JSON.parse(localStorage.getItem('mock-case-files'))
+    expect(saved).toMatchObject({
+      thought: '회의에서 발표를 망쳤다',
+      emotion: { type: 'anxiety', intensity: 40 },
+    })
   })
 
   it('감정을 고르지 않아도 사건을 접수할 수 있다', async () => {
@@ -96,9 +98,9 @@ describe('router', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: '다음' }))
 
-    expect(
-      await screen.findByRole('button', { name: /친구가 답장이 없다.*감정 기록 없음/ }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '기소' })).toBeInTheDocument()
+    const [saved] = JSON.parse(localStorage.getItem('mock-case-files'))
+    expect(saved).toMatchObject({ thought: '친구가 답장이 없다', emotion: null })
   })
 
   it('사건 목록(court) 화면에서 접수한 사건을 목록으로 보여준다', async () => {
