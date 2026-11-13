@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { clampIntensity, getKeyboardIntensity, intensityToRatio, ratioToIntensity } from './utils'
+import {
+  clampIntensity,
+  getKeyboardIntensity,
+  intensityToRatio,
+  ratioToIntensity,
+  toIntakeEmotion,
+} from './utils'
 
 describe('clampIntensity', () => {
   it('0~100 정수로 맞춘다', () => {
@@ -30,5 +36,26 @@ describe('getKeyboardIntensity', () => {
     expect(getKeyboardIntensity('Home', 40)).toBe(0)
     expect(getKeyboardIntensity('End', 40)).toBe(100)
     expect(getKeyboardIntensity('Enter', 40)).toBeNull()
+  })
+})
+
+describe('toIntakeEmotion', () => {
+  it('사건 상세의 접수 감정(emotion)을 { type, intensity }로 꺼낸다', () => {
+    expect(toIntakeEmotion({ id: 'c1', emotion: { type: 'anxiety', intensity: 35 } })).toEqual({
+      type: 'anxiety',
+      intensity: 35,
+    })
+    expect(toIntakeEmotion({ emotion: { type: 'shame', intensity: 0 } })).toEqual({
+      type: 'shame',
+      intensity: 0,
+    })
+  })
+
+  it('감정을 입력하지 않았거나 사건이 없거나 모양이 맞지 않으면 null이다', () => {
+    expect(toIntakeEmotion({ emotion: null })).toBeNull()
+    expect(toIntakeEmotion({})).toBeNull()
+    expect(toIntakeEmotion(null)).toBeNull()
+    expect(toIntakeEmotion(undefined)).toBeNull()
+    expect(toIntakeEmotion({ emotion: { type: 'anxiety' } })).toBeNull()
   })
 })

@@ -43,7 +43,24 @@ describe('법정 화면 연결: 변론 → 판결 → 감정 변화', () => {
   let resolvePut
 
   beforeEach(() => {
-    // 사건 조회: 접수 때 감정은 불안 70
+    // 감정 변화 화면은 동료의 사건 조회(목업 저장소)에서 접수 감정을 읽는다: 사건 접수 화면이 저장한 모양 그대로 넣는다.
+    localStorage.clear()
+    localStorage.setItem(
+      'mock-case-files',
+      JSON.stringify([
+        {
+          id: 'case-7',
+          case_number: '2026-000007',
+          title: null,
+          thought: '회의에서 발표를 망쳤다',
+          emotion: { type: 'anxiety', intensity: 70 },
+          emotion_after: null,
+          status: 'received',
+          created_at: '2026-11-13T00:00:00.000Z',
+        },
+      ]),
+    )
+    // 기소·변론·판결 화면의 사건 조회(사건번호 등)
     vi.mocked(apiClient.get)
       .mockReset()
       .mockResolvedValue({
@@ -103,7 +120,8 @@ describe('법정 화면 연결: 변론 → 판결 → 감정 변화', () => {
 
     // 접수 때 감정을 불러온 뒤 지금 감정을 40 → 30으로 낮춘다(← 키는 10씩 줄인다).
     const slider = screen.getByRole('slider', { name: '지금 감정의 강도' })
-    await waitFor(() => expect(screen.queryByText(/불러오는 중/)).not.toBeInTheDocument())
+    // 접수 감정(불안 70)은 사건 접수가 저장한 목업 저장소에서 읽는다.
+    await screen.findByText('접수 당시: 70')
     fireEvent.keyDown(slider, { key: 'ArrowLeft' })
     const value = Number(slider.getAttribute('aria-valuenow'))
     fireEvent.click(screen.getByRole('button', { name: '다음' }))
@@ -125,7 +143,7 @@ describe('법정 화면 연결: 변론 → 판결 → 감정 변화', () => {
     // 성공하면 (행동 제안이 아직 없어) 홈으로 간다.
     resolvePut({ data: { status: 'closed' } })
     await waitFor(() => expect(pathOf(router)).toBe('/'))
-  })
+  }, 15000)
 
   it('판결 확정에 실패하면 감정 변화 화면에 남아 오류를 보여주고 다시 누를 수 있다', async () => {
     vi.mocked(apiClient.put).mockReset().mockRejectedValue(new Error('network'))

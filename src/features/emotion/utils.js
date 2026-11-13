@@ -37,3 +37,16 @@ export const getKeyboardIntensity = (key, value) => {
   if (key === 'End') return MAX
   return null
 }
+
+/**
+ * 사건 상세에서 접수 당시 감정을 꺼낸다. 응답 필드 이름은 이 함수 한 곳에서만 다룬다.
+ * 지금은 접수 요청(`POST /cases`)과 동료의 사건 조회(useCase)가 쓰는 `emotion: { type, intensity }`를 읽는다.
+ * TODO(API 확인 필요): 사건 상세 응답의 접수 감정 필드 이름(emotion / emotion_before)과 모양이 확정되면 여기만 고친다.
+ * @param {object | null | undefined} caseItem 사건 상세
+ * @returns {{type: string, intensity: number} | null} 접수 때 감정을 입력하지 않았거나 사건이 없으면 null
+ */
+export const toIntakeEmotion = (caseItem) => {
+  const emotion = caseItem?.emotion
+  if (!emotion?.type || typeof emotion.intensity !== 'number') return null
+  return { type: emotion.type, intensity: emotion.intensity }
+}
