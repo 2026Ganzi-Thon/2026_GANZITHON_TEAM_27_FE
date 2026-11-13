@@ -11,8 +11,9 @@ import homeIconUrl from '@/assets/prosecution/home-icon.svg'
  * @param {object} props
  * @param {string} [props.homeTo] 홈 이동 링크 주소 (기본값: '/')
  * @param {() => void} [props.onBack] 뒤로가기 핸들러. 없으면 브라우저 이전 기록으로 이동한다.
+ * @param {import('react').Ref<HTMLButtonElement>} [props.backButtonRef] 뒤로가기 버튼 ref (모달을 닫은 뒤 포커스를 돌려줄 때 쓴다)
  */
-export const ProsecutionHeader = ({ homeTo = '/', onBack }) => {
+export const ProsecutionHeader = ({ homeTo = '/', onBack, backButtonRef }) => {
   const navigate = useNavigate()
 
   /** onBack이 있으면 실행하고, 없으면 이전 화면으로 돌아간다. */
@@ -39,6 +40,7 @@ export const ProsecutionHeader = ({ homeTo = '/', onBack }) => {
 
       {/* 아이콘 중심: Figma (25, 72.5) */}
       <button
+        ref={backButtonRef}
         type="button"
         onClick={handleBack}
         aria-label="뒤로 가기"

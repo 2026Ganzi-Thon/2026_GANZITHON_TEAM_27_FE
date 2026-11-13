@@ -15,7 +15,14 @@ const ProsecutionPage = () => {
     navigate(ROUTE_PATHS.home)
   }
 
-  return <ProsecutionView caseId={caseId} onDefenseStart={handleDefenseStart} />
+  /** 휴정 모달에서 "휴정하기"를 누르면 홈으로 간다. 서버 API는 부르지 않는다(서버가 사건 상태를 유지한다). */
+  const handleRecess = () => {
+    navigate(ROUTE_PATHS.home)
+  }
+
+  return (
+    <ProsecutionView caseId={caseId} onDefenseStart={handleDefenseStart} onRecess={handleRecess} />
+  )
 }
 
 export default ProsecutionPage

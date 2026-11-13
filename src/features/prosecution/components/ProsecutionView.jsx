@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react'
+import { RecessModal } from '@/components/RecessModal'
 import { useCaseSummary, useProsecutionDraft, useSubmitEvidence } from '../hooks/useProsecution'
 import { getProsecutionErrorState, toEvidencePayload, toProsecutionView } from '../utils'
 import { ProsecutionCaseBanner } from './ProsecutionCaseBanner'
@@ -16,14 +18,37 @@ import { ProsecutionStartButton } from './ProsecutionStartButton'
  * - 맨 위 44px은 Figma의 기기 상태바 자리라서 그리지 않고 비워 둔다.
  * - 본문 좌우 여백은 Figma 카드 위치(x 17~386)에 맞춰 왼쪽 17px, 오른쪽 16px이다.
  *
+ * 헤더의 뒤로가기(<)는 이전 화면으로 가지 않고 휴정 안내 모달을 띄운다.
+ * - "휴정하기" → `onRecess` (서버 API는 부르지 않고 이동만 한다)
+ * - "취소"·X·바깥 클릭·Esc → 모달만 닫고 기소 화면에 남는다. 포커스는 뒤로가기 버튼으로 돌아간다.
+ * TODO(기획 확인 필요): 브라우저·휴대폰 뒤로가기는 아직 막지 않는다. 막으려면 React Router `useBlocker`로 모달을 띄운다.
+ *
  * @param {object} props
  * @param {string} props.caseId 사건 ID
  * @param {() => void} props.onDefenseStart 증거 확정에 성공했을 때 호출하는 핸들러
+ * @param {() => void} props.onRecess 휴정 모달에서 "휴정하기"를 눌렀을 때 호출하는 핸들러
  */
-export const ProsecutionView = ({ caseId, onDefenseStart }) => {
+export const ProsecutionView = ({ caseId, onDefenseStart, onRecess }) => {
   const caseQuery = useCaseSummary(caseId)
   const draftQuery = useProsecutionDraft(caseId)
   const submitMutation = useSubmitEvidence(caseId)
+  const [isRecessOpen, setIsRecessOpen] = useState(false)
+  const backButtonRef = useRef(null)
+  const restoreFocusRef = useRef(false)
+
+  // 모달을 닫은 뒤 뒤로가기 버튼으로 포커스를 돌려준다.
+  // (모달이 정리하면서 열기 전 포커스로 돌려주지만, 클릭해도 버튼에 포커스가 가지 않는 브라우저가 있어 직접 맞춘다.)
+  useEffect(() => {
+    if (isRecessOpen || !restoreFocusRef.current) return
+    restoreFocusRef.current = false
+    backButtonRef.current?.focus()
+  }, [isRecessOpen])
+
+  /** 휴정 모달을 닫고 기소 화면에 남는다. */
+  const handleRecessCancel = () => {
+    restoreFocusRef.current = true
+    setIsRecessOpen(false)
+  }
 
   /** 기소 초안을 그대로 확정하고, 성공하면 변론 단계로 넘어간다. */
   const handleStart = () => {
@@ -85,8 +110,9 @@ export const ProsecutionView = ({ caseId, onDefenseStart }) => {
 
   return (
     <div className="flex flex-1 flex-col bg-canvas pt-status-bar">
-      <ProsecutionHeader />
+      <ProsecutionHeader backButtonRef={backButtonRef} onBack={() => setIsRecessOpen(true)} />
       <div className="flex flex-1 flex-col pr-4 pl-4.25">{renderBody()}</div>
+      <RecessModal open={isRecessOpen} onConfirm={onRecess} onCancel={handleRecessCancel} />
     </div>
   )
 }
