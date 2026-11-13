@@ -130,4 +130,10 @@ describe('router', () => {
     renderAt('/court')
     expect(await screen.findByText('아직 접수한 사건이 없어요.')).toBeInTheDocument()
   })
+
+  it('판결 주소에서 판결 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/cases/case-1/decision')
+    expect(await screen.findByRole('heading', { name: '판결' })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('판결문을 작성하고 있어요')
+  })
 })
