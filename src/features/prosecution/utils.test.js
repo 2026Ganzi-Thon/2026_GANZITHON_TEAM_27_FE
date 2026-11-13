@@ -37,4 +37,9 @@ describe('prosecution utils', () => {
     expect(getProsecutionErrorState(at(500, '서버 메시지')).message).toBe('서버 메시지')
     expect(getProsecutionErrorState(new Error('network')).canRetry).toBe(true)
   })
+
+  it('422(입력 오류)는 다시 시도하지 않고 입력을 확인하라고 안내한다', () => {
+    const state = getProsecutionErrorState({ response: { status: 422 } })
+    expect(state).toEqual({ message: '입력한 내용을 확인해 주세요.', canRetry: false })
+  })
 })

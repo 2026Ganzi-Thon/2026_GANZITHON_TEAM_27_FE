@@ -87,6 +87,27 @@ describe('DefenseView', () => {
     expect(apiClient.put).not.toHaveBeenCalled()
   })
 
+  it('질문 요청이 입력 오류(422)면 다시 시도 버튼 없이 입력을 확인하라고 안내한다', async () => {
+    vi.mocked(apiClient.post).mockRejectedValue(httpError(422))
+    renderView()
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('입력한 내용을 확인해 주세요.')
+    expect(screen.queryByRole('button', { name: '다시 시도' })).not.toBeInTheDocument()
+  })
+
+  it('답변이 입력 오류(422)면 입력을 확인하라고 안내한다', async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({ data: question })
+    vi.mocked(apiClient.put).mockRejectedValue(httpError(422))
+    renderView()
+
+    await screen.findByText('최근에 칭찬 받은 적이 있습니까?')
+    fireEvent.change(screen.getByLabelText('답변'), { target: { value: '있다' } })
+    fireEvent.click(screen.getByRole('button', { name: '답변 보내기' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('입력한 내용을 확인해 주세요.')
+    expect(screen.queryByRole('button', { name: '다시 시도' })).not.toBeInTheDocument()
+  })
+
   it('AI 오류(503)면 다시 시도 버튼을 보여주고, 누르면 질문을 다시 요청한다', async () => {
     vi.mocked(apiClient.post)
       .mockRejectedValueOnce(httpError(503))

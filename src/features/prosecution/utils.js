@@ -45,6 +45,11 @@ export const getProsecutionErrorState = (error) => {
       canRetry: false,
     }
   }
+  if (status === 422) {
+    // 입력 형식·길이·범위 위반(명세 §3.2). 같은 내용으로 다시 보내도 같은 오류라 다시 시도하지 않는다.
+    // TODO(문구 확인 필요): 입력 오류 안내 문구가 디자인에 없다.
+    return { message: '입력한 내용을 확인해 주세요.', canRetry: false }
+  }
   if (status === 429) {
     return { message: '요청이 많아요. 잠시 후 다시 시도해 주세요.', canRetry: true }
   }

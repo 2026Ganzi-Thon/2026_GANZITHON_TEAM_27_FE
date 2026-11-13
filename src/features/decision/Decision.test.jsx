@@ -65,6 +65,15 @@ describe('DecisionView', () => {
     ).toBeInTheDocument()
   })
 
+  it('입력 오류(422)면 다시 시도 버튼 없이 입력을 확인하라고 안내한다', async () => {
+    vi.mocked(apiClient.post).mockRejectedValue(httpError(422))
+    renderView()
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('입력한 내용을 확인해 주세요.')
+    expect(screen.queryByRole('button', { name: '다시 시도' })).not.toBeInTheDocument()
+    expect(apiClient.post).toHaveBeenCalledTimes(1)
+  })
+
   it('502 오류면 다시 시도 버튼으로 다시 요청한다', async () => {
     vi.mocked(apiClient.post)
       .mockRejectedValueOnce(httpError(502))

@@ -65,4 +65,11 @@ describe('defense utils', () => {
     expect(getDefenseErrorState(at(502)).canRetry).toBe(true)
     expect(getDefenseErrorState(at(409)).message).toContain('질문이 바뀌었어요')
   })
+
+  it('422(입력 오류)는 다시 시도하지 않고 입력을 확인하라고 안내한다', () => {
+    expect(getDefenseErrorState({ response: { status: 422 } })).toEqual({
+      message: '입력한 내용을 확인해 주세요.',
+      canRetry: false,
+    })
+  })
 })
