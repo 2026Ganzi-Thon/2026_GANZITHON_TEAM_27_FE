@@ -1,20 +1,56 @@
 import { describe, expect, it } from 'vitest'
-import { findOpenQuestion, getDefenseErrorState, toChatMessages } from './utils'
+import {
+  canSimplify,
+  findOpenQuestion,
+  getDefenseErrorState,
+  SUGGESTION_OPTIONS,
+  toChatMessages,
+} from './utils'
 
 const q = (id) => ({ id, sequence: 1, prompt: `질문 ${id}`, revision: 0 })
 
 describe('defense utils', () => {
-  it('질문 다음에 내 답을 말풍선으로 만들고, 글이 없는 답은 건너뛴다', () => {
+  it('질문 다음에 내 답을 말풍선으로 만들고, 건너뛰기·떠오르지 않아요는 그 문구를 내 말풍선으로 보여준다', () => {
     const messages = toChatMessages([
       { question: q('1'), answer: { action: 'answer', text: '답 1' } },
       { question: q('2'), answer: { action: 'skip' } },
-      { question: q('3'), answer: null },
+      { question: q('3'), answer: { action: 'not_sure' } },
+      { question: q('4'), answer: null },
     ])
     expect(messages.map(({ from, text }) => [from, text])).toEqual([
       ['ai', '질문 1'],
       ['me', '답 1'],
       ['ai', '질문 2'],
+      ['me', '이 질문 건너뛰기'],
       ['ai', '질문 3'],
+      ['me', '떠오르지 않아요.'],
+      ['ai', '질문 4'],
+    ])
+  })
+
+  it('쉽게 바꾼 문장은 기존 질문 다음에 새 AI 말풍선으로 붙는다', () => {
+    const messages = toChatMessages([
+      { question: { ...q('1'), simplifiedPrompts: ['쉬운 1', '더 쉬운 1'] }, answer: null },
+    ])
+    expect(messages.map(({ from, text }) => [from, text])).toEqual([
+      ['ai', '질문 1'],
+      ['ai', '쉬운 1'],
+      ['ai', '더 쉬운 1'],
+    ])
+  })
+
+  it('쉽게 바꾸기는 질문당 2회까지만 할 수 있다', () => {
+    expect(canSimplify(q('1'))).toBe(true)
+    expect(canSimplify({ ...q('1'), simplifiedPrompts: ['a'] })).toBe(true)
+    expect(canSimplify({ ...q('1'), simplifiedPrompts: ['a', 'b'] })).toBe(false)
+    expect(canSimplify(null)).toBe(false)
+  })
+
+  it('추천 질문 보기는 Figma 문구 그대로 3개다', () => {
+    expect(SUGGESTION_OPTIONS.map((option) => option.label)).toEqual([
+      '질문을 쉽게 바꿔주세요.',
+      '떠오르지 않아요.',
+      '이 질문 건너뛰기',
     ])
   })
 

@@ -10,8 +10,17 @@ import { MAX_ANSWER_LENGTH } from '../utils'
  * @param {object} props
  * @param {(text: string) => void} props.onSubmit 앞뒤 공백을 지운 답변을 받는 핸들러
  * @param {boolean} [props.isSubmitting] 답변을 보내는 중인지 여부
+ * @param {() => void} [props.onOpenSuggestions] "추천 질문" 칩을 누르면 호출한다 (추천 질문 패널 열기)
+ * @param {string} [props.suggestionsId] 추천 질문 패널 id (aria-controls)
+ * @param {import('react').Ref<HTMLButtonElement>} [props.suggestionsButtonRef] 패널을 닫은 뒤 포커스를 돌려줄 칩 ref
  */
-export const DefenseComposer = ({ onSubmit, isSubmitting = false }) => {
+export const DefenseComposer = ({
+  onSubmit,
+  isSubmitting = false,
+  onOpenSuggestions,
+  suggestionsId,
+  suggestionsButtonRef,
+}) => {
   const [text, setText] = useState('')
 
   /** 빈 답은 보내지 않는다. 보내면 입력창을 비운다. */
@@ -25,10 +34,13 @@ export const DefenseComposer = ({ onSubmit, isSubmitting = false }) => {
 
   return (
     <div className="shrink-0 pb-6">
-      {/* TODO(피그마 확인 필요): 추천 질문을 펼친 상태 디자인이 없다. 디자인이 나오면 목록을 연결한다. */}
+      {/* 누르면 추천 질문 패널(Figma `추천질문`)이 열린다. 패널이 열려 있는 동안 이 입력 영역은 숨겨진다. */}
       <button
+        ref={suggestionsButtonRef}
         type="button"
+        onClick={onOpenSuggestions}
         aria-expanded={false}
+        aria-controls={suggestionsId}
         className="relative ml-3.25 flex h-6 w-20.5 items-center rounded-full bg-chip pl-2.75 text-xs leading-auto font-medium text-chip-text"
       >
         추천 질문

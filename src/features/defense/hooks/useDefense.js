@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { fetchCase, fetchDefenseThread, submitDefenseAnswer } from '../api/defense'
+import {
+  fetchCase,
+  fetchDefenseThread,
+  simplifyDefenseQuestion,
+  submitDefenseAnswer,
+} from '../api/defense'
 
 /** 변론 도메인 Query key factory */
 export const defenseKeys = {
@@ -42,5 +47,34 @@ export const useSubmitDefenseAnswer = (caseId) => {
   return useMutation({
     mutationFn: ({ questionId, body }) => submitDefenseAnswer(caseId, questionId, body),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: defenseKeys.thread(caseId) }),
+  })
+}
+
+/**
+ * "질문을 쉽게 바꿔주세요." mutation 훅.
+ * 기존 질문 말풍선은 그대로 두고 쉬운 문장을 새 말풍선으로 보여주도록, 받은 문장을 그 질문의
+ * `simplifiedPrompts`에 쌓고 revision을 새 값으로 바꾼다(다음 답변은 새 revision으로 보낸다).
+ * @param {string | undefined} caseId 사건 ID
+ */
+export const useSimplifyDefenseQuestion = (caseId) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ questionId, revision }) =>
+      simplifyDefenseQuestion(caseId, questionId, { revision }),
+    onSuccess: (result, { questionId }) =>
+      queryClient.setQueryData(defenseKeys.thread(caseId), (thread = []) =>
+        thread.map((item) =>
+          item.question?.id === questionId
+            ? {
+                ...item,
+                question: {
+                  ...item.question,
+                  revision: result.revision,
+                  simplifiedPrompts: [...(item.question.simplifiedPrompts ?? []), result.prompt],
+                },
+              }
+            : item,
+        ),
+      ),
   })
 }
