@@ -16,15 +16,6 @@ import {
   SignupPage,
 } from '@/routes/lazyPages'
 import { ROUTE_PATHS } from '@/routes/paths'
-import { lazy } from 'react'
-
-/**
- * [개발 서버 전용] 미리보기 페이지. 배포 빌드에서는 `import.meta.env.DEV`가 false로 바뀌어
- * 이 import와 페이지 파일이 빌드 결과에서 빠진다. docs/routes.md에는 올리지 않는다.
- */
-const RecessModalPreviewPage = import.meta.env.DEV
-  ? lazy(() => import('@/pages/dev/RecessModalPreviewPage'))
-  : null
 
 /**
  * 앱 라우트 정의. 모든 페이지는 RootLayout 안에서 lazy loading으로 렌더링한다.
@@ -49,9 +40,6 @@ export const routes = [
           { path: ROUTE_PATHS.court, element: <CourtPage /> },
           { path: ROUTE_PATHS.prosecution, element: <ProsecutionPage /> },
           { path: '*', element: <NotFoundPage /> },
-          ...(RecessModalPreviewPage
-            ? [{ path: '/dev/recess-modal', element: <RecessModalPreviewPage /> }]
-            : []),
         ],
       },
     ],
