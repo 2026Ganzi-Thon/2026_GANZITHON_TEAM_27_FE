@@ -5,6 +5,7 @@ import {
   simplifyDefenseQuestion,
   submitDefenseAnswer,
 } from '../api/defense'
+import { isSupportRequired } from '../utils'
 
 /** 변론 도메인 Query key factory */
 export const defenseKeys = {
@@ -40,13 +41,19 @@ export const useDefenseThread = (caseId) =>
 
 /**
  * 답변 전송 mutation 훅. 성공하면 대화를 다시 불러온다.
+ * 위기 안내(`support_required`) 응답이면 대화를 다시 불러오지 않는다(화면이 위기 안내로 넘어간다).
+ * 답변 원문이 요청 기록(mutation 캐시)에 남지 않도록, 화면이 reset하면 바로 지워지게 gcTime을 0으로 둔다.
  * @param {string | undefined} caseId 사건 ID
  */
 export const useSubmitDefenseAnswer = (caseId) => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ questionId, body }) => submitDefenseAnswer(caseId, questionId, body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: defenseKeys.thread(caseId) }),
+    gcTime: 0,
+    onSuccess: (response) => {
+      if (isSupportRequired(response)) return undefined
+      return queryClient.invalidateQueries({ queryKey: defenseKeys.thread(caseId) })
+    },
   })
 }
 

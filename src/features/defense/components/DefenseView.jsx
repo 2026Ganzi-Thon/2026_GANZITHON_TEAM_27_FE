@@ -10,6 +10,7 @@ import {
   canSimplify,
   findOpenQuestion,
   getDefenseErrorState,
+  isSupportRequired,
   prefersReducedMotion,
   toChatMessages,
 } from '../utils'
@@ -26,8 +27,13 @@ import { DefenseSuggestions } from './DefenseSuggestions'
  * @param {object} props
  * @param {string} props.caseId 사건 ID
  * @param {string} props.finishTo "변론 종료"를 누르면 이동할 판결 화면 주소 (판결 초안 요청은 판결 화면이 한다)
+ * @param {() => void} props.onSupportRequired 답변 응답이 위기 안내(`support_required`)면 호출한다(법정 흐름 중단)
+ *
+ * 위기 신호는 서버가 판단한다(명세 §6.2). 화면은 단어로 입력을 막지 않고, 응답의 `outcome`만 본다.
+ * 위험한 답변 원문은 말풍선·화면 상태·저장소·주소 어디에도 남기지 않는다:
+ * 입력창은 보낼 때 비우고, 대화는 다시 불러오지 않고, 요청 기록(mutation)은 바로 지운다.
  */
-export const DefenseView = ({ caseId, finishTo }) => {
+export const DefenseView = ({ caseId, finishTo, onSupportRequired }) => {
   const caseQuery = useDefenseCase(caseId)
   const threadQuery = useDefenseThread(caseId)
   const answerMutation = useSubmitDefenseAnswer(caseId)
@@ -85,20 +91,30 @@ export const DefenseView = ({ caseId, finishTo }) => {
       simplifyMutation.mutate({ questionId: openQuestion.id, revision: openQuestion.revision })
       return
     }
-    answerMutation.mutate({
-      questionId: openQuestion.id,
-      body: { action: key, revision: openQuestion.revision },
-    })
+    answerMutation.mutate(
+      { questionId: openQuestion.id, body: { action: key, revision: openQuestion.revision } },
+      { onSuccess: handleAnswerResponse },
+    )
+  }
+
+  /** 답변 응답이 위기 안내면 요청 기록(답변 원문 포함)을 지우고 법정 흐름을 멈춘다. */
+  const handleAnswerResponse = (response) => {
+    if (!isSupportRequired(response)) return
+    answerMutation.reset()
+    onSupportRequired()
   }
 
   /** 답할 질문에 답변을 보낸다. */
   const handleSubmit = (text) => {
     // TODO(API 확인 필요): 답할 질문이 없을 때(모두 답함) 입력을 어떻게 처리할지 정해지면 바꾼다.
     // 지금은 목업에서만 대화 끝에 답을 이어 붙인다.
-    answerMutation.mutate({
-      questionId: openQuestion?.id,
-      body: { action: 'answer', text, revision: openQuestion?.revision },
-    })
+    answerMutation.mutate(
+      {
+        questionId: openQuestion?.id,
+        body: { action: 'answer', text, revision: openQuestion?.revision },
+      },
+      { onSuccess: handleAnswerResponse },
+    )
   }
 
   const renderMessages = () => {

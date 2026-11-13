@@ -1,8 +1,8 @@
 import { apiClient } from '@/lib/apiClient'
 import {
+  answerMockQuestion,
   getMockThread,
   mockCase,
-  recordMockAnswer,
   resolveMock,
   simplifyMockQuestion,
   USE_DEFENSE_MOCK,
@@ -56,13 +56,10 @@ export const fetchDefenseThread = async (caseId) => {
  * @param {string} questionId 질문 ID
  * @param {{action: 'answer' | 'skip' | 'not_sure', text?: string, revision: number}} body
  *   `text`는 action이 answer일 때만 보낸다. `revision`은 최신 값이어야 하며, 오래된 값이면 409가 온다.
- * @returns {Promise<object>} 서버 응답
+ * @returns {Promise<object>} 서버 응답. 자유 입력에 위기 신호가 있으면 HTTP 200 `{ outcome: "support_required", support }`
  */
 export const submitDefenseAnswer = async (caseId, questionId, body) => {
-  if (USE_DEFENSE_MOCK) {
-    recordMockAnswer(questionId, { action: body.action, text: body.text })
-    return resolveMock({ ok: true })
-  }
+  if (USE_DEFENSE_MOCK) return resolveMock(answerMockQuestion(questionId, body))
   const { data } = await apiClient.put(
     `/cases/${caseId}/defense/questions/${questionId}/answer`,
     body,

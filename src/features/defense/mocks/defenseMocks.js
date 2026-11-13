@@ -1,3 +1,6 @@
+import { CRISIS_SCREEN_CONTACTS } from '@/constants/crisisContacts'
+import { includesCrisisWord } from '@/constants/crisisWords'
+
 /**
  * 변론(AI 챗봇) 화면 목업 데이터. Figma `Ai챗봇`(1:1214) 화면의 내용을 그대로 담는다.
  * 질문 모양은 docs/api-spec.md의 `POST /cases/{id}/defense/questions` 응답을 따른다.
@@ -108,6 +111,29 @@ export const simplifyMockQuestion = (questionId) => {
       : entry,
   )
   return { prompt, revision }
+}
+
+/**
+ * 답변 저장 목업(`PUT …/answer`). 서버처럼 자유 입력 답변에 위기 신호가 있으면 `support_required`(HTTP 200)를 돌려준다.
+ * - 판단 기준은 사건 접수 목업과 같다(`constants/crisisWords`의 `includesCrisisWord`).
+ * - 위험한 답은 대화 기록에 남기지 않는다(답할 질문은 그대로 미응답으로 둔다).
+ * - "떠오르지 않아요"·"건너뛰기"는 글이 없어 해당하지 않는다.
+ * @param {string} questionId 질문 ID
+ * @param {{action: string, text?: string}} body 보낸 답
+ * @returns {object} 서버 응답 모양
+ */
+export const answerMockQuestion = (questionId, body) => {
+  if (body.action === 'answer' && includesCrisisWord(body.text)) {
+    return {
+      outcome: 'support_required',
+      support: {
+        message: '지금은 재판보다 도움을 받는 것이 먼저예요. 아래 전화로 이야기해 보세요.',
+        contacts: CRISIS_SCREEN_CONTACTS.map((contact) => `${contact.name} ${contact.number}`),
+      },
+    }
+  }
+  recordMockAnswer(questionId, { action: body.action, text: body.text })
+  return { ok: true }
 }
 
 /**

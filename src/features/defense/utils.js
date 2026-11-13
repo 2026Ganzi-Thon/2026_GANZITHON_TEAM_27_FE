@@ -72,6 +72,13 @@ export const prefersReducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 /**
+ * 서버 응답이 위기 지원 안내로 바뀌었는지. 자유 입력을 보내는 요청은 HTTP 200이어도 먼저 확인한다(명세 §6.2).
+ * @param {unknown} response 서버 응답
+ * @returns {boolean}
+ */
+export const isSupportRequired = (response) => response?.outcome === 'support_required'
+
+/**
  * 변론을 끝내고 판결로 넘어갈 수 있는지 (명세 §6.3 "판결 받기" 조건).
  * 질문을 1개 이상 처리했고(답변·떠오르지 않아요·건너뛰기 모두 처리로 본다) 답하지 않은 질문이 없어야 한다.
  * @param {import('./api/defense').DefenseThreadItem[]} thread 질문과 답 목록
