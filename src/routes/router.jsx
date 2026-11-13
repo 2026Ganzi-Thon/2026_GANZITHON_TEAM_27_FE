@@ -4,6 +4,7 @@ import RouteErrorPage from '@/pages/RouteErrorPage'
 import {
   ActionSuggestionPage,
   CaseCardPage,
+  CaseClosingPage,
   CaseIntakePage,
   CommunityPage,
   CommunitySharedPage,
@@ -49,6 +50,7 @@ export const routes = [
           { path: ROUTE_PATHS.emotion, element: <EmotionChangePage /> },
           { path: ROUTE_PATHS.caseAction, element: <ActionSuggestionPage /> },
           { path: ROUTE_PATHS.crisisSupport, element: <CrisisSupportPage /> },
+          { path: ROUTE_PATHS.caseClosing, element: <CaseClosingPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

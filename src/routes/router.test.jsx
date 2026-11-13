@@ -160,4 +160,12 @@ describe('router', () => {
       'tel:109',
     )
   })
+
+  it('종결 주소에서 사건 종결 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/cases/case-1/closing')
+    expect(
+      await screen.findByRole('heading', { name: '사건이 종결되었습니다' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '확인' })).toHaveAttribute('href', '/')
+  })
 })
