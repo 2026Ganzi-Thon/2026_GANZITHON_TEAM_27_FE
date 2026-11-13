@@ -115,14 +115,16 @@ describe('SummaryView', () => {
     expect(screen.getByText('찾은 사고 패턴이 없어요.')).toBeInTheDocument()
   })
 
-  it('예시 사건(sample)은 조회하지 않고 Figma 예시 값을 보여준다', async () => {
+  it('예시 사건(sample)은 접수 정보를 동료의 예시 사건에서 읽고(감정 변화·사건 카드와 같은 70), 판결 결과는 예시 값을 쓴다', async () => {
     renderView({ caseId: 'sample' })
-    expect(await screen.findByText('사건번호 #2026-031')).toBeInTheDocument()
-    expect(screen.getByText('나는 왜 자꾸 불안할까?')).toBeInTheDocument()
+    // 접수 정보: 동료의 예시 사건(useCase('sample'))
+    expect(await screen.findByText('사건번호 #2026-000031')).toBeInTheDocument()
+    expect(screen.getByText('나는 쓸모없어.')).toBeInTheDocument()
+    // 법정 진행 결과: 예시 값(재판 후 40, 최종판결 Figma 문구)
     expect(screen.getByText('그럴 수 있다.')).toBeInTheDocument()
     expect(screen.getByText('흑백 논리')).toBeInTheDocument()
-    expect(screen.getByText('재판을 통해, 불안이 40% 줄어들었어요.')).toBeInTheDocument()
-    expect(screen.getByText('재판 전 불안 80%, 재판 후 40%')).toBeInTheDocument()
+    expect(screen.getByText('재판을 통해, 불안이 30% 줄어들었어요.')).toBeInTheDocument()
+    expect(screen.getByText('재판 전 불안 70%, 재판 후 40%')).toBeInTheDocument()
     expect(apiClient.get).not.toHaveBeenCalled()
   })
 
