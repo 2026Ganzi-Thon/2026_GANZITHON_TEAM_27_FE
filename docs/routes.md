@@ -9,20 +9,20 @@
 
 ## 라우트 표
 
-| 화면         | 주소                     | 페이지 컴포넌트       | 동적 파라미터            | 비고                                                                               |
-| ------------ | ------------------------ | --------------------- | ------------------------ | ---------------------------------------------------------------------------------- |
-| 홈           | `/`                      | `HomePage`            | —                        | 진행 중인 사건이 있으면 재방문 모습(이어하기 카드)으로 바뀜                        |
-| 로그인       | `/login`                 | `LoginPage`           | —                        | 주소는 피그마 `화면 이동` 확인 필요                                                |
-| 회원가입     | `/signup`                | `SignupPage`          | —                        | 주소는 피그마 `화면 이동` 확인 필요                                                |
-| 동의         | `/consent`               | `ConsentPage`         | —                        | 주소는 피그마 `화면 이동` 확인 필요                                                |
-| 사건 접수    | `/cases/new`             | `CaseIntakePage`      | —                        | 홈에서 진입. 주소는 피그마 `화면 이동` 확인 필요                                   |
-| 사건 카드    | `/cases/:caseId/card`    | `CaseCardPage`        | `caseId` (API 확인 필요) | 사건 종결 후 진입. `/cases/sample/card`는 예시 사건으로 계속 유지(확인용)          |
-| 게시판 공유  | `/cases/:caseId/share`   | `CommunitySharePage`  | `caseId` (API 확인 필요) | 공개 범위와 비밀번호 설정. `/cases/sample/share`는 예시 사건으로 계속 유지(확인용) |
-| 게시 완료    | `/community/shared`      | `CommunitySharedPage` | —                        | 게시 후 진입. 확인을 누르면 게시판으로 이동                                        |
-| community    | `/community`             | `CommunityPage`       | —                        | 하단 탭바. 게시판. 내용은 피그마 확인 후 교체                                      |
-| court        | `/court`                 | `CourtPage`           | —                        | 하단 탭바. 접수한 사건파일 전체 목록(사건 목록)                                    |
-| 기소         | `/cases/:id/prosecution` | `ProsecutionPage`     | `id`                     | 피그마 `2-1 기소` (API 확인 필요)                                                  |
-| 찾을 수 없음 | `*`                      | `NotFoundPage`        | —                        | 정의되지 않은 모든 주소                                                            |
+| 화면         | 주소                         | 페이지 컴포넌트       | 동적 파라미터            | 비고                                                                               |
+| ------------ | ---------------------------- | --------------------- | ------------------------ | ---------------------------------------------------------------------------------- |
+| 홈           | `/`                          | `HomePage`            | —                        | 진행 중인 사건이 있으면 재방문 모습(이어하기 카드)으로 바뀜                        |
+| 로그인       | `/login`                     | `LoginPage`           | —                        | 주소는 피그마 `화면 이동` 확인 필요                                                |
+| 회원가입     | `/signup`                    | `SignupPage`          | —                        | 주소는 피그마 `화면 이동` 확인 필요                                                |
+| 동의         | `/consent`                   | `ConsentPage`         | —                        | 주소는 피그마 `화면 이동` 확인 필요                                                |
+| 사건 접수    | `/cases/new`                 | `CaseIntakePage`      | —                        | 홈에서 진입. 주소는 피그마 `화면 이동` 확인 필요                                   |
+| 사건 카드    | `/cases/:caseId/card`        | `CaseCardPage`        | `caseId` (API 확인 필요) | 사건 종결 후 진입. `/cases/sample/card`는 예시 사건으로 계속 유지(확인용)          |
+| 게시판 공유  | `/cases/:caseId/share`       | `CommunitySharePage`  | `caseId` (API 확인 필요) | 공개 범위와 비밀번호 설정. `/cases/sample/share`는 예시 사건으로 계속 유지(확인용) |
+| 게시 완료    | `/community/shared`          | `CommunitySharedPage` | —                        | 게시 후 진입. 확인을 누르면 게시판으로 이동                                        |
+| community    | `/community`                 | `CommunityPage`       | —                        | 하단 탭바. 게시판. 내용은 피그마 확인 후 교체                                      |
+| court        | `/court`                     | `CourtPage`           | —                        | 하단 탭바. 접수한 사건파일 전체 목록(사건 목록)                                    |
+| 기소         | `/cases/:caseId/prosecution` | `ProsecutionPage`     | `caseId` (API 확인 필요) | 피그마 `2-1 기소`. `/cases/sample/prosecution`은 목업 사건(확인용)                 |
+| 찾을 수 없음 | `*`                          | `NotFoundPage`        | —                        | 정의되지 않은 모든 주소                                                            |
 
 <!-- TODO(피그마 확인 필요): 피그마 `화면 이동` 페이지의 화면 주소를 이 표에 추가한다. -->
 

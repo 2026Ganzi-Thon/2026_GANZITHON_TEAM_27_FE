@@ -7,7 +7,7 @@ import { ROUTE_PATHS } from '@/routes/paths'
  */
 const ProsecutionPage = () => {
   const navigate = useNavigate()
-  const { id } = useParams()
+  const { caseId } = useParams()
 
   /** 증거 확정에 성공하면 변론 화면으로 이동한다. */
   const handleDefenseStart = () => {
@@ -15,7 +15,7 @@ const ProsecutionPage = () => {
     navigate(ROUTE_PATHS.home)
   }
 
-  return <ProsecutionView caseId={id} onDefenseStart={handleDefenseStart} />
+  return <ProsecutionView caseId={caseId} onDefenseStart={handleDefenseStart} />
 }
 
 export default ProsecutionPage

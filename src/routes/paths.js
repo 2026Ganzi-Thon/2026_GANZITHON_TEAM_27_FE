@@ -18,8 +18,8 @@ export const ROUTE_PATHS = {
   // TODO(피그마 확인 필요): 하단 탭바 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
   community: '/community',
   court: '/court',
-  // TODO(피그마 확인 필요): `화면 이동` 페이지 기준으로 주소를 확정한다. :id는 사건 ID(UUID)다.
-  prosecution: '/cases/:id/prosecution',
+  // TODO(피그마 확인 필요): 기소 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
+  prosecution: '/cases/:caseId/prosecution',
 }
 
 /** 사건 카드 화면 주소를 사건 ID로 만든다. 예: `getCaseCardPath('abc')` → `/cases/abc/card` */
