@@ -2,7 +2,7 @@ import { apiClient } from '@/lib/apiClient'
 import {
   createMockRephrase,
   mockDecisionDraft,
-  mockFinalResult,
+  recordMockFinal,
   resolveMock,
   USE_DECISION_MOCK,
 } from '../mocks/decisionMocks'
@@ -57,7 +57,7 @@ export const rephraseDecision = async (caseId, body) => {
  * @returns {Promise<object>} 종결된 사건
  */
 export const finalizeDecision = async (caseId, body) => {
-  if (USE_DECISION_MOCK) return resolveMock(mockFinalResult)
+  if (USE_DECISION_MOCK) return resolveMock(recordMockFinal(caseId, body))
   const { data } = await apiClient.put(`/cases/${caseId}/decision/final`, body)
   return data
 }

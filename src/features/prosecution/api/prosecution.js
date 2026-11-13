@@ -1,8 +1,8 @@
 import { apiClient } from '@/lib/apiClient'
 import {
   mockCase,
-  mockEvidenceResult,
   mockProsecutionDraft,
+  recordMockEvidence,
   resolveMock,
   USE_PROSECUTION_MOCK,
 } from '../mocks/prosecutionMocks'
@@ -49,7 +49,7 @@ export const requestProsecution = async (caseId) => {
  * @returns {Promise<object>} 서버 응답
  */
 export const submitEvidence = async (caseId, body) => {
-  if (USE_PROSECUTION_MOCK) return resolveMock(mockEvidenceResult)
+  if (USE_PROSECUTION_MOCK) return resolveMock(recordMockEvidence(caseId, body))
   const { data } = await apiClient.put(`/cases/${caseId}/evidence`, body)
   return data
 }
