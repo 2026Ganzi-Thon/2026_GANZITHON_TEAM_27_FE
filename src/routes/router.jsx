@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import { RootLayout } from '@/components/layout/RootLayout'
 import RouteErrorPage from '@/pages/RouteErrorPage'
 import {
+  ActionSuggestionPage,
   CaseCardPage,
   CaseIntakePage,
   CommunityPage,
@@ -45,6 +46,7 @@ export const routes = [
           { path: ROUTE_PATHS.defense, element: <DefensePage /> },
           { path: ROUTE_PATHS.decision, element: <DecisionPage /> },
           { path: ROUTE_PATHS.emotion, element: <EmotionChangePage /> },
+          { path: ROUTE_PATHS.caseAction, element: <ActionSuggestionPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

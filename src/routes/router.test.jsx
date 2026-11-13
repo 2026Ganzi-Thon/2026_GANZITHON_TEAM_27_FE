@@ -145,4 +145,10 @@ describe('router', () => {
       '40',
     )
   })
+
+  it('행동 제안 주소에서 행동 제안 화면을 보여준다', async () => {
+    renderAt('/cases/sample/action')
+    expect(await screen.findByRole('heading', { name: 'YOUR NEXTMOVE.' })).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: 'CHOOSE YOUR ACTION' })).toBeInTheDocument()
+  })
 })

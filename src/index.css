@@ -110,3 +110,9 @@
     outline-offset: 2px;
   }
 }
+
+/* Figma 측정값: 행동 제안 화면 — 카드 태그 글자 크기 / 아래 버튼 두 개 높이 (내보낸 3배 PNG를 재서 구했다) */
+@theme {
+  --text-tag: 10px;
+  --spacing-action-button: 58px;
+}
