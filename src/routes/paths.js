@@ -20,8 +20,8 @@ export const ROUTE_PATHS = {
   court: '/court',
   // TODO(피그마 확인 필요): 기소 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
   prosecution: '/cases/:caseId/prosecution',
-  // TODO(피그마 확인 필요): `화면 이동` 페이지 기준으로 주소를 확정한다. :id는 사건 ID(UUID)다.
-  defense: '/cases/:id/defense',
+  // TODO(피그마 확인 필요): 변론(AI 챗봇) 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
+  defense: '/cases/:caseId/defense',
 }
 
 /** 사건 카드 화면 주소를 사건 ID로 만든다. 예: `getCaseCardPath('abc')` → `/cases/abc/card` */
