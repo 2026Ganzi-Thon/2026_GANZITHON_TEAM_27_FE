@@ -151,4 +151,13 @@ describe('router', () => {
     expect(await screen.findByRole('heading', { name: 'YOUR NEXTMOVE.' })).toBeInTheDocument()
     expect(screen.getByRole('group', { name: 'CHOOSE YOUR ACTION' })).toBeInTheDocument()
   })
+
+  it('위기 안내 주소에서 위기 안내 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/support')
+    expect(await screen.findByRole('heading', { name: '지금, 괜찮으신가요?' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '자살예방 상담전화 109에 전화 걸기' })).toHaveAttribute(
+      'href',
+      'tel:109',
+    )
+  })
 })

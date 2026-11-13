@@ -28,6 +28,8 @@ export const ROUTE_PATHS = {
   emotion: '/cases/:caseId/emotion',
   // TODO(피그마 확인 필요): 행동 제안 화면(Figma 2-7, 감정 변화 다음) 주소. `화면 이동` 페이지 기준으로 확정한다.
   caseAction: '/cases/:caseId/action',
+  // TODO(피그마 확인 필요): 위기 안내 화면 주소. 어느 화면에서든 오는 공용 화면이라 사건 ID를 넣지 않는다.
+  crisisSupport: '/support',
 }
 
 /** 사건 카드 화면 주소를 사건 ID로 만든다. 예: `getCaseCardPath('abc')` → `/cases/abc/card` */
