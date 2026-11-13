@@ -88,7 +88,7 @@ export const DefenseSuggestions = ({ id, onSelect, onClose, disabled = {} }) => 
                   'ml-6.5 flex h-suggest-card w-83.5 items-center justify-center rounded-suggest text-xs leading-auto text-black shadow-suggest',
                   // TODO(피그마 확인 필요): 비활성 보기(쉽게 바꾸기 2회 사용 등) 디자인이 없어 흐리게만 한다.
                   'disabled:cursor-not-allowed disabled:opacity-60',
-                  index === 0 ? 'bg-bubble' : 'bg-surface',
+                  index === 0 ? 'bg-sky' : 'bg-surface',
                   // Figma 글자 위치 그대로: 첫 보기는 4.3px 오른쪽, 둘째 보기는 1px 왼쪽(셋째는 가운데).
                   ['pl-[8.6px]', 'pr-0.5', ''][index],
                 ].join(' ')}

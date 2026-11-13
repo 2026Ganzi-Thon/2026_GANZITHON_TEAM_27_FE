@@ -17,7 +17,7 @@ export const ChatMessage = ({ from, text }) => {
       <li className="flex items-start gap-2.25 pl-7.25">
         {/* 아바타(42px)가 말풍선(41px)보다 1px 커서 다음 말풍선이 밀리지 않도록 아래 여백을 1px 줄인다. */}
         <DefenseAvatar className="-mb-px" />
-        <p className="min-h-10.25 min-w-70.5 rounded-bubble rounded-bl-none bg-bubble pt-3.25 pr-5.25 pb-3 pl-5.25 text-chat leading-auto font-medium break-words text-chat-text">
+        <p className="min-h-10.25 min-w-70.5 rounded-bubble rounded-bl-none bg-sky pt-3.25 pr-5.25 pb-3 pl-5.25 text-chat leading-auto font-medium break-words text-chat-text">
           {text}
         </p>
       </li>

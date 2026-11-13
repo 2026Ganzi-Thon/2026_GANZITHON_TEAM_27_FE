@@ -148,7 +148,7 @@ describe('추천 질문 패널', () => {
       '떠오르지 않아요.',
       '이 질문 건너뛰기',
     ].map((name) => screen.getByRole('button', { name }))
-    expect(first).toHaveClass('bg-bubble')
+    expect(first).toHaveClass('bg-sky')
     expect(second).toHaveClass('bg-surface')
     expect(third).toHaveClass('bg-surface')
     second.focus()
