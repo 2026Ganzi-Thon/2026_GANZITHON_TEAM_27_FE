@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import { useCaseSummary } from '../hooks/useSummary'
 import { toSummaryView } from '../utils'
 import { EmotionChangeChart } from './EmotionChangeChart'
 import { SummaryActions } from './SummaryActions'
+import { ExpandableSummaryCard } from './ExpandableSummaryCard'
 import { SummaryCard, SummaryCardLine } from './SummaryCard'
 import { SummaryHeader } from './SummaryHeader'
 
@@ -22,6 +23,7 @@ export const SummaryView = ({ caseId, confirmTo, makeCardTo, onShare, scrollTarg
   const summaryQuery = useCaseSummary(caseId)
   const rootRef = useRef(null)
   const emotionRef = useRef(null)
+  const finalStatementId = useId()
 
   // 내용을 다 불러온 뒤 처음 위치를 맞춘다. 화면은 RootLayout의 main 안에서 스크롤되고, 그래프는 불러온 뒤에야
   // 그려지므로 브라우저 기본 #이동 대신 직접 옮긴다. 그래프로 갈 때는 화면 읽기 프로그램도 그 위치에서 읽도록 포커스한다.
@@ -82,9 +84,14 @@ export const SummaryView = ({ caseId, confirmTo, makeCardTo, onShare, scrollTarg
         <SummaryCard title="처음 든 생각" tone="gray" className="mt-4.25">
           <SummaryCardLine content={view.thought} />
         </SummaryCard>
-        <SummaryCard title="최종판결" tone="ink" className="mt-2.75">
-          <SummaryCardLine content={view.finalStatement} />
-        </SummaryCard>
+        {/* 최종판결은 글이 길면 펼쳐 볼 수 있다(펼치면 아래 카드·그래프·버튼이 그만큼 밀려난다). */}
+        <ExpandableSummaryCard
+          id={finalStatementId}
+          title="최종판결"
+          content={view.finalStatement}
+          tone="ink"
+          className="mt-2.75"
+        />
         {/* 사건 유형: 확정한 사고 패턴 중 대표 1개(toSummaryView). TODO(API 확인 필요: 대표 패턴을 서버가 정하는지) */}
         <SummaryCard title="사건 유형" tone="slate" className="mt-2.75">
           <SummaryCardLine content={view.caseType} />

@@ -18,12 +18,16 @@ const TONES = {
  * @param {import('react').ReactNode} props.children 카드 내용 (`SummaryCardLine` 등)
  * @param {'gray' | 'ink' | 'slate'} props.tone 카드 색
  * @param {string} [props.className] 바깥 여백 클래스
+ * @param {import('react').ReactNode} [props.action] 제목 줄 오른쪽에 놓을 버튼(펼치기 토글 등)
+ * @param {() => void} [props.onClick] 카드를 눌렀을 때(마우스·터치) 실행할 동작. 키보드·화면 읽기 프로그램은 action 버튼을 쓴다.
  */
-export const SummaryCard = ({ title, children, tone, className = '' }) => (
+export const SummaryCard = ({ title, children, tone, className = '', action, onClick }) => (
   <section
-    className={`relative mr-4.5 ml-4.25 min-h-18.5 shrink-0 rounded-field px-5 pt-[17.86px] pb-[14.27px] ${TONES[tone]} ${className}`}
+    onClick={onClick}
+    className={`relative mr-4.5 ml-4.25 min-h-18.5 shrink-0 rounded-field px-5 pt-[17.86px] pb-[14.27px] ${onClick ? 'cursor-pointer' : ''} ${TONES[tone]} ${className}`}
   >
     <h2 className="text-base leading-[normal] font-semibold">{title}</h2>
+    {action}
     {children}
   </section>
 )
