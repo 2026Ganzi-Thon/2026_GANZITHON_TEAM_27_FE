@@ -7,7 +7,7 @@ import { ROUTE_PATHS } from '@/routes/paths'
  */
 const DecisionPage = () => {
   const navigate = useNavigate()
-  const { id } = useParams()
+  const { caseId } = useParams()
 
   /** 판결 확정에 성공하면 다음 화면으로 이동한다. */
   const handleSaved = () => {
@@ -15,7 +15,7 @@ const DecisionPage = () => {
     navigate(ROUTE_PATHS.home)
   }
 
-  return <DecisionView caseId={id} onSaved={handleSaved} />
+  return <DecisionView caseId={caseId} onSaved={handleSaved} />
 }
 
 export default DecisionPage
