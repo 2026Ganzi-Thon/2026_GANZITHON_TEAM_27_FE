@@ -32,7 +32,7 @@ export const DecisionStatementCard = ({
   isRephrasing = false,
   errorMessage = null,
 }) => (
-  <article className="mt-2.75 -mr-px ml-px min-h-31.25 rounded-field bg-evidence pt-5.25 pr-3.5 pb-4 pl-4 text-ink">
+  <article className="mt-2.75 -mr-px ml-px min-h-31.25 rounded-field bg-card-gray pt-5.25 pr-3.5 pb-4 pl-4 text-ink">
     <h3 className="h-4.75 text-base leading-auto font-semibold">수정된 생각</h3>
 
     {isEditing ? (

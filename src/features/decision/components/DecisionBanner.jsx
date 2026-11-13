@@ -42,7 +42,7 @@ export const DecisionBanner = ({ decisionType }) => {
       />
 
       {/* Figma 뱃지: x 22, y 197, 141×37. 글자는 뱃지 왼쪽에서 12px, 위에서 10px */}
-      <p className="relative z-20 ml-1.25 h-9.25 w-35.25 rounded-field bg-ink pt-2.5 pl-3 text-base leading-auto whitespace-pre text-bubble">
+      <p className="relative z-20 ml-1.25 h-9.25 w-35.25 rounded-field bg-ink pt-2.5 pl-3 text-base leading-auto whitespace-pre text-sky">
         {/* Figma 문구 그대로: "사건의"와 "판결은" 사이 공백 두 칸 */}
         {'이 사건의  판결은...'}
       </p>
