@@ -1,4 +1,4 @@
-import { intensityToChartY } from '../utils'
+import { intensityToChartY, SUMMARY_EMOTION_SECTION } from '../utils'
 
 /** 이 영역의 기준 y (Figma 화면 좌표). 안쪽 요소는 모두 Figma 좌표에서 이 값을 빼서 놓는다. */
 const TOP = 464
@@ -25,12 +25,16 @@ const AXIS_PATH =
  * @param {object} props
  * @param {{ label: string, before: number, after: number, sentence: string } | null} props.emotion
  *   비교할 감정. null이면 비교할 수 없다는 문구만 보여준다.
+ * @param {import('react').Ref<HTMLElement>} [props.ref] 그래프 영역으로 스크롤·포커스를 옮길 때 쓰는 ref
  */
-export const EmotionChangeChart = ({ emotion }) => {
+export const EmotionChangeChart = ({ emotion, ref }) => {
   const at = (y) => y - TOP
 
   return (
     <section
+      ref={ref}
+      id={SUMMARY_EMOTION_SECTION}
+      tabIndex={-1}
       aria-labelledby="emotion-change-title"
       className="relative mt-10 h-62 shrink-0 text-ink"
     >

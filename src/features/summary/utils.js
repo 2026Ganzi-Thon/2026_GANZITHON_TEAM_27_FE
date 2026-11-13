@@ -5,6 +5,9 @@ import { getEmotionLabel } from '@/constants/emotions'
  * 값 1당 1.34px로, 값과 점 위치가 눈금에 비례하도록 이 기준으로 그린다.
  * (Figma의 점은 80 → 558.5, 40 → 618.5로 1당 1.5px 간격이라 눈금과 맞지 않는다. 디자이너 확인 필요)
  */
+/** 사건요약 화면의 감정 변화 그래프 위치 이름. 주소 끝 `#emotion`으로 열면 그래프로 바로 스크롤한다. */
+export const SUMMARY_EMOTION_SECTION = 'emotion'
+
 export const CHART_Y_AT_0 = 667
 export const CHART_Y_AT_100 = 533
 
