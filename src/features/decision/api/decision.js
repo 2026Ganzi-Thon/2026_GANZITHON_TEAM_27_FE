@@ -50,7 +50,8 @@ export const rephraseDecision = async (caseId, body) => {
 /**
  * 판결을 확정하고 사건을 종결한다.
  * `final_statement`는 판결 유형이 `deferred`일 때만 생략할 수 있다.
- * TODO(API 확인 필요): emotion_after 형태가 미확정이다. Figma `2-6 감정변화` 화면이 연결되면 함께 보낸다.
+ * 감정 변화 화면 "다음"에서 판결 화면이 넘긴 내용과 종결 시점 감정(emotion_after)을 함께 보낸다(utils.toFinalRequest).
+ * TODO(API 확인 필요): emotion_after 형태(`{ type, intensity }`)가 명세에 예시로만 있다. 확정되면 맞춘다.
  * @param {string} caseId 사건 ID (UUID)
  * @param {{decision_type: DecisionType, final_statement?: string, emotion_after?: object}} body 확정할 내용
  * @returns {Promise<object>} 종결된 사건

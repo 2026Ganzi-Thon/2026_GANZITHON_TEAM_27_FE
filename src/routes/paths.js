@@ -40,6 +40,9 @@ export const getDefensePath = (caseId) => `/cases/${caseId}/defense`
 /** 판결 화면 주소를 사건 ID로 만든다. 예: `getDecisionPath('abc')` → `/cases/abc/decision` */
 export const getDecisionPath = (caseId) => `/cases/${caseId}/decision`
 
+/** 감정 변화 화면 주소를 사건 ID로 만든다. 예: `getEmotionPath('abc')` → `/cases/abc/emotion` */
+export const getEmotionPath = (caseId) => `/cases/${caseId}/emotion`
+
 /** 하단 탭바(BottomTabBar)에 넘기는 탭별 이동 주소. */
 export const TAB_PATHS = {
   home: ROUTE_PATHS.home,

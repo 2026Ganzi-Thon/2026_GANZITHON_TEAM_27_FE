@@ -27,6 +27,18 @@ export const toFinalPayload = (decisionType, statement) => {
 }
 
 /**
+ * 판결 확정 요청 본문을 만든다. 판결 화면에서 고른 내용에 종결 시점 감정(emotion_after)을 붙인다.
+ * 명세 §4: 감정은 type과 intensity를 둘 다 보내거나 둘 다 생략한다(접수 때 감정이 없으면 생략).
+ * @param {{decision_type: string, final_statement?: string}} decision 판결 화면에서 넘겨받은 내용
+ * @param {{type: string | null, intensity: number} | null} [emotionAfter] 감정 변화 화면에서 고른 지금 감정
+ * @returns {{decision_type: string, final_statement?: string, emotion_after?: {type: string, intensity: number}}}
+ */
+export const toFinalRequest = (decision, emotionAfter) =>
+  emotionAfter?.type
+    ? { ...decision, emotion_after: { type: emotionAfter.type, intensity: emotionAfter.intensity } }
+    : { ...decision }
+
+/**
  * API 오류를 화면에 보여줄 문구와 재시도 가능 여부로 바꾼다. (docs/api-spec.md §7)
  * @param {unknown} error Axios 오류
  * @returns {{message: string, canRetry: boolean}}

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiClient } from '@/lib/apiClient'
@@ -25,15 +25,15 @@ const draftResponse = {
 const httpError = (status) => Object.assign(new Error('request failed'), { response: { status } })
 
 const renderView = () => {
-  const onSaved = vi.fn()
+  const onSave = vi.fn()
   render(
     <QueryClientProvider client={new QueryClient()}>
       <MemoryRouter>
-        <DecisionView caseId="case-1" onSaved={onSaved} />
+        <DecisionView caseId="case-1" onSave={onSave} />
       </MemoryRouter>
     </QueryClientProvider>,
   )
-  return { onSaved }
+  return { onSave }
 }
 
 describe('DecisionView', () => {
@@ -94,10 +94,9 @@ describe('DecisionView', () => {
     })
   })
 
-  it('직접 고친 문장으로 판결을 확정하고 onSaved를 호출한다', async () => {
+  it('사건파일 저장하기는 판결을 확정하지 않고, 직접 고친 문장과 판결 유형을 넘긴다', async () => {
     vi.mocked(apiClient.post).mockResolvedValue({ data: draftResponse })
-    vi.mocked(apiClient.put).mockResolvedValue({ data: { status: 'closed' } })
-    const { onSaved } = renderView()
+    const { onSave } = renderView()
 
     fireEvent.click(await screen.findByRole('button', { name: '수정된 생각 직접 수정' }))
     fireEvent.change(screen.getByRole('textbox', { name: '수정된 생각 직접 수정' }), {
@@ -105,11 +104,24 @@ describe('DecisionView', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: '사건파일 저장하기' }))
 
-    await waitFor(() => expect(onSaved).toHaveBeenCalled())
-    expect(apiClient.put).toHaveBeenCalledWith('/cases/case-1/decision/final', {
+    expect(onSave).toHaveBeenCalledWith({
       decision_type: 'reframed',
       final_statement: '나는 다음에 더 잘할 수 있다.',
     })
+    // 판결 확정(PUT decision/final)은 감정 변화 화면에서 한다.
+    expect(apiClient.put).not.toHaveBeenCalled()
+  })
+
+  it('넘어가는 중에는 버튼이 비활성화되어 두 번 넘기지 않는다', async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({ data: draftResponse })
+    const { onSave } = renderView()
+
+    const save = await screen.findByRole('button', { name: '사건파일 저장하기' })
+    fireEvent.click(save)
+    const busy = screen.getByRole('button', { name: '저장하는 중…' })
+    expect(busy).toBeDisabled()
+    fireEvent.click(busy)
+    expect(onSave).toHaveBeenCalledTimes(1)
   })
 
   it('수정된 생각을 비우면 저장하지 않고 오류를 보여준다', async () => {

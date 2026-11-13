@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useDecisionDraft, useFinalizeDecision, useRephraseDecision } from '../hooks/useDecision'
+import { useDecisionDraft, useRephraseDecision } from '../hooks/useDecision'
 import { getDecisionErrorState, toFinalPayload, validateStatement } from '../utils'
 import { DecisionBanner } from './DecisionBanner'
 import { DecisionHeader } from './DecisionHeader'
@@ -18,12 +18,15 @@ import { DecisionStatementCard } from './DecisionStatementCard'
  *
  * @param {object} props
  * @param {string} props.caseId 사건 ID
- * @param {() => void} props.onSaved 판결 확정에 성공했을 때 호출하는 핸들러
+ * @param {(decision: {decision_type: string, final_statement?: string}) => void} props.onSave
+ *   "사건파일 저장하기"를 누르면 고른 판결 유형과 최종 진술문(직접 고쳤으면 고친 문장)과 함께 호출한다.
+ *   판결 확정(`PUT /cases/{caseId}/decision/final`)은 여기서 하지 않고, 감정 변화 화면 "다음"에서 감정과 함께 한다.
  */
-export const DecisionView = ({ caseId, onSaved }) => {
+export const DecisionView = ({ caseId, onSave }) => {
   const draftQuery = useDecisionDraft(caseId)
   const rephraseMutation = useRephraseDecision(caseId)
-  const finalizeMutation = useFinalizeDecision(caseId)
+  // 다음 화면으로 넘어가는 중이면 버튼을 다시 누를 수 없게 한다.
+  const [isLeaving, setIsLeaving] = useState(false)
 
   // 사용자가 직접 고친 문장. null이면 서버가 제안한 문장을 그대로 쓴다.
   const [editedStatement, setEditedStatement] = useState(null)
@@ -85,21 +88,20 @@ export const DecisionView = ({ caseId, onSaved }) => {
       )
     }
 
-    /** 저장: 진술문을 검사하고 판결을 확정한다. */
+    /** 저장: 진술문을 검사하고, 판결 유형과 최종 진술문을 들고 다음 화면(감정 변화)으로 넘어간다. */
     const handleSave = () => {
+      if (isLeaving) return
       const error = validateStatement(statement, decision.type)
       setValidationError(error)
       if (error) return
       setIsEditing(false)
-      finalizeMutation.mutate(toFinalPayload(decision.type, statement), { onSuccess: onSaved })
+      setIsLeaving(true)
+      onSave(toFinalPayload(decision.type, statement))
     }
 
     const statementError =
       validationError ??
       (rephraseMutation.isError ? getDecisionErrorState(rephraseMutation.error).message : null)
-    const saveError = finalizeMutation.isError
-      ? getDecisionErrorState(finalizeMutation.error).message
-      : null
 
     return (
       <>
@@ -116,13 +118,7 @@ export const DecisionView = ({ caseId, onSaved }) => {
           isRephrasing={rephraseMutation.isPending}
           errorMessage={statementError}
         />
-        {saveError && (
-          // TODO(피그마 확인 필요): 저장 실패 디자인이 없다.
-          <p role="alert" className="mt-4 text-center text-sm text-danger">
-            {saveError}
-          </p>
-        )}
-        <DecisionSaveButton onSave={handleSave} isSaving={finalizeMutation.isPending} />
+        <DecisionSaveButton onSave={handleSave} isSaving={isLeaving} />
       </>
     )
   }
