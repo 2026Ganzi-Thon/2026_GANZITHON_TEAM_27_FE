@@ -8,7 +8,7 @@ import editIconUrl from '@/assets/prosecution/edit-icon.svg'
  * @param {() => void} [props.onEdit] 증거 수정 버튼 핸들러. 없으면 버튼을 숨긴다.
  */
 export const ProsecutionEvidenceCard = ({ evidence, onEdit }) => (
-  <article className="relative mt-4.75 min-h-21 rounded-field bg-evidence pt-evidence-pill-top pr-4 pb-3 pl-4">
+  <article className="relative mt-4.75 min-h-21 rounded-field bg-card-gray pt-evidence-pill-top pr-4 pb-3 pl-4">
     <h3 className="flex h-evidence-pill-h w-evidence-pill-w items-center rounded-full bg-ink pl-3.25 text-base leading-auto font-semibold text-field">
       검사 측 증거
     </h3>

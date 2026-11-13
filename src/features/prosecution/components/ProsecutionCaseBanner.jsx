@@ -24,7 +24,7 @@ export const ProsecutionCaseBanner = ({ caseNumber, title }) => (
 
     <div className="relative z-10 -mb-2 h-9.25">
       {caseNumber && (
-        <p className="-ml-px flex h-full w-42.75 items-center rounded-field bg-ink pl-3 text-base leading-auto font-semibold text-bubble">
+        <p className="-ml-px flex h-full w-42.75 items-center rounded-field bg-ink pl-3 text-base leading-auto font-semibold text-sky">
           사건번호 #{caseNumber}
         </p>
       )}
