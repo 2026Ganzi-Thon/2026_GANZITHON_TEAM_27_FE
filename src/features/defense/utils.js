@@ -64,6 +64,15 @@ export const findOpenQuestion = (thread) =>
   thread.find((item) => item.question && !item.answer)?.question ?? null
 
 /**
+ * 변론을 끝내고 판결로 넘어갈 수 있는지 (명세 §6.3 "판결 받기" 조건).
+ * 질문을 1개 이상 처리했고(답변·떠오르지 않아요·건너뛰기 모두 처리로 본다) 답하지 않은 질문이 없어야 한다.
+ * @param {import('./api/defense').DefenseThreadItem[]} thread 질문과 답 목록
+ * @returns {boolean}
+ */
+export const canFinishDefense = (thread) =>
+  thread.some((item) => item.question && item.answer) && !findOpenQuestion(thread)
+
+/**
  * API 오류를 화면에 보여줄 문구와 재시도 가능 여부로 바꾼다. (docs/api-spec.md §7)
  * @param {unknown} error Axios 오류
  * @returns {{message: string, canRetry: boolean}}

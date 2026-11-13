@@ -35,6 +35,9 @@ export const getCommunitySharePath = (caseId) => `/cases/${caseId}/share`
 /** 변론(AI 챗봇) 화면 주소를 사건 ID로 만든다. 예: `getDefensePath('abc')` → `/cases/abc/defense` */
 export const getDefensePath = (caseId) => `/cases/${caseId}/defense`
 
+/** 판결 화면 주소를 사건 ID로 만든다. 예: `getDecisionPath('abc')` → `/cases/abc/decision` */
+export const getDecisionPath = (caseId) => `/cases/${caseId}/decision`
+
 /** 하단 탭바(BottomTabBar)에 넘기는 탭별 이동 주소. */
 export const TAB_PATHS = {
   home: ROUTE_PATHS.home,

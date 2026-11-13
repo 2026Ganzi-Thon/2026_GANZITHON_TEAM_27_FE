@@ -5,7 +5,13 @@ import {
   useSimplifyDefenseQuestion,
   useSubmitDefenseAnswer,
 } from '../hooks/useDefense'
-import { canSimplify, findOpenQuestion, getDefenseErrorState, toChatMessages } from '../utils'
+import {
+  canFinishDefense,
+  canSimplify,
+  findOpenQuestion,
+  getDefenseErrorState,
+  toChatMessages,
+} from '../utils'
 import { ChatMessage } from './ChatMessage'
 import { DefenseComposer } from './DefenseComposer'
 import { DefenseHeader } from './DefenseHeader'
@@ -18,8 +24,9 @@ import { DefenseSuggestions } from './DefenseSuggestions'
  *
  * @param {object} props
  * @param {string} props.caseId 사건 ID
+ * @param {string} props.finishTo "변론 종료"를 누르면 이동할 판결 화면 주소 (판결 초안 요청은 판결 화면이 한다)
  */
-export const DefenseView = ({ caseId }) => {
+export const DefenseView = ({ caseId, finishTo }) => {
   const caseQuery = useDefenseCase(caseId)
   const threadQuery = useDefenseThread(caseId)
   const answerMutation = useSubmitDefenseAnswer(caseId)
@@ -27,6 +34,14 @@ export const DefenseView = ({ caseId }) => {
 
   const thread = threadQuery.data ?? []
   const openQuestion = findOpenQuestion(thread)
+  // 대화를 불러오는 중·실패·답을 보내는 중에는 끝낼 수 없다.
+  // TODO(API 확인 필요): 실제 API는 지금 질문만 돌려줘서(대화 기록 API 없음) 새로고침 뒤에는 처리한 질문 수를 알 수 없다.
+  // 대화 기록이나 사건 status(decision_review 등)를 받는 방법이 정해지면 이 조건을 맞춘다.
+  const canFinish =
+    threadQuery.isSuccess &&
+    !answerMutation.isPending &&
+    !simplifyMutation.isPending &&
+    canFinishDefense(thread)
 
   // 추천 질문 패널: 열려 있으면 입력 영역을 숨기고 대화 스크롤을 막는다. 닫히면 "추천 질문" 칩으로 포커스를 돌린다.
   const suggestionsId = useId()
@@ -139,6 +154,8 @@ export const DefenseView = ({ caseId }) => {
           onOpenSuggestions={() => setIsSuggestionsOpen(true)}
           suggestionsId={suggestionsId}
           suggestionsButtonRef={suggestionsButtonRef}
+          finishTo={finishTo}
+          canFinish={canFinish}
         />
       </div>
       {isSuggestionsOpen && (

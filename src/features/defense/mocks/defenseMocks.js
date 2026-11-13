@@ -82,7 +82,7 @@ export const recordMockAnswer = (questionId, answer) => {
       },
     ]
   }
-  // TODO(피그마 확인 필요): 질문 3개를 모두 처리하면 "판결 받기" 버튼을 활성화한다(명세 §6.3). 디자인이 없다.
+  // 질문을 처리했고 미응답 질문이 없으면 화면의 "변론 종료"(명세 §6.3 "판결 받기")가 활성화된다(utils.canFinishDefense).
 }
 
 /**
