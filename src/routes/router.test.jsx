@@ -44,6 +44,12 @@ describe('router', () => {
     expect(screen.getByRole('status')).toHaveTextContent('기소장을 작성하고 있어요')
   })
 
+  it('변론 주소에서 변론(AI 챗봇) 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/cases/case-1/defense')
+    expect(await screen.findByRole('heading', { name: '변론' })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('질문을 준비하고 있어요')
+  })
+
   it('없는 주소에서는 찾을 수 없음 화면과 홈 링크를 보여준다', async () => {
     renderAt('/no-such-page')
     expect(
