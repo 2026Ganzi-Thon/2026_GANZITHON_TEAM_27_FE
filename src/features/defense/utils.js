@@ -64,6 +64,14 @@ export const findOpenQuestion = (thread) =>
   thread.find((item) => item.question && !item.answer)?.question ?? null
 
 /**
+ * 사용자가 "동작 줄이기"를 켰는지. matchMedia가 없는 환경(테스트 등)도 모션 없이 바로 열고 닫는다.
+ * @returns {boolean}
+ */
+export const prefersReducedMotion = () =>
+  typeof window.matchMedia !== 'function' ||
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+/**
  * 변론을 끝내고 판결로 넘어갈 수 있는지 (명세 §6.3 "판결 받기" 조건).
  * 질문을 1개 이상 처리했고(답변·떠오르지 않아요·건너뛰기 모두 처리로 본다) 답하지 않은 질문이 없어야 한다.
  * @param {import('./api/defense').DefenseThreadItem[]} thread 질문과 답 목록

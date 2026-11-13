@@ -10,6 +10,7 @@ import {
   canSimplify,
   findOpenQuestion,
   getDefenseErrorState,
+  prefersReducedMotion,
   toChatMessages,
 } from '../utils'
 import { ChatMessage } from './ChatMessage'
@@ -43,15 +44,33 @@ export const DefenseView = ({ caseId, finishTo }) => {
     !simplifyMutation.isPending &&
     canFinishDefense(thread)
 
-  // 추천 질문 패널: 열려 있으면 입력 영역을 숨기고 대화 스크롤을 막는다. 닫히면 "추천 질문" 칩으로 포커스를 돌린다.
+  // 추천 질문 패널
+  // - isSuggestionsOpen: 열려 있어야 하는지(닫기를 누르면 바로 false → 닫히는 모션 시작)
+  // - isSuggestionsMounted: 패널이 화면에 있는지(닫히는 모션이 끝나면 false)
+  // 패널이 화면에 있는 동안(닫히는 중 포함) 입력 영역을 숨기고 대화 스크롤을 막는다.
+  // 패널이 화면에서 없어지면 입력 영역이 다시 보이고 "추천 질문" 칩으로 포커스를 돌린다.
   const suggestionsId = useId()
   const suggestionsButtonRef = useRef(null)
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false)
-  const wasSuggestionsOpen = useRef(false)
+  const [isSuggestionsMounted, setIsSuggestionsMounted] = useState(false)
+  const wasSuggestionsMounted = useRef(false)
   useEffect(() => {
-    if (wasSuggestionsOpen.current && !isSuggestionsOpen) suggestionsButtonRef.current?.focus()
-    wasSuggestionsOpen.current = isSuggestionsOpen
-  }, [isSuggestionsOpen])
+    if (wasSuggestionsMounted.current && !isSuggestionsMounted)
+      suggestionsButtonRef.current?.focus()
+    wasSuggestionsMounted.current = isSuggestionsMounted
+  }, [isSuggestionsMounted])
+
+  /** 패널을 연다. 닫히는 중이면 그 자리에서 되돌아 올라온다. */
+  const openSuggestions = () => {
+    setIsSuggestionsMounted(true)
+    setIsSuggestionsOpen(true)
+  }
+
+  /** 패널을 닫는다. "동작 줄이기"면 모션 없이 바로 없앤다. */
+  const closeSuggestions = () => {
+    setIsSuggestionsOpen(false)
+    if (prefersReducedMotion()) setIsSuggestionsMounted(false)
+  }
 
   /**
    * 추천 질문 보기를 고르면 패널을 닫고 그 동작을 실행한다.
@@ -60,7 +79,7 @@ export const DefenseView = ({ caseId, finishTo }) => {
    * TODO(API 확인 필요): 409(오래된 revision)면 GET /cases/{id}로 다시 조회하는 흐름은 API 연결 때 붙인다.
    */
   const handleSuggestion = (key) => {
-    setIsSuggestionsOpen(false)
+    closeSuggestions()
     if (!openQuestion) return
     if (key === 'simplify') {
       simplifyMutation.mutate({ questionId: openQuestion.id, revision: openQuestion.revision })
@@ -131,7 +150,7 @@ export const DefenseView = ({ caseId, finishTo }) => {
         {caseQuery.data?.case_number ? `사건번호 #${caseQuery.data.case_number}` : ''}
       </p>
       <div
-        className={`flex min-h-0 flex-1 flex-col ${isSuggestionsOpen ? 'overflow-hidden' : 'overflow-y-auto'}`}
+        className={`flex min-h-0 flex-1 flex-col ${isSuggestionsMounted ? 'overflow-hidden' : 'overflow-y-auto'}`}
       >
         {renderMessages()}
       </div>
@@ -146,23 +165,29 @@ export const DefenseView = ({ caseId, finishTo }) => {
           {submitError}
         </p>
       )}
-      {/* 패널이 열려 있는 동안 입력 영역은 보이지 않는다(Figma). 쓰던 답이 지워지지 않도록 숨기기만 한다. */}
-      <div hidden={isSuggestionsOpen} className="shrink-0">
+      {/* 패널이 화면에 있는 동안 입력 영역은 보이지 않는다(Figma). 쓰던 답이 지워지지 않도록 숨기기만 한다.
+          다시 보일 때는 서서히(200ms) 나타난다. */}
+      <div
+        hidden={isSuggestionsMounted}
+        className="shrink-0 transition-opacity duration-200 ease-out starting:opacity-0 motion-reduce:transition-none"
+      >
         <DefenseComposer
           onSubmit={handleSubmit}
           isSubmitting={isWorking}
-          onOpenSuggestions={() => setIsSuggestionsOpen(true)}
+          onOpenSuggestions={openSuggestions}
           suggestionsId={suggestionsId}
           suggestionsButtonRef={suggestionsButtonRef}
           finishTo={finishTo}
           canFinish={canFinish}
         />
       </div>
-      {isSuggestionsOpen && (
+      {isSuggestionsMounted && (
         <DefenseSuggestions
           id={suggestionsId}
+          open={isSuggestionsOpen}
           onSelect={handleSuggestion}
-          onClose={() => setIsSuggestionsOpen(false)}
+          onClose={closeSuggestions}
+          onExited={() => setIsSuggestionsMounted(false)}
           // TODO(피그마 확인 필요): 답할 질문이 없을 때(질문 3개 모두 처리) 보기 상태 디자인이 없어 모두 비활성화한다.
           disabled={{
             simplify: !canSimplify(openQuestion),
