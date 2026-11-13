@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
-// 사건 접수 화면(동료)의 아이콘과 같은 에셋이다(렌더 비교 차이 0%). 복사하지 않고 그대로 가져다 쓴다.
-import backUrl from '@/assets/intake/back.svg'
-import homeIconUrl from '@/assets/intake/home-icon.svg'
+// 공용 아이콘(dev에서 assets/ 바로 아래로 옮겨짐)과 같은 에셋이다(렌더 비교 차이 0%). 복사하지 않고 그대로 가져다 쓴다.
+import backUrl from '@/assets/back.svg'
+import homeIconUrl from '@/assets/home-icon.svg'
 
 /**
  * 감정 변화 화면 상단 네비게이션 헤더 (Figma y 44~110 구간). 이 화면은 별 장식이 없다.

@@ -7,7 +7,7 @@ import { ROUTE_PATHS } from '@/routes/paths'
  */
 const EmotionChangePage = () => {
   const navigate = useNavigate()
-  const { id } = useParams()
+  const { caseId } = useParams()
 
   /** 지금 감정을 받아 다음 화면으로 이동한다. */
   const handleNext = () => {
@@ -17,7 +17,7 @@ const EmotionChangePage = () => {
     navigate(ROUTE_PATHS.home)
   }
 
-  return <EmotionChangeView caseId={id} onNext={handleNext} />
+  return <EmotionChangeView caseId={caseId} onNext={handleNext} />
 }
 
 export default EmotionChangePage

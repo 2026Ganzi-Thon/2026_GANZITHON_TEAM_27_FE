@@ -24,8 +24,8 @@ export const ROUTE_PATHS = {
   defense: '/cases/:caseId/defense',
   // TODO(피그마 확인 필요): 판결 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
   decision: '/cases/:caseId/decision',
-  // TODO(피그마 확인 필요): `화면 이동` 페이지 기준으로 주소를 확정한다. :id는 사건 ID(UUID)다.
-  emotion: '/cases/:id/emotion',
+  // TODO(피그마 확인 필요): 감정 변화 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
+  emotion: '/cases/:caseId/emotion',
 }
 
 /** 사건 카드 화면 주소를 사건 ID로 만든다. 예: `getCaseCardPath('abc')` → `/cases/abc/card` */
