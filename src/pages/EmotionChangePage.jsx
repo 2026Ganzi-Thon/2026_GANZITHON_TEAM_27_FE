@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCase } from '@/features/case'
 import { getDecisionErrorState, toFinalRequest, useFinalizeDecision } from '@/features/decision'
 import { EmotionChangeView, toIntakeEmotion } from '@/features/emotion'
-import { getCaseActionPath, getDecisionPath } from '@/routes/paths'
+import { getCaseClosingPath, getDecisionPath } from '@/routes/paths'
 
 /**
  * 감정 변화 화면 입구 (Figma `2-6 감정변화`). 주소의 사건 ID를 emotion feature에 넘긴다.
@@ -48,9 +48,9 @@ const EmotionChangePage = () => {
     finalizeMutation.mutate(toFinalRequest(decision, emotionAfter), {
       onSuccess: () => {
         // TODO(API 확인 필요): 응답 outcome이 support_required이면 위기 안내 화면(/support)으로 보낸다.
-        // 판결 확정에 성공하면 같은 사건의 행동 제안 화면(Figma `2-7 행동제안`)으로 간다.
+        // 판결 확정에 성공하면 같은 사건의 종결 화면(Figma `2-8 종결`)으로 간다.
         setIsLeaving(true)
-        navigate(getCaseActionPath(caseId))
+        navigate(getCaseClosingPath(caseId))
       },
     })
   }

@@ -54,6 +54,12 @@ export const getEmotionPath = (caseId) => `/cases/${caseId}/emotion`
 /** 행동 제안 화면 주소를 사건 ID로 만든다. 예: `getCaseActionPath('abc')` → `/cases/abc/action` */
 export const getCaseActionPath = (caseId) => `/cases/${caseId}/action`
 
+/** 사건 종결 화면 주소를 사건 ID로 만든다. 예: `getCaseClosingPath('abc')` → `/cases/abc/closing` */
+export const getCaseClosingPath = (caseId) => `/cases/${caseId}/closing`
+
+/** 사건요약 화면 주소를 사건 ID로 만든다. 예: `getCaseSummaryPath('abc')` → `/cases/abc/summary` */
+export const getCaseSummaryPath = (caseId) => `/cases/${caseId}/summary`
+
 /** 하단 탭바(BottomTabBar)에 넘기는 탭별 이동 주소. */
 export const TAB_PATHS = {
   home: ROUTE_PATHS.home,

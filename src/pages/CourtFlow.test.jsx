@@ -39,7 +39,7 @@ const renderAt = (path) => {
 
 const pathOf = (router) => router.state.location.pathname
 
-describe('법정 화면 연결: 변론 → 판결 → 감정 변화 → 행동 제안', () => {
+describe('법정 화면 연결: 변론 → 판결 → 감정 변화 → 종결 → 사건요약 → 행동 제안 → 홈', () => {
   let resolvePut
 
   beforeEach(() => {
@@ -78,9 +78,14 @@ describe('법정 화면 연결: 변론 → 판결 → 감정 변화 → 행동 �
           ? { data: draftResponse }
           : { data: { id: 'q1', sequence: 1, prompt: '첫 질문', revision: 0 } },
       )
+    // 판결 확정은 테스트가 직접 응답을 정하고, 행동 저장(follow-up)은 바로 성공한다.
     vi.mocked(apiClient.put)
       .mockReset()
-      .mockImplementation(() => new Promise((resolve) => (resolvePut = resolve)))
+      .mockImplementation((url) =>
+        url.endsWith('/follow-up')
+          ? Promise.resolve({ data: {} })
+          : new Promise((resolve) => (resolvePut = resolve)),
+      )
   })
 
   it('변론 화면의 "변론 종료"는 같은 사건의 판결 화면(/cases/case-7/decision)으로 간다', async () => {
@@ -140,11 +145,53 @@ describe('법정 화면 연결: 변론 → 판결 → 감정 변화 → 행동 �
     fireEvent.click(busy)
     expect(apiClient.put).toHaveBeenCalledTimes(1)
 
-    // 성공하면 같은 사건의 행동 제안 화면으로 간다.
+    // 성공하면 같은 사건의 종결 화면으로 간다.
     resolvePut({ data: { status: 'closed' } })
-    await waitFor(() => expect(pathOf(router)).toBe('/cases/case-7/action'))
+    expect(
+      await screen.findByRole('heading', { name: '사건이 종결되었습니다' }),
+    ).toBeInTheDocument()
+    expect(pathOf(router)).toBe('/cases/case-7/closing')
+
+    // 종결 "확인" → 사건요약
+    fireEvent.click(screen.getByRole('link', { name: '확인' }))
+    expect(await screen.findByRole('heading', { name: '사건파일 요약' })).toBeInTheDocument()
+    expect(pathOf(router)).toBe('/cases/case-7/summary')
+    expect(screen.getByRole('link', { name: '사건카드 만들기' })).toHaveAttribute(
+      'href',
+      '/cases/case-7/card',
+    )
+
+    // 사건요약 "확인" → 행동 제안
+    fireEvent.click(screen.getByRole('link', { name: '확인' }))
     expect(await screen.findByRole('heading', { name: 'YOUR NEXTMOVE.' })).toBeInTheDocument()
-  }, 15000)
+    expect(pathOf(router)).toBe('/cases/case-7/action')
+
+    // 행동 제안 "LET’S DO IT" → follow-up 저장 → 홈
+    fireEvent.click(screen.getByRole('button', { name: 'LET’S DO IT' }))
+    await waitFor(() => expect(pathOf(router)).toBe('/'))
+    expect(apiClient.put).toHaveBeenLastCalledWith(
+      '/cases/case-7/follow-up',
+      expect.objectContaining({ choice: 'action' }),
+    )
+  }, 20000)
+
+  it('사건요약 "사건카드 만들기"는 같은 사건의 사건 카드 화면(동료 화면)을 연다', async () => {
+    const router = renderAt('/cases/case-7/summary')
+    fireEvent.click(await screen.findByRole('link', { name: '사건카드 만들기' }))
+
+    expect(
+      await screen.findByRole('heading', { name: /사건 카드가\s*완성되었어요/ }),
+    ).toBeInTheDocument()
+    expect(pathOf(router)).toBe('/cases/case-7/card')
+  })
+
+  it('행동 제안 "오늘은 쉬기"도 follow-up(rest) 저장 뒤 홈으로 간다', async () => {
+    const router = renderAt('/cases/case-7/action')
+    fireEvent.click(await screen.findByRole('button', { name: '오늘은 쉬기' }))
+
+    await waitFor(() => expect(pathOf(router)).toBe('/'))
+    expect(apiClient.put).toHaveBeenCalledWith('/cases/case-7/follow-up', { choice: 'rest' })
+  })
 
   it('판결 확정에 실패하면 감정 변화 화면에 남아 오류를 보여주고 다시 누를 수 있다', async () => {
     vi.mocked(apiClient.put).mockReset().mockRejectedValue(new Error('network'))

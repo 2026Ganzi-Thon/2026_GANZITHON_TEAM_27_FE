@@ -166,11 +166,22 @@ describe('router', () => {
     expect(
       await screen.findByRole('heading', { name: '사건이 종결되었습니다' }),
     ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '확인' })).toHaveAttribute(
+      'href',
+      '/cases/case-1/summary',
+    )
   })
 
   it('사건요약 주소에서 사건요약 화면을 lazy loading으로 보여준다', async () => {
     renderAt('/cases/case-1/summary')
     expect(await screen.findByRole('heading', { name: '사건파일 요약' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: '확인' })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('link', { name: '확인' })).toHaveAttribute(
+      'href',
+      '/cases/case-1/action',
+    )
+    expect(screen.getByRole('link', { name: '사건카드 만들기' })).toHaveAttribute(
+      'href',
+      '/cases/case-1/card',
+    )
   })
 })
