@@ -110,7 +110,7 @@ describe('행동 제안 화면', () => {
     const { onDone, onSupportRequired } = renderView()
     fireEvent.click(screen.getByRole('button', { name: 'LET’S DO IT' }))
 
-    await waitFor(() => expect(onSupportRequired).toHaveBeenCalledWith(support))
+    await waitFor(() => expect(onSupportRequired).toHaveBeenCalled())
     expect(onDone).not.toHaveBeenCalled()
   })
 

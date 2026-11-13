@@ -27,7 +27,7 @@ const BUTTON_BASE =
  * @param {() => void} props.onBack 뒤로 가기
  * @param {string} props.homeTo 홈 아이콘 주소
  * @param {(choice: 'action' | 'rest') => void} props.onDone 저장이 끝나면 호출한다
- * @param {(response: object) => void} props.onSupportRequired 응답이 `support_required`이면 호출한다
+ * @param {() => void} props.onSupportRequired 응답이 `support_required`이면 호출한다(응답 내용은 넘기지 않는다)
  */
 export const ActionSuggestionView = ({ caseId, onBack, homeTo, onDone, onSupportRequired }) => {
   const [selectedId, setSelectedId] = useState(MOCK_DEFAULT_OPTION_ID)
@@ -44,8 +44,13 @@ export const ActionSuggestionView = ({ caseId, onBack, homeTo, onDone, onSupport
     try {
       const response = await followUp.mutateAsync({ caseId, body })
       setIsLeaving(true)
-      if (isSupportRequired(response)) onSupportRequired(response)
-      else onDone(choice)
+      if (isSupportRequired(response)) {
+        // 위기 안내로 바뀌면 보낸 내용이 남지 않도록 요청 기록을 지우고 법정 흐름을 멈춘다.
+        followUp.reset()
+        onSupportRequired()
+        return
+      }
+      onDone(choice)
     } catch {
       // 오류는 followUp.isError로 화면에 알린다. 고른 카드는 그대로 둔다.
     }

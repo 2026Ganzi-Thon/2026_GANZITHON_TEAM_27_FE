@@ -97,4 +97,44 @@ describe('행동 제안 화면 연결', () => {
     expect(screen.getByRole('button', { name: '오늘은 쉬기' })).toBeEnabled()
     expect(screen.getByRole('button', { name: 'LET’S DO IT' })).toBeEnabled()
   })
+
+  it('저장 응답이 support_required면 위기 안내 화면(/support)으로 replace 이동하고 보낸 내용을 남기지 않는다', async () => {
+    vi.mocked(apiClient.put)
+      .mockReset()
+      .mockResolvedValue({
+        data: { outcome: 'support_required', support: { message: '...', contacts: [] } },
+      })
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const router = createMemoryRouter(routes, {
+      initialEntries: ['/', '/cases/case-7/action'],
+      initialIndex: 1,
+    })
+    render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>,
+    )
+    await screen.findByRole('heading', { name: 'YOUR NEXTMOVE.' })
+    fireEvent.click(radios()[0]) // "5분 산책하기"
+    fireEvent.click(screen.getByRole('button', { name: 'LET’S DO IT' }))
+
+    expect(await screen.findByRole('heading', { name: '지금, 괜찮으신가요?' })).toBeInTheDocument()
+    expect(pathOf(router)).toBe('/support')
+    expect(router.state.historyAction).toBe('REPLACE')
+    const { location } = router.state
+    expect(
+      `${location.search}${location.hash}${JSON.stringify(location.state ?? null)}`,
+    ).not.toContain('산책')
+    expect(
+      queryClient
+        .getMutationCache()
+        .getAll()
+        .filter((mutation) => JSON.stringify(mutation.state.variables ?? null).includes('산책')),
+    ).toHaveLength(0)
+    expect(JSON.stringify({ ...localStorage })).not.toContain('산책')
+
+    // 뒤로 가기로 행동 제안 화면에 돌아오지 않는다.
+    await router.navigate(-1)
+    expect(pathOf(router)).toBe('/')
+  })
 })
