@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import { RootLayout } from '@/components/layout/RootLayout'
 import RouteErrorPage from '@/pages/RouteErrorPage'
 import {
+  ActionSuggestionPage,
   CaseCardPage,
   CaseIntakePage,
   CommunityPage,
@@ -37,6 +38,7 @@ export const routes = [
           { path: ROUTE_PATHS.consent, element: <ConsentPage /> },
           { path: ROUTE_PATHS.community, element: <CommunityPage /> },
           { path: ROUTE_PATHS.court, element: <CourtPage /> },
+          { path: ROUTE_PATHS.caseAction, element: <ActionSuggestionPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },
