@@ -3,7 +3,7 @@ import { useCaseSummary } from '../hooks/useSummary'
 import { toSummaryView } from '../utils'
 import { EmotionChangeChart } from './EmotionChangeChart'
 import { SummaryActions } from './SummaryActions'
-import { SummaryCard } from './SummaryCard'
+import { SummaryCard, SummaryCardLine } from './SummaryCard'
 import { SummaryHeader } from './SummaryHeader'
 
 /**
@@ -79,15 +79,16 @@ export const SummaryView = ({ caseId, confirmTo, makeCardTo, onShare, scrollTarg
           {view.caseNumber ? `사건번호 #${view.caseNumber}` : ''}
         </p>
         {/* Figma 카드: x 17, y 180 / 265 / 350 (사이 11px) */}
-        <SummaryCard title="처음 든 생각" content={view.thought} tone="gray" className="mt-4.25" />
-        <SummaryCard
-          title="최종판결"
-          content={view.finalStatement}
-          tone="ink"
-          className="mt-2.75"
-        />
+        <SummaryCard title="처음 든 생각" tone="gray" className="mt-4.25">
+          <SummaryCardLine content={view.thought} />
+        </SummaryCard>
+        <SummaryCard title="최종판결" tone="ink" className="mt-2.75">
+          <SummaryCardLine content={view.finalStatement} />
+        </SummaryCard>
         {/* 사건 유형: 확정한 사고 패턴 중 대표 1개(toSummaryView). TODO(API 확인 필요: 대표 패턴을 서버가 정하는지) */}
-        <SummaryCard title="사건 유형" content={view.caseType} tone="slate" className="mt-2.75" />
+        <SummaryCard title="사건 유형" tone="slate" className="mt-2.75">
+          <SummaryCardLine content={view.caseType} />
+        </SummaryCard>
         <EmotionChangeChart ref={emotionRef} emotion={view.emotion} />
       </>
     )

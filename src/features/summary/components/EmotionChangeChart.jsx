@@ -3,17 +3,30 @@ import { intensityToChartY, SUMMARY_EMOTION_SECTION } from '../utils'
 /** 이 영역의 기준 y (Figma 화면 좌표). 안쪽 요소는 모두 Figma 좌표에서 이 값을 빼서 놓는다. */
 const TOP = 464
 
-/** 점 지름과 가로 위치(Figma 점 중심 x) */
+/** 점 지름 */
 const DOT = 17
-const BEFORE_X = 96.5
-const AFTER_X = 360.5
 
 /**
- * Figma 축(Vector 547)의 외곽선 그대로: (60, 526)에서 세로 145px, 가로 325px, 두께 1px의 L자.
- * 선 두께의 가운데가 좌표선 위에 놓인다.
+ * 그래프 그림 영역의 가로 기준 (Figma 402px 화면). 축은 x 60에서 시작해 화면 오른쪽 17px 앞(x 385)에서 끝난다.
+ * 화면 폭이 달라지면 이 영역만 늘고 줄며, 점의 가로 위치는 영역 안에서의 비율을 지킨다(402px에서 Figma와 같다).
  */
-const AXIS_PATH =
-  'M0 145L-0.5 145L-0.5 145.5L0 145.5L0 145ZM0 0L-0.5 0L-0.5 145L0 145L0.5 145L0.5 0L0 0ZM0 145L0 145.5L325 145.5L325 145L325 144.5L0 144.5L0 145Z'
+const PLOT_LEFT = 60
+const PLOT_RIGHT_GAP = 17
+const PLOT_WIDTH_AT_402 = 325
+/** 점 중심 x의 영역 안 비율 (Figma 96.5 → 36.5/325, 360.5 → 300.5/325) */
+const BEFORE_RATIO = (96.5 - PLOT_LEFT) / PLOT_WIDTH_AT_402
+const AFTER_RATIO = (360.5 - PLOT_LEFT) / PLOT_WIDTH_AT_402
+/** 축 위쪽 y (Figma 526) */
+const AXIS_TOP = 526
+
+/**
+ * 영역 안 비율 위치를 CSS left 값으로 바꾼다. (예: 비율 0.5, 보정 -8.5px → 영역 가운데에서 8.5px 왼쪽)
+ * @param {number} ratio 영역 안 가로 비율 (0~1)
+ * @param {number} [offset] 더할 px
+ * @returns {string}
+ */
+const plotLeft = (ratio, offset = 0) =>
+  `calc(${PLOT_LEFT}px + (100% - ${PLOT_LEFT + PLOT_RIGHT_GAP}px) * ${ratio} + ${offset}px)`
 
 /**
  * 감정 변화 확인 영역 (Figma y 464~712). 범례, 재판 전·후 감정 강도 그래프, 요약 문장을 보여준다.
@@ -77,26 +90,31 @@ export const EmotionChangeChart = ({ emotion, ref }) => {
               0
             </span>
 
-            {/* 축과 두 점을 잇는 선 (점 아래에 그린다) */}
+            {/* 축과 두 점을 잇는 선 (점 아래에 그린다). 그림 영역(x 60 ~ 오른쪽 17px 앞)만 화면 폭에 맞춰 늘고 준다.
+                Figma 축(Vector 547): 세로 145px·가로 325px(402px 화면)·두께 1px의 L자, 선 두께의 가운데가 좌표선 위에 놓인다. */}
             <svg
-              className="absolute top-0 left-0 overflow-visible"
-              width="402"
-              height="248"
+              className="absolute overflow-visible fill-ink stroke-ink"
+              style={{
+                top: at(AXIS_TOP),
+                left: PLOT_LEFT,
+                width: `calc(100% - ${PLOT_LEFT + PLOT_RIGHT_GAP}px)`,
+                height: 146,
+              }}
               aria-hidden="true"
             >
-              <path transform={`translate(60 ${at(526)})`} d={AXIS_PATH} fill="#2f2f2f" />
+              <rect x="-0.5" y="0" width="1" height="145.5" stroke="none" />
+              <rect x="0" y="144.5" width="100%" height="1" stroke="none" />
               <line
-                x1={BEFORE_X}
-                y1={at(intensityToChartY(emotion.before))}
-                x2={AFTER_X}
-                y2={at(intensityToChartY(emotion.after))}
-                stroke="#2f2f2f"
+                x1={`${BEFORE_RATIO * 100}%`}
+                y1={at(intensityToChartY(emotion.before)) - at(AXIS_TOP)}
+                x2={`${AFTER_RATIO * 100}%`}
+                y2={at(intensityToChartY(emotion.after)) - at(AXIS_TOP)}
                 strokeWidth="1"
               />
             </svg>
 
             <ChartPoint
-              cx={BEFORE_X}
+              ratio={BEFORE_RATIO}
               cy={at(intensityToChartY(emotion.before))}
               value={emotion.before}
               labelOffsetY={30.5}
@@ -104,7 +122,7 @@ export const EmotionChangeChart = ({ emotion, ref }) => {
               className="bg-field"
             />
             <ChartPoint
-              cx={AFTER_X}
+              ratio={AFTER_RATIO}
               cy={at(intensityToChartY(emotion.after))}
               value={emotion.after}
               labelOffsetY={34.5}
@@ -113,8 +131,8 @@ export const EmotionChangeChart = ({ emotion, ref }) => {
             />
           </figure>
 
-          {/* Figma 요약 문장: (18, 695) */}
-          <p className="absolute top-57.75 left-4.5 text-sm leading-[normal] whitespace-nowrap">
+          {/* Figma 요약 문장: (18, 695). 좁은 화면에서는 줄을 바꿔 가로로 넘치지 않는다. */}
+          <p className="absolute top-57.75 right-4.5 left-4.5 text-sm leading-[normal]">
             {emotion.sentence}
           </p>
         </>
@@ -129,19 +147,19 @@ export const EmotionChangeChart = ({ emotion, ref }) => {
 }
 
 /**
- * 그래프 점과 값 글자. 점 중심 좌표(cx, cy)를 받아 지름 17px 원과 "NN%" 글자를 그린다.
- * @param {{ cx: number, cy: number, value: number, labelOffsetX: number, labelOffsetY: number, className: string }} props
+ * 그래프 점과 값 글자. 그림 영역 안 가로 비율(ratio)과 점 중심 y(cy)를 받아 지름 17px 원과 "NN%" 글자를 그린다.
+ * @param {{ ratio: number, cy: number, value: number, labelOffsetX: number, labelOffsetY: number, className: string }} props
  */
-const ChartPoint = ({ cx, cy, value, labelOffsetX, labelOffsetY, className }) => (
+const ChartPoint = ({ ratio, cy, value, labelOffsetX, labelOffsetY, className }) => (
   <>
     <span
       className={`absolute rounded-full ${className}`}
-      style={{ left: cx - DOT / 2, top: cy - DOT / 2, width: DOT, height: DOT }}
+      style={{ left: plotLeft(ratio, -DOT / 2), top: cy - DOT / 2, width: DOT, height: DOT }}
       aria-hidden="true"
     />
     <span
       className="absolute text-sm leading-[normal]"
-      style={{ left: cx + labelOffsetX, top: cy - labelOffsetY }}
+      style={{ left: plotLeft(ratio, labelOffsetX), top: cy - labelOffsetY }}
       aria-hidden="true"
     >
       {value}%
