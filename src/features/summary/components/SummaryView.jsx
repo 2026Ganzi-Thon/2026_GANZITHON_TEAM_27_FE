@@ -25,7 +25,7 @@ export const SummaryView = ({ caseId, confirmTo, makeCardTo, onShare, scrollTarg
 
   // 내용을 다 불러온 뒤 처음 위치를 맞춘다. 화면은 RootLayout의 main 안에서 스크롤되고, 그래프는 불러온 뒤에야
   // 그려지므로 브라우저 기본 #이동 대신 직접 옮긴다. 그래프로 갈 때는 화면 읽기 프로그램도 그 위치에서 읽도록 포커스한다.
-  const isReady = summaryQuery.isSuccess
+  const isReady = Boolean(summaryQuery.data?.intake)
   useEffect(() => {
     if (!isReady) return
     if (scrollTarget === 'emotion' && emotionRef.current) {
@@ -46,9 +46,12 @@ export const SummaryView = ({ caseId, confirmTo, makeCardTo, onShare, scrollTarg
       )
     }
 
-    if (summaryQuery.isError) {
+    // 사건 접수 기록이 없으면(목업 저장소에 없음, 서버 404) 찾을 수 없다고 알린다.
+    const notFound =
+      summaryQuery.error?.response?.status === 404 ||
+      (!summaryQuery.isError && !summaryQuery.data?.intake)
+    if (summaryQuery.isError || notFound) {
       // TODO(피그마 확인 필요): 불러오기 실패·사건 없음(404) 디자인이 없다.
-      const notFound = summaryQuery.error?.response?.status === 404
       return (
         <div role="alert" className="m-auto flex flex-col items-center gap-4 text-center">
           <p className="text-sm text-ink">
@@ -68,7 +71,7 @@ export const SummaryView = ({ caseId, confirmTo, makeCardTo, onShare, scrollTarg
       )
     }
 
-    const view = toSummaryView(summaryQuery.data)
+    const view = toSummaryView(summaryQuery.data.intake, summaryQuery.data.result)
     return (
       <>
         {/* Figma 사건번호: (18, 144) */}

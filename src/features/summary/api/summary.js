@@ -1,15 +1,18 @@
 import { apiClient } from '@/lib/apiClient'
-import { mockCaseDetail, resolveMock, USE_SUMMARY_MOCK } from '../mocks/summaryMocks'
+import { readMockCaseDecision } from '@/lib/mockCaseDecisions'
+import { resolveMock, USE_SUMMARY_MOCK } from '../mocks/summaryMocks'
 
 /**
- * 사건 상세를 조회한다. 사건요약 화면의 사건번호·처음 든 생각·최종판결·사건 유형·감정 변화를 그린다.
- * TODO(API 확인 필요): 응답 구조가 미확정이다(docs/api-spec.md §10). 필드가 정해지면 utils.js의 toSummaryView만 고친다.
- * TODO(공통화 검토): 기소·변론·감정 변화 화면에도 같은 조회가 있다. 사건(case) 도메인에서 공개하면 그쪽을 쓴다.
- * @param {string} caseId 사건 ID (UUID)
- * @returns {Promise<object>} 사건 상세
+ * 사건의 법정 진행 결과(확정한 사고 패턴·판결·종결 감정)를 조회한다.
+ * - 목업: 판결 확정·증거 확정 목업이 사건별로 남긴 값(`lib/mockCaseDecisions`). 없으면 null.
+ * - 서버: `GET /cases/{caseId}` 응답 그대로(`pattern_tags`, `decision`, `emotion_after`는 변환 함수가 읽는다).
+ * TODO(API 확인 필요): 서버가 붙으면 접수 정보와 결과를 `GET /cases/{caseId}` 한 번으로 받도록 합친다
+ * (지금은 접수 정보를 동료의 useCase로 따로 읽는다).
+ * @param {string} caseId 사건 ID
+ * @returns {Promise<object | null>}
  */
-export const fetchCaseDetail = async (caseId) => {
-  if (USE_SUMMARY_MOCK) return resolveMock({ ...mockCaseDetail, id: caseId })
+export const fetchCaseResult = async (caseId) => {
+  if (USE_SUMMARY_MOCK) return resolveMock(readMockCaseDecision(caseId))
   const { data } = await apiClient.get(`/cases/${caseId}`)
   return data
 }

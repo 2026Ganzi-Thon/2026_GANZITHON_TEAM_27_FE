@@ -16,7 +16,7 @@ const caseDetail = {
   case_number: '2026-031',
   status: 'closed',
   thought: '나는 왜 자꾸 불안할까?',
-  case_type: '과도한 자기비판',
+  pattern_tags: ['all_or_nothing'],
   emotion: { type: 'anxiety', intensity: 80 },
   emotion_after: { type: 'anxiety', intensity: 40 },
   decision: { type: 'reframed', final_statement: '그럴 수 있다.' },
@@ -40,6 +40,19 @@ const scrollTo = vi.fn()
 
 describe('종결 카드 → 사건요약 (맨 위 / 감정 변화 그래프)', () => {
   beforeEach(() => {
+    // 사건요약은 접수 정보를 동료의 목업 저장소에서, 법정 진행 결과를 사건 상세에서 읽는다.
+    localStorage.clear()
+    localStorage.setItem(
+      'mock-case-files',
+      JSON.stringify([
+        {
+          id: 'case-7',
+          case_number: '2026-031',
+          thought: caseDetail.thought,
+          emotion: caseDetail.emotion,
+        },
+      ]),
+    )
     vi.mocked(apiClient.get).mockReset().mockResolvedValue({ data: caseDetail })
     scrollIntoView.mockReset()
     scrollTo.mockReset()

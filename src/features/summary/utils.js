@@ -1,4 +1,5 @@
 import { getEmotionLabel } from '@/constants/emotions'
+import { getThoughtPatternLabel } from '@/constants/thoughtPatterns'
 
 /**
  * 감정 그래프 세로축: 눈금 글자 가운데 y(Figma 화면 좌표) — 100 → 533, 50 → 600, 0 → 667.
@@ -48,12 +49,28 @@ export const formatEmotionChange = (label, before, after) => {
   return `재판 전과 후의 ${label} 강도가 같아요.`
 }
 
+/** 판단 보류(`deferred`)로 진술문 없이 확정했을 때 "최종판결" 칸 문구 */
+export const DEFERRED_STATEMENT = '판단을 보류했어요.'
+/** 확정한 사고 패턴이 없을 때 "사건 유형" 칸 문구 */
+export const NO_PATTERN = '찾은 사고 패턴이 없어요.'
+
 /**
- * API 사건 상세를 화면에서 쓰는 모양으로 바꾼다.
+ * 사건요약 화면에서 쓰는 모양으로 바꾼다. 접수 정보와 법정 진행 결과를 합치는 일은 이 함수 한 곳에서만 한다.
+ * 지금(목업)은 둘이 따로 오지만, 서버가 붙으면 `GET /cases/{caseId}` 응답 하나를 두 인자에 같이 넘기면 된다.
  * 감정 비교는 접수·종결에 같은 감정 type을 기록했을 때만 한다(docs/api-spec.md §6.5).
- * TODO(API 확인 필요): 사건 상세 응답 필드가 확정되면 이 함수만 고친다.
  *
- * @param {object} detail API 사건 상세
+ * - 처음 든 생각: 접수 글(`thought`). 카드가 한 줄로 보여주고 넘치면 말줄임한다.
+ *   TODO(API 확인 필요: 처음 든 생각 한 줄 요약 필드. claim인지 새 필드인지) AI 한 줄 요약 필드가 생기면 그 값을 쓴다.
+ * - 최종판결: 판결 화면에서 확정한 진술문(`decision.final_statement`, 직접 고쳤으면 고친 문장).
+ *   TODO(API 확인 필요): `GET /cases/{caseId}` 응답의 `decision.final_statement` 이름을 확인한다.
+ *   TODO(피그마 확인 필요): 판단 보류로 진술문 없이 확정했을 때의 표시 디자인이 없다(최소 문구).
+ * - 사건 유형: 확정한 사고 패턴(`pattern_tags`) 중 첫 번째 하나를 사고 패턴 이름으로 보여준다.
+ *   TODO(API 확인 필요: 대표 패턴 1개를 서버가 정하는지, 첫 번째를 쓰는지)
+ *   TODO(피그마 확인 필요): 패턴이 없을 때의 표시 디자인이 없다(최소 문구).
+ * - 감정 변화: 재판 전 = 접수 감정(`emotion`), 재판 후 = 감정 변화 화면에서 고른 값(`emotion_after`).
+ *
+ * @param {object | null | undefined} intake 사건 접수 정보 (`case_number`, `thought`, `emotion`)
+ * @param {object | null | undefined} result 법정 진행 결과 (`pattern_tags`, `decision`, `emotion_after`)
  * @returns {{
  *   caseNumber: string | null,
  *   thought: string,
@@ -62,17 +79,26 @@ export const formatEmotionChange = (label, before, after) => {
  *   emotion: { label: string, before: number, after: number, sentence: string } | null,
  * }}
  */
-export const toSummaryView = (detail) => {
-  const before = detail.emotion
-  const after = detail.emotion_after
-  const canCompare = Boolean(before && after && before.type === after.type)
+export const toSummaryView = (intake, result) => {
+  const before = intake?.emotion
+  const after = result?.emotion_after
+  const canCompare = Boolean(
+    before?.type &&
+    after?.type &&
+    before.type === after.type &&
+    typeof before.intensity === 'number' &&
+    typeof after.intensity === 'number',
+  )
   const label = canCompare ? getEmotionLabel(before.type) : null
+  const decision = result?.decision
+  const firstPattern = result?.pattern_tags?.[0]
 
   return {
-    caseNumber: detail.case_number ?? null,
-    thought: detail.thought ?? '',
-    finalStatement: detail.decision?.final_statement ?? '',
-    caseType: detail.case_type ?? '',
+    caseNumber: intake?.case_number ?? null,
+    thought: intake?.thought ?? '',
+    finalStatement:
+      decision?.final_statement || (decision?.type === 'deferred' ? DEFERRED_STATEMENT : ''),
+    caseType: firstPattern ? getThoughtPatternLabel(firstPattern) : NO_PATTERN,
     emotion: canCompare
       ? {
           label,
