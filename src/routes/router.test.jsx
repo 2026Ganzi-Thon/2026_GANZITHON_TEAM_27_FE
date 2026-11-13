@@ -1,8 +1,17 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { configure, fireEvent, render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { routes } from '@/routes/router'
+
+// 기소 화면이 API를 부르므로 네트워크 대신 끝나지 않는 요청으로 로딩 상태를 유지한다.
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: {
+    get: vi.fn(() => new Promise(() => {})),
+    post: vi.fn(() => new Promise(() => {})),
+    put: vi.fn(),
+  },
+}))
 
 // mock 서버가 단계마다 잠깐(300ms) 기다리므로, 느린 환경(CI)에서도 통과하도록 비동기 대기 시간을 늘린다.
 configure({ asyncUtilTimeout: 5000 })
@@ -27,6 +36,12 @@ describe('router', () => {
     renderAt('/')
     expect(await screen.findByRole('heading', { name: 'Thought Court' })).toBeInTheDocument()
     expect(await screen.findByText('아직 접수한 사건이 없어요.')).toBeInTheDocument()
+  })
+
+  it('기소 주소에서 기소 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/cases/case-1/prosecution')
+    expect(await screen.findByRole('heading', { name: '기소' })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('기소장을 작성하고 있어요')
   })
 
   it('없는 주소에서는 찾을 수 없음 화면과 홈 링크를 보여준다', async () => {

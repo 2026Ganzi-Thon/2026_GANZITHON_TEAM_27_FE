@@ -12,6 +12,7 @@ import {
   HomePage,
   LoginPage,
   NotFoundPage,
+  ProsecutionPage,
   SignupPage,
 } from '@/routes/lazyPages'
 import { ROUTE_PATHS } from '@/routes/paths'
@@ -37,6 +38,7 @@ export const routes = [
           { path: ROUTE_PATHS.consent, element: <ConsentPage /> },
           { path: ROUTE_PATHS.community, element: <CommunityPage /> },
           { path: ROUTE_PATHS.court, element: <CourtPage /> },
+          { path: ROUTE_PATHS.prosecution, element: <ProsecutionPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },
