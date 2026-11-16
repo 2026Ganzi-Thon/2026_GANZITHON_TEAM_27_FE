@@ -1,8 +1,17 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { configure, fireEvent, render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { routes } from '@/routes/router'
+
+// 기소 화면이 API를 부르므로 네트워크 대신 끝나지 않는 요청으로 로딩 상태를 유지한다.
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: {
+    get: vi.fn(() => new Promise(() => {})),
+    post: vi.fn(() => new Promise(() => {})),
+    put: vi.fn(),
+  },
+}))
 
 // mock 서버가 단계마다 잠깐(300ms) 기다리므로, 느린 환경(CI)에서도 통과하도록 비동기 대기 시간을 늘린다.
 configure({ asyncUtilTimeout: 5000 })
@@ -29,6 +38,18 @@ describe('router', () => {
     expect(await screen.findByText('아직 접수한 사건이 없어요.')).toBeInTheDocument()
   })
 
+  it('기소 주소에서 기소 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/cases/case-1/prosecution')
+    expect(await screen.findByRole('heading', { name: '기소' })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('기소장을 작성하고 있어요')
+  })
+
+  it('변론 주소에서 변론(AI 챗봇) 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/cases/case-1/defense')
+    expect(await screen.findByRole('heading', { name: '변론' })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('질문을 준비하고 있어요')
+  })
+
   it('없는 주소에서는 찾을 수 없음 화면과 홈 링크를 보여준다', async () => {
     renderAt('/no-such-page')
     expect(
@@ -51,7 +72,7 @@ describe('router', () => {
     expect(screen.getByRole('slider', { name: '감정의 강도' })).toBeEnabled()
   })
 
-  it('사건을 접수하면 홈의 최근 사건파일에 사건이 나타난다', async () => {
+  it('홈에서 사건을 접수하면 저장되고 그 사건의 기소 화면으로 넘어간다', async () => {
     renderAt('/')
 
     fireEvent.click(await screen.findByRole('link', { name: '사건 접수하기' }))
@@ -61,10 +82,12 @@ describe('router', () => {
     fireEvent.click(screen.getByRole('radio', { name: '불안' }))
     fireEvent.click(screen.getByRole('button', { name: '다음' }))
 
-    expect(await screen.findByRole('link', { name: '새 사건 접수하기' })).toBeInTheDocument()
-    expect(
-      await screen.findByRole('button', { name: /회의에서 발표를 망쳤다.*감정 변화 불안 40/ }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '기소' })).toBeInTheDocument()
+    const [saved] = JSON.parse(localStorage.getItem('mock-case-files'))
+    expect(saved).toMatchObject({
+      thought: '회의에서 발표를 망쳤다',
+      emotion: { type: 'anxiety', intensity: 40 },
+    })
   })
 
   it('감정을 고르지 않아도 사건을 접수할 수 있다', async () => {
@@ -75,9 +98,9 @@ describe('router', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: '다음' }))
 
-    expect(
-      await screen.findByRole('button', { name: /친구가 답장이 없다.*감정 기록 없음/ }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '기소' })).toBeInTheDocument()
+    const [saved] = JSON.parse(localStorage.getItem('mock-case-files'))
+    expect(saved).toMatchObject({ thought: '친구가 답장이 없다', emotion: null })
   })
 
   it('사건 목록(court) 화면에서 접수한 사건을 목록으로 보여준다', async () => {
@@ -108,5 +131,59 @@ describe('router', () => {
   it('사건이 없으면 사건 목록(court) 화면에 빈 상태를 보여준다', async () => {
     renderAt('/court')
     expect(await screen.findByText('아직 접수한 사건이 없어요.')).toBeInTheDocument()
+  })
+
+  it('판결 주소에서 판결 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/cases/case-1/decision')
+    expect(await screen.findByRole('heading', { name: '판결' })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('판결문을 작성하고 있어요')
+  })
+
+  it('감정 변화 주소에서 감정 변화 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/cases/case-1/emotion')
+    expect(await screen.findByRole('heading', { name: '감정 확인' })).toBeInTheDocument()
+    expect(screen.getByRole('slider', { name: '지금 감정의 강도' })).toHaveAttribute(
+      'aria-valuenow',
+      '40',
+    )
+  })
+
+  it('행동 제안 주소에서 행동 제안 화면을 보여준다', async () => {
+    renderAt('/cases/sample/action')
+    expect(await screen.findByRole('heading', { name: 'YOUR NEXTMOVE.' })).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: 'CHOOSE YOUR ACTION' })).toBeInTheDocument()
+  })
+
+  it('위기 안내 주소에서 위기 안내 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/support')
+    expect(await screen.findByRole('heading', { name: '지금, 괜찮으신가요?' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '자살예방 상담전화 109에 전화 걸기' })).toHaveAttribute(
+      'href',
+      'tel:109',
+    )
+  })
+
+  it('종결 주소에서 사건 종결 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/cases/case-1/closing')
+    expect(
+      await screen.findByRole('heading', { name: '사건이 종결되었습니다' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '확인' })).toHaveAttribute(
+      'href',
+      '/cases/case-1/summary',
+    )
+  })
+
+  it('사건요약 주소에서 사건요약 화면을 lazy loading으로 보여준다', async () => {
+    renderAt('/cases/case-1/summary')
+    expect(await screen.findByRole('heading', { name: '사건파일 요약' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '확인' })).toHaveAttribute(
+      'href',
+      '/cases/case-1/action',
+    )
+    expect(screen.getByRole('link', { name: '사건카드 만들기' })).toHaveAttribute(
+      'href',
+      '/cases/case-1/card',
+    )
   })
 })

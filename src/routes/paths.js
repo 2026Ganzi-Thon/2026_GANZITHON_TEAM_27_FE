@@ -18,6 +18,22 @@ export const ROUTE_PATHS = {
   // TODO(피그마 확인 필요): 하단 탭바 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
   community: '/community',
   court: '/court',
+  // TODO(피그마 확인 필요): 기소 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
+  prosecution: '/cases/:caseId/prosecution',
+  // TODO(피그마 확인 필요): 변론(AI 챗봇) 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
+  defense: '/cases/:caseId/defense',
+  // TODO(피그마 확인 필요): 판결 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
+  decision: '/cases/:caseId/decision',
+  // TODO(피그마 확인 필요): 감정 변화 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
+  emotion: '/cases/:caseId/emotion',
+  // TODO(피그마 확인 필요): 행동 제안 화면(Figma 2-7, 감정 변화 다음) 주소. `화면 이동` 페이지 기준으로 확정한다.
+  caseAction: '/cases/:caseId/action',
+  // TODO(피그마 확인 필요): 위기 안내 화면 주소. 어느 화면에서든 오는 공용 화면이라 사건 ID를 넣지 않는다.
+  crisisSupport: '/support',
+  // TODO(피그마 확인 필요): 사건 종결 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
+  caseClosing: '/cases/:caseId/closing',
+  // TODO(피그마 확인 필요): 사건요약 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
+  caseSummary: '/cases/:caseId/summary',
 }
 
 /** 사건 카드 화면 주소를 사건 ID로 만든다. 예: `getCaseCardPath('abc')` → `/cases/abc/card` */
@@ -25,6 +41,27 @@ export const getCaseCardPath = (caseId) => `/cases/${caseId}/card`
 
 /** 게시판 공유 화면 주소를 사건 ID로 만든다. 예: `getCommunitySharePath('abc')` → `/cases/abc/share` */
 export const getCommunitySharePath = (caseId) => `/cases/${caseId}/share`
+
+/** 기소 화면 주소를 사건 ID로 만든다. 예: `getProsecutionPath('abc')` → `/cases/abc/prosecution` */
+export const getProsecutionPath = (caseId) => `/cases/${caseId}/prosecution`
+
+/** 변론(AI 챗봇) 화면 주소를 사건 ID로 만든다. 예: `getDefensePath('abc')` → `/cases/abc/defense` */
+export const getDefensePath = (caseId) => `/cases/${caseId}/defense`
+
+/** 판결 화면 주소를 사건 ID로 만든다. 예: `getDecisionPath('abc')` → `/cases/abc/decision` */
+export const getDecisionPath = (caseId) => `/cases/${caseId}/decision`
+
+/** 감정 변화 화면 주소를 사건 ID로 만든다. 예: `getEmotionPath('abc')` → `/cases/abc/emotion` */
+export const getEmotionPath = (caseId) => `/cases/${caseId}/emotion`
+
+/** 행동 제안 화면 주소를 사건 ID로 만든다. 예: `getCaseActionPath('abc')` → `/cases/abc/action` */
+export const getCaseActionPath = (caseId) => `/cases/${caseId}/action`
+
+/** 사건 종결 화면 주소를 사건 ID로 만든다. 예: `getCaseClosingPath('abc')` → `/cases/abc/closing` */
+export const getCaseClosingPath = (caseId) => `/cases/${caseId}/closing`
+
+/** 사건요약 화면 주소를 사건 ID로 만든다. 예: `getCaseSummaryPath('abc')` → `/cases/abc/summary` */
+export const getCaseSummaryPath = (caseId) => `/cases/${caseId}/summary`
 
 /** 하단 탭바(BottomTabBar)에 넘기는 탭별 이동 주소. */
 export const TAB_PATHS = {
