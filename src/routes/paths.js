@@ -19,6 +19,8 @@ export const ROUTE_PATHS = {
   community: '/community',
   // TODO(피그마 확인 필요): 화면 이동 페이지 기준으로 글쓰기 주소를 확정한다.
   communityWrite: '/community/write',
+  // TODO(피그마 확인 필요): 비공개 설정 패널의 시각 확인용 주소.
+  communityWritePrivate: '/community/write/private',
   // TODO(피그마 확인 필요): 게시판 상세 화면 주소 (Figma 4-2 게시판 상세).
   communityPost: '/community/:postId',
   court: '/court',
