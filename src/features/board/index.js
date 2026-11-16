@@ -4,6 +4,7 @@ export { BoardActionBar } from './components/BoardActionBar'
 export { BoardCommentSection } from './components/BoardCommentSection'
 export { BoardCommentInput } from './components/BoardCommentInput'
 export { BoardDetailView } from './components/BoardDetailView'
+export { BoardWriteView } from './components/BoardWriteView'
 
 export { usePostDetail, useTogglePostLike, useAddComment } from './hooks/useBoard'
 export { mockPostDetail, DEMO_POST_ID } from './mocks/boardMocks'
