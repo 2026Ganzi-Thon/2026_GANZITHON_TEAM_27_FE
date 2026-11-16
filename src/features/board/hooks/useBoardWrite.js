@@ -1,25 +1,26 @@
 import { useRef, useState } from 'react'
 import { VISIBILITY } from '@/constants/visibility'
-import { submitMockBoardPost } from '../mocks/boardWriteMocks'
+import { submitMockBoardPost, updateMockBoardPost } from '../mocks/boardWriteMocks'
 
 /**
  * 글쓰기 입력과 목업 제출을 관리한다. API 연결 시 제출 함수만 교체한다.
  * 등록에 성공하면 `onSubmitted`를 호출한다(화면 이동은 쓰는 쪽이 정한다).
+ * `editPost`(`{ id, title, body, visibility }`)를 주면 수정 모드다. 그 내용으로 채워서 시작하고, 등록 대신 글을 고친다.
  */
-export const useBoardWrite = ({ onOpenPrivate, onClosePrivate, onSubmitted } = {}) => {
-  const [title, setTitle] = useState('')
-  const [body, setBody] = useState('')
-  const [visibility, setVisibility] = useState('')
+export const useBoardWrite = ({ onOpenPrivate, onClosePrivate, onSubmitted, editPost } = {}) => {
+  const [title, setTitle] = useState(editPost?.title ?? '')
+  const [body, setBody] = useState(editPost?.body ?? '')
+  const [visibility, setVisibility] = useState(editPost?.visibility ?? '')
   const [isPrivateOpen, setPrivateOpen] = useState(false)
   const isSubmitting = useRef(false)
   const canSubmit = Boolean(title.trim() && body.trim() && visibility)
 
-  /** 글을 등록하고, 끝나면 `onSubmitted`를 부른다. 등록 중에 다시 누르면 무시해서 같은 글이 두 번 올라가지 않게 한다. */
+  /** 글을 등록(수정 모드면 수정)하고, 끝나면 `onSubmitted`를 부른다. 등록 중에 다시 누르면 무시해서 같은 글이 두 번 올라가지 않게 한다. */
   const register = async (values) => {
     if (isSubmitting.current) return
     isSubmitting.current = true
     try {
-      await submitMockBoardPost(values)
+      await (editPost ? updateMockBoardPost(editPost.id, values) : submitMockBoardPost(values))
       onSubmitted?.()
     } finally {
       isSubmitting.current = false

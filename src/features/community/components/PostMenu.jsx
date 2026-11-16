@@ -3,12 +3,13 @@ import { useEffect, useRef, useState } from 'react'
 /**
  * 내 글 오른쪽 위의 "···" 메뉴. 누르면 "수정하기", "삭제하기"가 나온다. 바깥을 누르거나 Esc를 누르면 닫힌다.
  *
- * TODO(피그마 확인 필요): 글 수정 화면이 시안에 없어서 "수정하기"는 누를 수 없게 두었다.
+ * TODO(API 확인 필요): 게시글 수정 API가 명세에 없다. 수정을 지원하지 않으면 "수정하기"를 뺀다.
  *
- * @param {{ onDelete: () => void }} props
+ * @param {{ onEdit: () => void, onDelete: () => void }} props
+ * - `onEdit`: "수정하기"를 누르면 호출한다
  * - `onDelete`: "삭제하기"를 누르면 호출한다
  */
-export const PostMenu = ({ onDelete }) => {
+export const PostMenu = ({ onEdit, onDelete }) => {
   const [open, setOpen] = useState(false)
   const rootRef = useRef(null)
 
@@ -49,7 +50,15 @@ export const PostMenu = ({ onDelete }) => {
           role="menu"
           className="absolute top-9 right-1.5 z-10 w-16.75 rounded-[9px] bg-[rgba(117,117,117,0.2)] px-3 py-1 text-xs leading-[normal] text-black backdrop-blur-sm"
         >
-          <button type="button" role="menuitem" disabled className="block h-5 w-full text-left">
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false)
+              onEdit()
+            }}
+            className="block h-5 w-full text-left"
+          >
             수정하기
           </button>
           <button

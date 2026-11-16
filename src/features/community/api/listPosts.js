@@ -1,4 +1,5 @@
 import { VISIBILITY } from '@/constants/visibility'
+import { countMockInteractions } from '@/lib/mockBoardInteractions'
 import { readPosts, wait } from './mockPostStore'
 
 /** 게시판 글 목록 조회 범위. `mine`은 내 글만, `all`은 모든 글이다. */
@@ -30,8 +31,9 @@ const toListItem = (post, now) => {
     pattern_tags: post.pattern_tags ?? [],
     is_mine: true,
     is_hot: false,
-    like_count: 0,
-    comment_count: 0,
+    // 상세 화면에서 누른 공감과 단 댓글(목업 저장소)을 센다.
+    like_count: countMockInteractions(post.id).likes,
+    comment_count: countMockInteractions(post.id).comments,
   }
 }
 

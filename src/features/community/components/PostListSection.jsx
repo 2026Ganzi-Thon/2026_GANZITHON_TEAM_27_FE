@@ -13,9 +13,11 @@ import { PostRow } from './PostRow'
  * - 사건 유형과 공개 범위는 이 컴포넌트 안에서만 다루고, 시트에서 "보기"를 눌렀을 때 목록에 적용한다.
  * - 시트는 `fixed` 없이 프레임 전체를 덮으므로, 이 컴포넌트를 감싸는 요소에 `relative`를 두지 않는다.
  *
+ * 내 글 메뉴의 "수정하기"를 누르면 `onEditPost`를 글과 함께 호출한다(수정 화면으로 가는 일은 쓰는 쪽이 정한다).
+ *
  * TODO(API 확인 필요): 필터를 URL의 검색 파라미터(`tag`, `q`)로 둘지 정해지면 맞춘다(`docs/routes.md` 참고).
  */
-export const PostListSection = ({ getPostPath }) => {
+export const PostListSection = ({ getPostPath, onEditPost }) => {
   const [patterns, setPatterns] = useState([])
   const [scope, setScope] = useState(null)
   const [openSheet, setOpenSheet] = useState(null)
@@ -50,7 +52,12 @@ export const PostListSection = ({ getPostPath }) => {
         <ul>
           {posts.map((post) => (
             <li key={post.id}>
-              <PostRow post={post} onDelete={removePost} to={getPostPath(post.id)} />
+              <PostRow
+                post={post}
+                onEdit={onEditPost}
+                onDelete={removePost}
+                to={getPostPath(post.id)}
+              />
               <img
                 src={dividerUrl}
                 alt=""

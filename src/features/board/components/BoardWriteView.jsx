@@ -9,6 +9,7 @@ export const BoardWriteView = ({
   onOpenPrivate,
   onClosePrivate,
   onSubmitted,
+  editPost,
   isPrivateRoute = false,
 }) => {
   const {
@@ -23,7 +24,7 @@ export const BoardWriteView = ({
     isPrivateOpen,
     closePrivate,
     submitPrivate,
-  } = useBoardWrite({ onOpenPrivate, onClosePrivate, onSubmitted })
+  } = useBoardWrite({ onOpenPrivate, onClosePrivate, onSubmitted, editPost })
 
   return (
     <>
@@ -82,7 +83,7 @@ export const BoardWriteView = ({
             disabled={!canSubmit}
             className="mt-auto flex h-button shrink-0 items-center justify-center rounded-full bg-field text-base leading-auto font-semibold disabled:cursor-default"
           >
-            등록하기
+            {editPost ? '수정하기' : '등록하기'}
           </button>
         </form>
       </section>

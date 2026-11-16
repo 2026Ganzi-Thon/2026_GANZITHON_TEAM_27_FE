@@ -1,4 +1,4 @@
-import { createPost } from '@/features/community'
+import { createPost, updatePost } from '@/features/community'
 
 /**
  * 글쓰기 등록 요청을 흉내 낸다. 게시판 글 저장소(목업)에 글을 저장해서 목록에 나타나게 한다.
@@ -11,3 +11,14 @@ import { createPost } from '@/features/community'
  * @returns {Promise<{ id: string, status: string }>}
  */
 export const submitMockBoardPost = (body) => createPost(null, body)
+
+/**
+ * 글 수정 요청을 흉내 낸다. 게시판 글 저장소(목업)의 글을 바꾼다.
+ *
+ * TODO(API 확인 필요): 게시글 수정 API(`PATCH /board/posts/{id}`)가 명세에 없다.
+ *
+ * @param {string} postId 수정할 글 ID
+ * @param {{ title: string, body: string, visibility: string, password?: string }} body 바꿀 내용
+ * @returns {Promise<{ id: string } | null>}
+ */
+export const updateMockBoardPost = (postId, body) => updatePost(postId, body)

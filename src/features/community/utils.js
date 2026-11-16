@@ -80,7 +80,7 @@ const FEED_TAG_LABEL = '# FREE TALK'
  *
  * @param {object} post API 게시글 item
  * @param {number} [now] 기준 시각(ms)
- * @returns {{ id: string, title: string, body: string, tagLabel: string, likes: number, comments: number, timeLabel: string, isHot: boolean, isMine: boolean, isLocked: boolean }}
+ * @returns {{ id: string, title: string, body: string, visibility: string, tagLabel: string, likes: number, comments: number, timeLabel: string, isHot: boolean, isMine: boolean, isLocked: boolean }}
  */
 export const toPostView = (post, now = Date.now()) => {
   const isLocked = post.visibility === VISIBILITY.passwordProtected && !post.is_mine
@@ -88,6 +88,7 @@ export const toPostView = (post, now = Date.now()) => {
     id: post.id,
     title: isLocked ? '비공개 글이에요' : post.title,
     body: isLocked ? '비밀번호가 필요합니다.' : (post.body ?? ''),
+    visibility: post.visibility,
     tagLabel: FEED_TAG_LABEL,
     likes: post.like_count ?? 0,
     comments: post.comment_count ?? 0,
