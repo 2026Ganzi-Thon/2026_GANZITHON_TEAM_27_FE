@@ -13,5 +13,7 @@ export const usePosts = (filters = {}) =>
   useQuery({
     queryKey: postKeys.list(filters),
     queryFn: () => listPosts(filters),
-    select: (response) => response.items.map(toPostView),
+    // 글쓰기·공유로 새 글이 생겼을 수 있어서, 화면을 열 때마다 다시 받는다.
+    refetchOnMount: 'always',
+    select: (response) => response.items.map((post) => toPostView(post)),
   })

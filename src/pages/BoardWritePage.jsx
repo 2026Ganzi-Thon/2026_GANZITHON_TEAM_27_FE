@@ -9,6 +9,7 @@ const BoardWritePage = () => {
   return (
     <BoardWriteView
       onBack={() => navigate(ROUTE_PATHS.community)}
+      onSubmitted={() => navigate(ROUTE_PATHS.communityPosts, { replace: true })}
       isPrivateRoute={location.pathname === ROUTE_PATHS.communityWritePrivate}
       onOpenPrivate={() =>
         navigate(ROUTE_PATHS.communityWritePrivate, { state: { fromWrite: true } })

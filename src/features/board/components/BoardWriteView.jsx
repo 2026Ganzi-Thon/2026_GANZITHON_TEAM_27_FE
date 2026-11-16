@@ -8,6 +8,7 @@ export const BoardWriteView = ({
   onBack,
   onOpenPrivate,
   onClosePrivate,
+  onSubmitted,
   isPrivateRoute = false,
 }) => {
   const {
@@ -22,7 +23,7 @@ export const BoardWriteView = ({
     isPrivateOpen,
     closePrivate,
     submitPrivate,
-  } = useBoardWrite({ onOpenPrivate, onClosePrivate })
+  } = useBoardWrite({ onOpenPrivate, onClosePrivate, onSubmitted })
 
   return (
     <>
