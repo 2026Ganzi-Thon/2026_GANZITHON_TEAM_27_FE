@@ -19,7 +19,7 @@ const TONE_CLASSES = {
  * }} props
  * - `tone`: 배경색. 기본은 회색이다.
  * TODO(API 확인 필요): 진행 중이거나 감정 비교가 불가능한 사건은 `emotionChange`가 없을 수 있다. 응답 필드가 확정되면 상태별 표시를 나눈다.
- * TODO(API 확인 필요): 사건 상세 이동은 라우트와 응답 필드가 확정되면 연결한다.
+ * 눌렀을 때 이동은 쓰는 화면이 `onClick`으로 정한다(홈·사건 목록은 사건요약 화면).
  */
 export const CaseCard = ({ title, dateLabel, emotionChange, tone = 'gray', onClick }) => (
   <button
