@@ -2,6 +2,16 @@ import { getEmotionLabel } from '@/constants/emotions'
 
 const SEOUL = 'Asia/Seoul'
 
+/** 사건이 만들어졌음을 뜻하는 접수 응답 outcome. 예전 목업 값 `created`도 함께 받는다. */
+const CASE_CREATED_OUTCOMES = ['case_created', 'created']
+
+/**
+ * 사건 접수 응답이 "사건이 만들어짐"인지 확인한다. 위기 안내(`support_required`)면 false다.
+ * @param {{ outcome?: string } | undefined} result `POST /cases` 응답
+ * @returns {boolean}
+ */
+export const isCaseCreated = (result) => CASE_CREATED_OUTCOMES.includes(result?.outcome)
+
 /** 카드용 날짜. 예: `July 20,2026` */
 export const formatCardDate = (iso) => {
   const date = new Date(iso)

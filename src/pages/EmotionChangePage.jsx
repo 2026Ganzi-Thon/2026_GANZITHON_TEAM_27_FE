@@ -13,9 +13,7 @@ import { getCaseClosingPath, getDecisionPath, ROUTE_PATHS } from '@/routes/paths
 /**
  * 감정 변화 화면 입구 (Figma `2-6 감정변화`). 주소의 사건 ID를 emotion feature에 넘긴다.
  *
- * 접수 당시 감정은 동료의 공용 사건 조회(`useCase`, `GET /cases/{caseId}` 역할)로 읽는다.
- * 지금은 목업 저장소(사건 접수 화면이 저장한 사건, `sample`은 예시 사건)에서 같은 caseId 사건을 찾는다.
- * TODO(API 확인 필요): 동료의 `getCase`가 실제 API(`apiClient.get`)로 바뀌면 이 화면도 함께 실제 API를 쓴다.
+ * 접수 당시 감정은 공용 사건 조회(`useCase`, `GET /cases/{caseId}`)로 읽는다(`sample`은 예시 사건).
  *
  * 판결 화면 "사건파일 저장하기"에서 고른 판결 유형·최종 진술문(location.state.decision)을 받아,
  * "다음"에서 지금 감정(emotion_after)과 함께 판결을 확정한다(`PUT /cases/{caseId}/decision/final`).

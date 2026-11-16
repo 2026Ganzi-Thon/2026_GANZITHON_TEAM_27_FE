@@ -2,7 +2,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { configure, fireEvent, render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { apiClient } from '@/lib/apiClient'
 import { routes } from '@/routes/router'
+
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: { get: vi.fn(), post: vi.fn(), put: vi.fn() },
+}))
 
 // jsdom에는 Canvas가 없으므로 카드 그리기는 가짜 PNG를 돌려주게 한다. 그리기 자체는 브라우저에서 확인한다.
 vi.mock('@/features/card/renderCaseCard', () => ({
@@ -72,10 +77,14 @@ describe('사건 카드 화면', () => {
     expect(await screen.findByRole('radio', { name: /전체 공개/ })).toBeInTheDocument()
   })
 
-  it('없는 사건이면 안내 문구와 홈 링크를 보여준다', async () => {
+  it('없는 사건(서버 404)이면 안내 문구와 홈 링크를 보여준다', async () => {
+    vi.mocked(apiClient.get).mockRejectedValue(
+      Object.assign(new Error('not found'), { response: { status: 404 } }),
+    )
     renderAt('/cases/no-such-case/card')
 
     expect(await screen.findByText('사건을 찾을 수 없어요.')).toBeInTheDocument()
+    expect(apiClient.get).toHaveBeenCalledWith('/cases/no-such-case')
     expect(screen.getByRole('link', { name: '홈으로 가기' })).toHaveAttribute('href', '/')
   })
 })

@@ -1,4 +1,5 @@
 export { IntakeForm } from './components/IntakeForm'
+export { caseKeys } from './hooks/caseKeys'
 export { useCase } from './hooks/useCase'
 export { useCases } from './hooks/useCases'
 export { useCreateCase } from './hooks/useCreateCase'

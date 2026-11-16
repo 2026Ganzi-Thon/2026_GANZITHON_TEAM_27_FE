@@ -6,6 +6,8 @@ export { BoardCommentInput } from './components/BoardCommentInput'
 export { BoardDetailView } from './components/BoardDetailView'
 export { BoardWriteView } from './components/BoardWriteView'
 export { BoardPrivateSettings } from './components/BoardPrivateSettings'
+export { BoardUnlockForm } from './components/BoardUnlockForm'
 
 export { usePostDetail, useTogglePostLike, useAddComment } from './hooks/useBoard'
+export { useUnlockPost } from './hooks/useUnlockPost'
 export { mockPostDetail, DEMO_POST_ID } from './mocks/boardMocks'

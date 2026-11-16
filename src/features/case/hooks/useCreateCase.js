@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createCase } from '../api/createCase'
+import { isCaseCreated } from '../utils'
 import { caseKeys } from './caseKeys'
 
 /**
@@ -13,7 +14,7 @@ export const useCreateCase = () => {
   return useMutation({
     mutationFn: createCase,
     onSuccess: (result) => {
-      if (result.outcome === 'created') {
+      if (isCaseCreated(result)) {
         return queryClient.invalidateQueries({ queryKey: caseKeys.all })
       }
     },

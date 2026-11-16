@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import titleUrl from '@/assets/intake/intake-title.svg'
 import { EMOTIONS, EMOTION_INTENSITY_RANGE } from '@/constants/emotions'
 import { useCreateCase } from '../hooks/useCreateCase'
+import { isCaseCreated } from '../utils'
 import { EmotionPicker } from './EmotionPicker'
 import { IntensitySlider } from './IntensitySlider'
 
@@ -53,7 +54,7 @@ export const IntakeForm = ({ onCreated }) => {
       },
       {
         onSuccess: (result) => {
-          if (result.outcome !== 'created') return
+          if (!isCaseCreated(result)) return
           idempotencyKeyRef.current = crypto.randomUUID()
           onCreated(result.case)
         },

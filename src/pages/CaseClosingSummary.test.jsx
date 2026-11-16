@@ -40,19 +40,7 @@ const scrollTo = vi.fn()
 
 describe('종결 확인 → 사건요약', () => {
   beforeEach(() => {
-    // 사건요약은 접수 정보를 동료의 목업 저장소에서, 법정 진행 결과를 사건 상세에서 읽는다.
-    localStorage.clear()
-    localStorage.setItem(
-      'mock-case-files',
-      JSON.stringify([
-        {
-          id: 'case-7',
-          case_number: '2026-031',
-          thought: caseDetail.thought,
-          emotion: caseDetail.emotion,
-        },
-      ]),
-    )
+    // 사건요약은 사건 상세(GET /cases/{id}) 하나로 접수 정보와 법정 진행 결과를 읽는다.
     vi.mocked(apiClient.get).mockReset().mockResolvedValue({ data: caseDetail })
     scrollIntoView.mockReset()
     scrollTo.mockReset()

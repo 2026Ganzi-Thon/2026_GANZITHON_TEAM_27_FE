@@ -3,12 +3,23 @@ import { BoardDetailHeader } from './BoardDetailHeader'
 import { useBoardWrite } from '../hooks/useBoardWrite'
 import { BoardPrivateSettings } from './BoardPrivateSettings'
 
-/** Figma 71:88 글쓰기 화면. 입력과 공개 범위를 선택하고 목업 요청을 제출한다. */
+/**
+ * Figma 71:88 글쓰기 화면. 입력과 공개 범위를 선택하고 `POST /board/posts`로 등록한다.
+ * @param {object} props
+ * @param {() => void} [props.onBack] 뒤로 가기
+ * @param {() => void} [props.onOpenPrivate] 비공개 설정을 하위 라우트로 열 때 호출한다(없으면 패널을 바로 연다)
+ * @param {() => void} [props.onClosePrivate] 비공개 설정을 닫을 때 호출한다
+ * @param {boolean} [props.isPrivateRoute] 비공개 설정 하위 라우트가 열려 있는지
+ * @param {(result: object) => void} [props.onSubmitted] 등록에 성공하면 호출한다
+ * @param {() => void} [props.onSupportRequired] 응답이 위기 안내(`support_required`)면 호출한다
+ */
 export const BoardWriteView = ({
   onBack,
   onOpenPrivate,
   onClosePrivate,
   isPrivateRoute = false,
+  onSubmitted,
+  onSupportRequired,
 }) => {
   const {
     title,
@@ -19,16 +30,19 @@ export const BoardWriteView = ({
     setVisibility,
     canSubmit,
     handleSubmit,
+    isPending,
+    errorMessage,
     isPrivateOpen,
     closePrivate,
     submitPrivate,
-  } = useBoardWrite({ onOpenPrivate, onClosePrivate })
+  } = useBoardWrite({ onOpenPrivate, onClosePrivate, onSubmitted, onSupportRequired })
+  const privateOpen = isPrivateOpen || isPrivateRoute
 
   return (
     <>
       <section
-        inert={isPrivateOpen || isPrivateRoute}
-        aria-hidden={isPrivateOpen || isPrivateRoute || undefined}
+        inert={privateOpen}
+        aria-hidden={privateOpen || undefined}
         className="flex min-h-full flex-1 flex-col bg-canvas pt-status-bar text-black"
       >
         <BoardDetailHeader onBack={onBack} showShare={false} />
@@ -76,17 +90,29 @@ export const BoardWriteView = ({
             ))}
           </fieldset>
           {/* TODO(Figma 확인 필요): 활성·선택 상태 시안이 없어 색상 전환은 보류한다. */}
+          {errorMessage && !privateOpen && (
+            <p role="alert" className="mt-4 text-sm text-danger">
+              {errorMessage}
+            </p>
+          )}
           <button
             type="submit"
             disabled={!canSubmit}
             className="mt-auto flex h-button shrink-0 items-center justify-center rounded-full bg-field text-base leading-auto font-semibold disabled:cursor-default"
           >
-            등록하기
+            {isPending ? '등록 중…' : '등록하기'}
           </button>
         </form>
       </section>
-      <Outlet context={{ submitPrivate, closePrivate }} />
-      {isPrivateOpen && <BoardPrivateSettings onSubmit={submitPrivate} onClose={closePrivate} />}
+      <Outlet context={{ submitPrivate, closePrivate, errorMessage, isPending }} />
+      {isPrivateOpen && (
+        <BoardPrivateSettings
+          onSubmit={submitPrivate}
+          onClose={closePrivate}
+          error={errorMessage}
+          isPending={isPending}
+        />
+      )}
     </>
   )
 }

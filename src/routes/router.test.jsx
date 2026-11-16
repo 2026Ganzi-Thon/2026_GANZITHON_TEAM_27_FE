@@ -2,18 +2,43 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { configure, fireEvent, render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { apiClient } from '@/lib/apiClient'
 import { routes } from '@/routes/router'
 
-// 기소 화면이 API를 부르므로 네트워크 대신 끝나지 않는 요청으로 로딩 상태를 유지한다.
 vi.mock('@/lib/apiClient', () => ({
-  apiClient: {
-    get: vi.fn(() => new Promise(() => {})),
-    post: vi.fn(() => new Promise(() => {})),
-    put: vi.fn(),
-  },
+  apiClient: { get: vi.fn(), post: vi.fn(), put: vi.fn() },
 }))
 
-// mock 서버가 단계마다 잠깐(300ms) 기다리므로, 느린 환경(CI)에서도 통과하도록 비동기 대기 시간을 늘린다.
+/** 서버의 사건 목록(GET /cases) 응답에 쓸 사건들 */
+let serverCases = []
+
+/**
+ * 사건 목록 조회와 사건 접수만 응답하고, 나머지 요청(기소·변론 등 각 화면의 데이터)은
+ * 끝나지 않는 요청으로 로딩 상태를 유지한다.
+ */
+const mockServer = () => {
+  vi.mocked(apiClient.get)
+    .mockReset()
+    .mockImplementation((url) =>
+      url === '/cases'
+        ? Promise.resolve({ data: { items: serverCases, next_cursor: null } })
+        : new Promise(() => {}),
+    )
+  vi.mocked(apiClient.post)
+    .mockReset()
+    .mockImplementation((url, body) =>
+      url === '/cases'
+        ? Promise.resolve({
+            data: {
+              outcome: 'case_created',
+              case: { id: 'case-new', status: 'received', ...body },
+            },
+          })
+        : new Promise(() => {}),
+    )
+}
+
+// lazy loading이 느린 환경(CI)에서도 통과하도록 비동기 대기 시간을 늘린다.
 configure({ asyncUtilTimeout: 5000 })
 
 /** 홈 화면이 사건 목록을 불러오므로 테스트마다 새 QueryClient로 감싼다. */
@@ -30,6 +55,8 @@ const renderAt = (path) => {
 describe('router', () => {
   beforeEach(() => {
     localStorage.clear()
+    serverCases = []
+    mockServer()
   })
 
   it('홈 주소에서 홈 화면을 lazy loading으로 보여준다', async () => {
@@ -83,11 +110,11 @@ describe('router', () => {
     fireEvent.click(screen.getByRole('button', { name: '다음' }))
 
     expect(await screen.findByRole('heading', { name: '기소' })).toBeInTheDocument()
-    const [saved] = JSON.parse(localStorage.getItem('mock-case-files'))
-    expect(saved).toMatchObject({
-      thought: '회의에서 발표를 망쳤다',
-      emotion: { type: 'anxiety', intensity: 40 },
-    })
+    expect(apiClient.post).toHaveBeenCalledWith(
+      '/cases',
+      { thought: '회의에서 발표를 망쳤다', emotion: { type: 'anxiety', intensity: 40 } },
+      { headers: { 'Idempotency-Key': expect.any(String) } },
+    )
   })
 
   it('감정을 고르지 않아도 사건을 접수할 수 있다', async () => {
@@ -99,25 +126,25 @@ describe('router', () => {
     fireEvent.click(screen.getByRole('button', { name: '다음' }))
 
     expect(await screen.findByRole('heading', { name: '기소' })).toBeInTheDocument()
-    const [saved] = JSON.parse(localStorage.getItem('mock-case-files'))
-    expect(saved).toMatchObject({ thought: '친구가 답장이 없다', emotion: null })
+    expect(apiClient.post).toHaveBeenCalledWith(
+      '/cases',
+      { thought: '친구가 답장이 없다', emotion: undefined },
+      expect.anything(),
+    )
   })
 
   it('사건 목록(court) 화면에서 접수한 사건을 목록으로 보여준다', async () => {
-    localStorage.setItem(
-      'mock-case-files',
-      JSON.stringify([
-        {
-          id: 'case-1',
-          title: '회의 발표 사건',
-          thought: '회의에서 발표를 망쳤다',
-          emotion: { type: 'anxiety', intensity: 80 },
-          emotion_after: { type: 'anxiety', intensity: 40 },
-          status: 'closed',
-          created_at: '2026-07-20T03:00:00.000Z',
-        },
-      ]),
-    )
+    serverCases = [
+      {
+        id: 'case-1',
+        title: '회의 발표 사건',
+        thought: '회의에서 발표를 망쳤다',
+        emotion: { type: 'anxiety', intensity: 80 },
+        emotion_after: { type: 'anxiety', intensity: 40 },
+        status: 'closed',
+        created_at: '2026-07-20T03:00:00.000Z',
+      },
+    ]
     renderAt('/court')
 
     expect(await screen.findByRole('heading', { name: '사건 목록' })).toBeInTheDocument()

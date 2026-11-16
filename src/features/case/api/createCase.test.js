@@ -1,53 +1,83 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { apiClient } from '@/lib/apiClient'
 import { createCase } from './createCase'
 import { deleteCase } from './deleteCase'
+import { getCase } from './getCase'
 import { listCases } from './listCases'
+
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: { get: vi.fn(), post: vi.fn(), delete: vi.fn() },
+}))
 
 const emotion = { type: 'anxiety', intensity: 40 }
 
-describe('mock 사건 접수', () => {
+/** 오류 응답 형태의 Axios 오류를 만든다. */
+const httpError = (status) => Object.assign(new Error('request failed'), { response: { status } })
+
+describe('사건 API', () => {
   beforeEach(() => {
-    localStorage.clear()
+    vi.mocked(apiClient.get).mockReset()
+    vi.mocked(apiClient.post).mockReset()
+    vi.mocked(apiClient.delete).mockReset()
   })
 
-  it('접수하면 사건파일이 만들어지고 목록에 나타난다', async () => {
+  it('접수하면 Idempotency-Key 헤더와 함께 POST /cases를 보내고 응답을 그대로 돌려준다', async () => {
+    const created = { id: 'case-1', status: 'received', thought: '발표를 망쳤다' }
+    vi.mocked(apiClient.post).mockResolvedValue({
+      data: { outcome: 'case_created', case: created },
+    })
+
     const result = await createCase({ thought: '발표를 망쳤다', emotion, idempotencyKey: 'key-1' })
-    expect(result.outcome).toBe('created')
+
+    expect(apiClient.post).toHaveBeenCalledWith(
+      '/cases',
+      { thought: '발표를 망쳤다', emotion },
+      { headers: { 'Idempotency-Key': 'key-1' } },
+    )
+    expect(result.outcome).toBe('case_created')
     expect(result.case.status).toBe('received')
-
-    const { items } = await listCases()
-    expect(items).toHaveLength(1)
-    expect(items[0].thought).toBe('발표를 망쳤다')
   })
 
-  it('같은 Idempotency-Key로 다시 보내면 사건을 새로 만들지 않는다', async () => {
-    await createCase({ thought: '발표를 망쳤다', emotion, idempotencyKey: 'key-1' })
-    await createCase({ thought: '발표를 망쳤다', emotion, idempotencyKey: 'key-1' })
-    expect((await listCases()).items).toHaveLength(1)
-  })
-
-  it('위기 상황이면 사건을 만들지 않고 상담 안내를 돌려준다', async () => {
+  it('위기 상황 응답(support_required)도 그대로 돌려준다', async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({
+      data: { outcome: 'support_required', support: { message: '...', contacts: ['109'] } },
+    })
     const result = await createCase({ thought: '죽고 싶다', emotion, idempotencyKey: 'key-2' })
     expect(result.outcome).toBe('support_required')
     expect(result.support.contacts.length).toBeGreaterThan(0)
-    expect((await listCases()).items).toHaveLength(0)
   })
 
-  it('최근에 접수한 사건이 목록 앞에 온다', async () => {
-    await createCase({ thought: '첫 번째', emotion, idempotencyKey: 'key-a' })
-    await new Promise((resolve) => setTimeout(resolve, 5))
-    await createCase({ thought: '두 번째', emotion, idempotencyKey: 'key-b' })
-    const { items } = await listCases()
-    expect(items.map((item) => item.thought)).toEqual(['두 번째', '첫 번째'])
-  })
-
-  it('삭제하면 목록에서 사라진다', async () => {
-    const { case: created } = await createCase({
-      thought: '발표를 망쳤다',
-      emotion,
-      idempotencyKey: 'key-1',
+  it('목록은 GET /cases의 items와 next_cursor를 돌려준다', async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: { items: [{ id: 'b' }, { id: 'a' }], next_cursor: null },
     })
-    await deleteCase(created.id)
-    expect((await listCases()).items).toHaveLength(0)
+    expect(await listCases()).toEqual({ items: [{ id: 'b' }, { id: 'a' }], next_cursor: null })
+    expect(apiClient.get).toHaveBeenCalledWith('/cases')
+  })
+
+  it('사건 하나는 GET /cases/{id}로 읽고, 없으면(404) null이다', async () => {
+    vi.mocked(apiClient.get).mockResolvedValueOnce({ data: { id: 'case-1' } })
+    expect(await getCase('case-1')).toEqual({ id: 'case-1' })
+    expect(apiClient.get).toHaveBeenCalledWith('/cases/case-1')
+
+    vi.mocked(apiClient.get).mockRejectedValueOnce(httpError(404))
+    expect(await getCase('missing')).toBeNull()
+  })
+
+  it('404가 아닌 오류는 그대로 던진다', async () => {
+    vi.mocked(apiClient.get).mockRejectedValueOnce(httpError(503))
+    await expect(getCase('case-1')).rejects.toThrow('request failed')
+  })
+
+  it('예시 사건(sample)은 서버를 거치지 않는다', async () => {
+    const sample = await getCase('sample')
+    expect(sample.id).toBe('sample')
+    expect(apiClient.get).not.toHaveBeenCalled()
+  })
+
+  it('삭제하면 DELETE /cases/{id}를 보낸다', async () => {
+    vi.mocked(apiClient.delete).mockResolvedValue({ status: 204 })
+    await deleteCase('case-1')
+    expect(apiClient.delete).toHaveBeenCalledWith('/cases/case-1')
   })
 })

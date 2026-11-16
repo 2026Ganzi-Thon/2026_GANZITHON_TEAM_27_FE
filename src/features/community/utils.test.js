@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { VISIBILITY } from '@/constants/visibility'
-import { buildPostContent, canPost, validatePostPassword } from './utils'
+import { buildPostContent, canPost, toPostView, validatePostPassword } from './utils'
 
 describe('validatePostPassword', () => {
   it('6~64자이면 통과한다', () => {
@@ -57,5 +57,62 @@ describe('buildPostContent', () => {
     expect(content.title).toHaveLength(120)
     expect(content.title.endsWith('…')).toBe(true)
     expect(content.body).toHaveLength(2000)
+  })
+})
+
+describe('toPostView', () => {
+  const now = Date.parse('2026-11-16T12:00:00Z')
+  const base = {
+    id: 'post-1',
+    title: '제목',
+    body: '본문',
+    tags: [],
+    pattern_tags: ['labeling'],
+    visibility: VISIBILITY.public,
+    status: 'published',
+    is_mine: false,
+    is_hot: true,
+    like_count: 3,
+    comment_count: 1,
+    created_at: '2026-11-16T09:00:00Z',
+    published_at: '2026-11-16T10:00:00Z',
+  }
+
+  it('서버 목록 필드(is_mine, is_hot, like_count, comment_count, published_at)를 화면 모양으로 바꾼다', () => {
+    expect(toPostView(base, now)).toMatchObject({
+      id: 'post-1',
+      title: '제목',
+      body: '본문',
+      likes: 3,
+      comments: 1,
+      timeLabel: '2h ago',
+      isHot: true,
+      isMine: false,
+      isLocked: false,
+    })
+  })
+
+  it('게시 시각이 없으면 작성 시각을 쓴다', () => {
+    expect(toPostView({ ...base, published_at: null }, now).timeLabel).toBe('3h ago')
+  })
+
+  it('남의 비공개 글은 서버가 제목·본문을 null로 주므로 안내 문구를 보여준다', () => {
+    const view = toPostView(
+      { ...base, visibility: VISIBILITY.passwordProtected, title: null, body: null },
+      now,
+    )
+    expect(view).toMatchObject({
+      title: '비공개 글이에요',
+      body: '비밀번호가 필요합니다.',
+      isLocked: true,
+    })
+  })
+
+  it('내 비공개 글은 잠그지 않는다', () => {
+    const view = toPostView(
+      { ...base, visibility: VISIBILITY.passwordProtected, is_mine: true },
+      now,
+    )
+    expect(view).toMatchObject({ title: '제목', isLocked: false, isMine: true })
   })
 })

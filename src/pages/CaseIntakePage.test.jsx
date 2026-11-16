@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiClient } from '@/lib/apiClient'
 import { routes } from '@/routes/router'
 
-// 사건 접수 목업이 300ms 기다린다.
+// 느린 환경(CI)에서도 통과하도록 비동기 대기 시간을 늘린다.
 configure({ asyncUtilTimeout: 5000 })
 
 vi.mock('@/lib/apiClient', () => ({
@@ -43,9 +43,19 @@ describe('사건 접수 → 기소 화면', () => {
     vi.mocked(apiClient.get)
       .mockReset()
       .mockReturnValue(new Promise(() => {}))
+    // 사건 접수(POST /cases)만 응답하고, 나머지(기소 초안 등)는 불러오는 중으로 둔다.
     vi.mocked(apiClient.post)
       .mockReset()
-      .mockReturnValue(new Promise(() => {}))
+      .mockImplementation((url, body) =>
+        url === '/cases'
+          ? Promise.resolve({
+              data: {
+                outcome: 'case_created',
+                case: { id: 'case-9', status: 'received', ...body },
+              },
+            })
+          : new Promise(() => {}),
+      )
   })
 
   it('접수에 성공하면 새 사건의 기소 화면(/cases/{caseId}/prosecution)으로 replace 이동한다', async () => {
@@ -53,14 +63,13 @@ describe('사건 접수 → 기소 화면', () => {
     submit('회의에서 발표를 망쳤다')
 
     expect(await screen.findByRole('heading', { name: '기소' })).toBeInTheDocument()
-    const [saved] = JSON.parse(localStorage.getItem('mock-case-files'))
-    expect(router.state.location.pathname).toBe(`/cases/${saved.id}/prosecution`)
+    expect(router.state.location.pathname).toBe('/cases/case-9/prosecution')
     expect(router.state.historyAction).toBe('REPLACE')
 
     // 뒤로 가기를 해도 접수 입력창이 아니라 그 전(홈)으로 간다(같은 사건을 다시 접수하지 않는다).
     await router.navigate(-1)
     expect(router.state.location.pathname).toBe('/')
-    expect(JSON.parse(localStorage.getItem('mock-case-files'))).toHaveLength(1)
+    expect(vi.mocked(apiClient.post).mock.calls.filter(([url]) => url === '/cases')).toHaveLength(1)
   })
 
   it('기소 화면의 < 버튼은 그대로 휴정 모달을 띄운다', async () => {
@@ -73,11 +82,16 @@ describe('사건 접수 → 기소 화면', () => {
   })
 
   it('위기 상황(support_required)이면 사건을 만들지 않고 접수 화면에 상담 안내를 보여준다(기존 동작)', async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({
+      data: {
+        outcome: 'support_required',
+        support: { message: '도움을 먼저 받아요.', contacts: ['자살예방 상담전화 109'] },
+      },
+    })
     const router = await renderIntake()
     submit('요즘 자살 생각이 든다')
 
     expect(await screen.findByRole('alert')).toHaveTextContent('109')
     expect(router.state.location.pathname).toBe('/cases/new')
-    expect(localStorage.getItem('mock-case-files')).toBeNull()
   })
 })
