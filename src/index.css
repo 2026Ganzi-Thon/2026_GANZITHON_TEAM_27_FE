@@ -36,6 +36,32 @@
   /* Figma 치수: 입력 카드 높이·모서리, 큰 버튼 높이 (로그인·회원가입·동의 공통) */
   --spacing-field: 83px;
   --spacing-button: 68px;
+  /* Figma 71:88 글쓰기 입력 영역과 공개 설정 치수 */
+  --spacing-board-write-top: 39px;
+  --spacing-board-write-bottom: 27px;
+  --spacing-board-write-title: 58px;
+  --spacing-board-write-body: 155px;
+  --spacing-board-write-inset: 15px;
+  --spacing-board-write-body-inset: 23px;
+  --spacing-board-write-gap: 15px;
+  --spacing-board-write-visibility: 7px;
+  --spacing-board-write-option: 14px;
+  --spacing-board-write-label: -3px;
+  --spacing-board-write-radio: 17px;
+  /* 804×1748 캡처를 2로 나눈 비공개 설정 치수. 글꼴은 기존 Pretendard 기준 추정이다. */
+  --spacing-private-panel: 631px;
+  --radius-private-panel: 20px;
+  --spacing-private-handle: 27px;
+  --spacing-private-handle-width: 60px;
+  --spacing-private-handle-height: 5px;
+  --spacing-private-lock: 70.875px;
+  --spacing-private-lock-size: 51px;
+  --spacing-private-title: 136px;
+  --spacing-private-description: 214px;
+  --leading-private-description: 21px;
+  --spacing-private-password: 318px;
+  --spacing-private-button: 38px;
+  --spacing-private-button-left: 17px;
   --radius-field: 5px;
   /* Figma 치수: 변론 화면 말풍선 모서리 (꼬리 쪽 한 모서리는 0) */
   --radius-bubble: 17px;
