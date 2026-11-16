@@ -3,6 +3,7 @@ import { RootLayout } from '@/components/layout/RootLayout'
 import RouteErrorPage from '@/pages/RouteErrorPage'
 import {
   ActionSuggestionPage,
+  BoardDetailPage,
   CaseCardPage,
   CaseClosingPage,
   CaseIntakePage,
@@ -44,6 +45,7 @@ export const routes = [
           { path: ROUTE_PATHS.signup, element: <SignupPage /> },
           { path: ROUTE_PATHS.consent, element: <ConsentPage /> },
           { path: ROUTE_PATHS.community, element: <CommunityPage /> },
+          { path: ROUTE_PATHS.communityPost, element: <BoardDetailPage /> },
           { path: ROUTE_PATHS.court, element: <CourtPage /> },
           { path: ROUTE_PATHS.prosecution, element: <ProsecutionPage /> },
           { path: ROUTE_PATHS.defense, element: <DefensePage /> },

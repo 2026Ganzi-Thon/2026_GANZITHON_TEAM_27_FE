@@ -17,6 +17,8 @@ export const ROUTE_PATHS = {
   consent: '/consent',
   // TODO(피그마 확인 필요): 하단 탭바 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
   community: '/community',
+  // TODO(피그마 확인 필요): 게시판 상세 화면 주소 (Figma 4-2 게시판 상세).
+  communityPost: '/community/:postId',
   court: '/court',
   // TODO(피그마 확인 필요): 기소 화면 주소. `화면 이동` 페이지 기준으로 확정한다.
   prosecution: '/cases/:caseId/prosecution',
@@ -62,6 +64,9 @@ export const getCaseClosingPath = (caseId) => `/cases/${caseId}/closing`
 
 /** 사건요약 화면 주소를 사건 ID로 만든다. 예: `getCaseSummaryPath('abc')` → `/cases/abc/summary` */
 export const getCaseSummaryPath = (caseId) => `/cases/${caseId}/summary`
+
+/** 게시판 상세 화면 주소를 게시글 ID로 만든다. 예: `getCommunityPostPath('123')` → `/community/123` */
+export const getCommunityPostPath = (postId) => `/community/${postId}`
 
 /** 하단 탭바(BottomTabBar)에 넘기는 탭별 이동 주소. */
 export const TAB_PATHS = {
