@@ -15,8 +15,25 @@ import { BoardPostContent } from './BoardPostContent'
  * @param {() => void} [props.onLike] 게시글 공감 핸들러
  * @param {() => void} [props.onBookmark] 북마크 핸들러
  * @param {(content: string) => void} [props.onAddComment] 댓글 등록 핸들러
+ * @param {() => void} [props.onEditPost] 내 글 "수정하기" 핸들러
+ * @param {() => void} [props.onDeletePost] 내 글 "삭제하기" 핸들러
+ * @param {(commentId: string) => void} [props.onCommentLike] 댓글 공감 핸들러
+ * @param {(commentId: string, content: string) => void} [props.onCommentEdit] 내 댓글 수정 저장 핸들러
+ * @param {(commentId: string) => void} [props.onCommentDelete] 내 댓글 삭제 핸들러
  */
-export const BoardDetailView = ({ post, onBack, onShare, onLike, onBookmark, onAddComment }) => {
+export const BoardDetailView = ({
+  post,
+  onBack,
+  onShare,
+  onLike,
+  onBookmark,
+  onAddComment,
+  onEditPost,
+  onDeletePost,
+  onCommentLike,
+  onCommentEdit,
+  onCommentDelete,
+}) => {
   const handleCommentClick = () => {
     // 댓글 영역으로 스크롤
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
@@ -33,6 +50,9 @@ export const BoardDetailView = ({ post, onBack, onShare, onLike, onBookmark, onA
           author={post.author}
           createdAtLabel={post.created_at_label}
           likeCount={post.like_count}
+          isMine={post.is_mine}
+          onEdit={onEditPost}
+          onDelete={onDeletePost}
         />
 
         <div className="mt-6 h-[1px] w-full bg-[#e7e7e7]" aria-hidden="true" />
@@ -46,7 +66,13 @@ export const BoardDetailView = ({ post, onBack, onShare, onLike, onBookmark, onA
           onBookmark={onBookmark}
         />
 
-        <BoardCommentSection commentCount={post.comment_count} comments={post.comments} />
+        <BoardCommentSection
+          commentCount={post.comment_count}
+          comments={post.comments}
+          onCommentLike={onCommentLike}
+          onCommentEdit={onCommentEdit}
+          onCommentDelete={onCommentDelete}
+        />
       </main>
 
       <BoardCommentInput onSubmit={onAddComment ?? (() => {})} />

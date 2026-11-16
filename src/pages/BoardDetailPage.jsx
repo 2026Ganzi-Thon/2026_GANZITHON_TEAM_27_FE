@@ -1,10 +1,21 @@
 import { useNavigate, useParams } from 'react-router-dom'
-import { BoardDetailView, useAddComment, usePostDetail, useTogglePostLike } from '@/features/board'
+import {
+  BoardDetailView,
+  useAddComment,
+  useDeleteBoardPost,
+  useDeleteComment,
+  useToggleCommentLike,
+  usePostDetail,
+  useTogglePostLike,
+  useUpdateComment,
+} from '@/features/board'
 import { ROUTE_PATHS } from '@/routes/paths'
 
 /**
  * 게시판 상세 화면 입구 (Figma 4-2 게시판 상세).
  * 라우트 파라미터 postId로 게시글을 조회하고, 상세 뷰와 사용자 액션을 연결한다.
+ * - 공감은 글·댓글마다 한 번까지이고, 다시 누르면 취소된다.
+ * - 내 글의 "···"에서 수정하기(글쓰기 화면이 그 글로 채워져 열린다)와 삭제하기를 쓸 수 있고, 내 댓글도 고치고 지울 수 있다.
  */
 const BoardDetailPage = () => {
   const navigate = useNavigate()
@@ -13,6 +24,10 @@ const BoardDetailPage = () => {
   const { data: post, isPending, isError, error, refetch, isFetching } = usePostDetail(postId)
   const { mutate: toggleLike } = useTogglePostLike(postId)
   const { mutate: addComment } = useAddComment(postId)
+  const { mutate: updateComment } = useUpdateComment(postId)
+  const { mutate: deleteComment } = useDeleteComment(postId)
+  const { mutate: toggleCommentLike } = useToggleCommentLike(postId)
+  const { mutate: deletePost } = useDeleteBoardPost(postId)
 
   const handleBack = () => {
     if (window.history.length > 1) {
@@ -82,11 +97,34 @@ const BoardDetailPage = () => {
       post={post}
       onBack={handleBack}
       onShare={handleShare}
-      onLike={() => toggleLike()}
+      onLike={() => toggleLike(Boolean(post.is_liked))}
       onBookmark={() => {
         // TODO(API 확인 필요): 북마크 기능 API 확정 시 연동
       }}
       onAddComment={(content) => addComment({ content })}
+      onEditPost={() =>
+        navigate(ROUTE_PATHS.communityWrite, {
+          state: {
+            editPost: {
+              id: postId,
+              title: post.title,
+              body: post.content,
+              visibility: post.visibility,
+            },
+          },
+        })
+      }
+      onDeletePost={() =>
+        deletePost(undefined, {
+          onSuccess: () => navigate(ROUTE_PATHS.communityPosts, { replace: true }),
+        })
+      }
+      onCommentLike={(commentId) => {
+        const target = post.comments?.find((comment) => comment.id === commentId)
+        toggleCommentLike({ commentId, baseLiked: Boolean(target?.is_liked) })
+      }}
+      onCommentEdit={(commentId, content) => updateComment({ commentId, content })}
+      onCommentDelete={(commentId) => deleteComment(commentId)}
     />
   )
 }

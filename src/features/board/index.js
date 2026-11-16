@@ -7,5 +7,14 @@ export { BoardDetailView } from './components/BoardDetailView'
 export { BoardWriteView } from './components/BoardWriteView'
 export { BoardPrivateSettings } from './components/BoardPrivateSettings'
 
-export { usePostDetail, useTogglePostLike, useAddComment } from './hooks/useBoard'
+export {
+  useAddComment,
+  useDeleteBoardPost,
+  useDeleteComment,
+  useToggleCommentLike,
+  usePostDetail,
+  useTogglePostLike,
+  useUpdateComment,
+} from './hooks/useBoard'
+export { BoardOptionsMenu } from './components/BoardOptionsMenu'
 export { mockPostDetail, DEMO_POST_ID } from './mocks/boardMocks'
