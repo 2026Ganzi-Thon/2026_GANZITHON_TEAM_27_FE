@@ -1,12 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom'
-import {
-  BoardDetailView,
-  DEMO_POST_ID,
-  mockPostDetail,
-  useAddComment,
-  usePostDetail,
-  useTogglePostLike,
-} from '@/features/board'
+import { BoardDetailView, useAddComment, usePostDetail, useTogglePostLike } from '@/features/board'
 import { ROUTE_PATHS } from '@/routes/paths'
 
 /**
@@ -15,10 +8,9 @@ import { ROUTE_PATHS } from '@/routes/paths'
  */
 const BoardDetailPage = () => {
   const navigate = useNavigate()
-  const { postId: paramPostId } = useParams()
-  const postId = paramPostId || DEMO_POST_ID
+  const { postId } = useParams()
 
-  const { data: post = mockPostDetail, isLoading, isError } = usePostDetail(postId)
+  const { data: post, isPending, isError, error, refetch, isFetching } = usePostDetail(postId)
   const { mutate: toggleLike } = useTogglePostLike(postId)
   const { mutate: addComment } = useAddComment(postId)
 
@@ -43,7 +35,7 @@ const BoardDetailPage = () => {
     }
   }
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="flex flex-1 items-center justify-center bg-canvas">
         <p role="status" className="text-muted">
@@ -53,10 +45,27 @@ const BoardDetailPage = () => {
     )
   }
 
-  if (isError) {
+  if (isError || (!post?.title && !post?.content)) {
+    const notFound = error?.response?.status === 404
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 bg-canvas px-4 text-center">
-        <p className="text-base text-ink">게시글을 불러오지 못했어요.</p>
+        <p role="alert" className="text-base text-ink">
+          {notFound
+            ? '존재하지 않거나 열람할 수 없는 글이에요.'
+            : isError
+              ? '게시글을 불러오지 못했어요.'
+              : '게시글 내용이 비어 있어요.'}
+        </p>
+        {!notFound && (
+          <button
+            type="button"
+            disabled={isFetching}
+            onClick={() => refetch()}
+            className="min-h-11 rounded-full bg-ink px-5 text-sm text-field"
+          >
+            {isFetching ? '불러오는 중…' : '다시 시도'}
+          </button>
+        )}
         <button
           type="button"
           onClick={() => navigate(ROUTE_PATHS.community)}

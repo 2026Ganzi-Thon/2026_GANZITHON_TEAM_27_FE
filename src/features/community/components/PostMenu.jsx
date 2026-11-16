@@ -30,7 +30,11 @@ export const PostMenu = ({ onDelete }) => {
   }, [open])
 
   return (
-    <div ref={rootRef} className="absolute top-2.5 right-1.5">
+    <div
+      ref={rootRef}
+      onClick={(event) => event.stopPropagation()}
+      className="absolute top-2.5 right-1.5 z-10"
+    >
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}

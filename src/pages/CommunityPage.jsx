@@ -7,7 +7,7 @@ import {
   usePosts,
   WriteButton,
 } from '@/features/community'
-import { ROUTE_PATHS, TAB_PATHS } from '@/routes/paths'
+import { getCommunityPostPath, ROUTE_PATHS, TAB_PATHS } from '@/routes/paths'
 
 /** 메인에서 "THE FEED"에 보여줄 최근 글 개수. */
 const FEED_COUNT = 3
@@ -26,15 +26,16 @@ const CommunityPage = () => {
     <div className="flex min-h-full flex-1 flex-col bg-canvas">
       <BoardHeader />
       <CommunityTitle />
-      {hotPost && <HotIssueCard post={hotPost} rank={1} />}
+      {hotPost && <HotIssueCard post={hotPost} rank={1} to={getCommunityPostPath(hotPost.id)} />}
       <FeedSection
+        getPostPath={getCommunityPostPath}
         posts={feedPosts}
         viewAllTo={ROUTE_PATHS.communityPosts}
         isLoading={isPending}
         isError={isError}
       />
       <BottomTabBar current="community" paths={TAB_PATHS} />
-      <WriteButton />
+      <WriteButton to={ROUTE_PATHS.communityWrite} />
     </div>
   )
 }

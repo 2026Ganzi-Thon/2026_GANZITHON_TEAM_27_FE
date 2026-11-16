@@ -18,13 +18,13 @@
  * @param {(commentId: string) => void} [props.onCommentOptions] 댓글 옵션 핸들러
  */
 export const BoardCommentSection = ({
-  commentCount = 8,
+  commentCount,
   comments = [],
   onCommentLike,
   onCommentOptions,
 }) => (
   <section className="flex flex-col pt-3 pb-24">
-    <h3 className="text-base font-semibold text-black">댓글 {commentCount}개</h3>
+    <h3 className="text-base font-semibold text-black">댓글 {commentCount ?? '—'}개</h3>
     <div className="my-3 h-[1px] w-full bg-[#e7e7e7]" aria-hidden="true" />
 
     <div className="flex flex-col">
@@ -46,7 +46,7 @@ export const BoardCommentSection = ({
                 onClick={() => onCommentLike?.(comment.id)}
                 className="hover:opacity-70 focus-visible:outline-2 focus-visible:outline-focus"
               >
-                {`♡ ${comment.like_count ?? 24}`}
+                {`♡ ${comment.like_count ?? '—'}`}
               </button>
               <button
                 type="button"

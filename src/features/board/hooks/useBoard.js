@@ -16,6 +16,7 @@ export const usePostDetail = (postId) =>
     queryKey: boardKeys.detail(postId),
     queryFn: () => fetchPostDetail(postId),
     enabled: Boolean(postId),
+    retry: false,
   })
 
 /**

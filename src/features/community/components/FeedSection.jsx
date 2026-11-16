@@ -14,7 +14,13 @@ import { FeedItem } from './FeedItem'
  * - `posts`: 보여줄 글 목록(`toPostView`의 결과)
  * - `viewAllTo`: "VIEW ALL ↗"가 이동할 게시판 목록 화면 주소
  */
-export const FeedSection = ({ posts, viewAllTo, isLoading = false, isError = false }) => (
+export const FeedSection = ({
+  posts,
+  viewAllTo,
+  getPostPath,
+  isLoading = false,
+  isError = false,
+}) => (
   <section aria-labelledby="feed-title" className="mt-8.75 px-4">
     <div className="flex h-7 items-center justify-between">
       <h2 id="feed-title" className="text-base leading-[normal] font-semibold text-black">
@@ -43,7 +49,7 @@ export const FeedSection = ({ posts, viewAllTo, isLoading = false, isError = fal
       <ul>
         {posts.map((post) => (
           <li key={post.id} className="pt-3.5">
-            <FeedItem post={post} />
+            <FeedItem post={post} to={getPostPath(post.id)} />
             <img
               src={dividerUrl}
               alt=""

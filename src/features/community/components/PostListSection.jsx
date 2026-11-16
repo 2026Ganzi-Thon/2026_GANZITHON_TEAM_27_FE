@@ -15,7 +15,7 @@ import { PostRow } from './PostRow'
  *
  * TODO(API 확인 필요): 필터를 URL의 검색 파라미터(`tag`, `q`)로 둘지 정해지면 맞춘다(`docs/routes.md` 참고).
  */
-export const PostListSection = () => {
+export const PostListSection = ({ getPostPath }) => {
   const [patterns, setPatterns] = useState([])
   const [scope, setScope] = useState(null)
   const [openSheet, setOpenSheet] = useState(null)
@@ -50,7 +50,7 @@ export const PostListSection = () => {
         <ul>
           {posts.map((post) => (
             <li key={post.id}>
-              <PostRow post={post} onDelete={removePost} />
+              <PostRow post={post} onDelete={removePost} to={getPostPath(post.id)} />
               <img
                 src={dividerUrl}
                 alt=""

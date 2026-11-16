@@ -1,9 +1,15 @@
+import { Outlet } from 'react-router-dom'
 import { BoardDetailHeader } from './BoardDetailHeader'
 import { useBoardWrite } from '../hooks/useBoardWrite'
 import { BoardPrivateSettings } from './BoardPrivateSettings'
 
 /** Figma 71:88 글쓰기 화면. 입력과 공개 범위를 선택하고 목업 요청을 제출한다. */
-export const BoardWriteView = ({ onBack }) => {
+export const BoardWriteView = ({
+  onBack,
+  onOpenPrivate,
+  onClosePrivate,
+  isPrivateRoute = false,
+}) => {
   const {
     title,
     setTitle,
@@ -16,13 +22,13 @@ export const BoardWriteView = ({ onBack }) => {
     isPrivateOpen,
     closePrivate,
     submitPrivate,
-  } = useBoardWrite()
+  } = useBoardWrite({ onOpenPrivate, onClosePrivate })
 
   return (
     <>
       <section
-        inert={isPrivateOpen}
-        aria-hidden={isPrivateOpen || undefined}
+        inert={isPrivateOpen || isPrivateRoute}
+        aria-hidden={isPrivateOpen || isPrivateRoute || undefined}
         className="flex min-h-full flex-1 flex-col bg-canvas pt-status-bar text-black"
       >
         <BoardDetailHeader onBack={onBack} showShare={false} />
@@ -79,6 +85,7 @@ export const BoardWriteView = ({ onBack }) => {
           </button>
         </form>
       </section>
+      <Outlet context={{ submitPrivate, closePrivate }} />
       {isPrivateOpen && <BoardPrivateSettings onSubmit={submitPrivate} onClose={closePrivate} />}
     </>
   )

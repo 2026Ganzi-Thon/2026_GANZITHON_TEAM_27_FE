@@ -5,17 +5,17 @@
  * @param {object} props
  * @param {string} props.title 게시글 제목
  * @param {string} props.content 게시글 본문
- * @param {string} [props.author] 작성자명 (기본값: '익명')
- * @param {string} [props.createdAtLabel] 작성 시간 표시 (기본값: '2시간 전')
- * @param {number} [props.likeCount] 공감 수 (기본값: 24)
+ * @param {string} [props.author] 작성자명
+ * @param {string} [props.createdAtLabel] 작성 시간 표시
+ * @param {number} [props.likeCount] 공감 수
  * @param {() => void} [props.onOptionsClick] 더보기 메뉴 클릭 핸들러
  */
 export const BoardPostContent = ({
   title,
   content,
-  author = '익명',
-  createdAtLabel = '2시간 전',
-  likeCount = 24,
+  author,
+  createdAtLabel,
+  likeCount,
   onOptionsClick,
 }) => (
   <article className="flex flex-col pt-3">
@@ -31,7 +31,7 @@ export const BoardPostContent = ({
       </div>
 
       <div className="flex items-center gap-3 text-xs font-normal text-black">
-        <span>{`♡ ${likeCount}`}</span>
+        <span>{`♡ ${likeCount ?? '—'}`}</span>
         <button
           type="button"
           onClick={onOptionsClick}

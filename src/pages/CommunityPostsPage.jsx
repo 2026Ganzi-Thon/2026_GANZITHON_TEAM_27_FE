@@ -1,6 +1,6 @@
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
 import { BoardHeader, PostListSection, WriteButton } from '@/features/community'
-import { TAB_PATHS } from '@/routes/paths'
+import { getCommunityPostPath, ROUTE_PATHS, TAB_PATHS } from '@/routes/paths'
 
 /**
  * community 게시판 목록 화면 입구(Figma `4-1 게시판 목록`). 헤더, 필터와 글 목록, 글쓰기 버튼, 하단 탭바를 조합한다.
@@ -11,9 +11,9 @@ const CommunityPostsPage = () => (
   <div className="flex min-h-full flex-1 flex-col bg-canvas">
     <BoardHeader />
     <h1 className="sr-only">게시판 목록</h1>
-    <PostListSection />
+    <PostListSection getPostPath={getCommunityPostPath} />
     <BottomTabBar current="community" paths={TAB_PATHS} />
-    <WriteButton />
+    <WriteButton to={ROUTE_PATHS.communityWrite} />
   </div>
 )
 

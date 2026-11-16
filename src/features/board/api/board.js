@@ -1,17 +1,17 @@
+import { mapBoardPost } from '@/api/mapBoardPost'
 import { apiClient } from '@/lib/apiClient'
-import { mockPostDetail, resolveMock, USE_BOARD_MOCK } from '../mocks/boardMocks'
+import { resolveMock, USE_BOARD_MOCK } from '../mocks/boardMocks'
 
 /**
  * 게시글 상세 정보를 조회한다.
  * TODO(API 확인 필요): 백엔드 GET /board/posts/{pid} 명세 확정 시 필드명(like_count, comments 등)을 매핑한다.
  *
  * @param {string} postId 게시글 ID
- * @returns {Promise<typeof mockPostDetail>} 게시글 상세 정보
+ * @returns {Promise<import('@/api/mapBoardPost').BoardPostViewModel>} 게시글 상세 정보
  */
 export const fetchPostDetail = async (postId) => {
-  if (USE_BOARD_MOCK) return resolveMock({ ...mockPostDetail, id: postId })
-  const { data } = await apiClient.get(`/board/posts/${postId}`)
-  return data
+  const { data } = await apiClient.get(`/board/posts/${encodeURIComponent(postId)}`)
+  return mapBoardPost(data)
 }
 
 /**

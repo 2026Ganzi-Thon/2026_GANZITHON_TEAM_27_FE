@@ -15,8 +15,8 @@ import iconHeartUrl from '@/assets/board/icon-heart.svg'
  * @param {() => void} [props.onBookmark] 북마크 클릭 핸들러
  */
 export const BoardActionBar = ({
-  likeCount = 24,
-  isLiked = true,
+  likeCount,
+  isLiked = false,
   isBookmarked = false,
   onLike,
   onCommentClick,
@@ -26,13 +26,13 @@ export const BoardActionBar = ({
     <button
       type="button"
       onClick={onLike}
-      aria-label={`공감하기 (${likeCount}개)`}
+      aria-label={`공감하기 (${likeCount ?? '—'}개)`}
       className={`flex h-[38px] w-[70px] items-center justify-center gap-1 rounded-[5px] transition-transform active:scale-95 ${
         isLiked ? 'bg-bubble' : 'bg-field'
       } hover:opacity-90 focus-visible:outline-2 focus-visible:outline-focus`}
     >
       <img src={iconHeartUrl} alt="" width={20} height={20} />
-      <span className="text-base font-semibold text-black">{likeCount}</span>
+      <span className="text-base font-semibold text-black">{likeCount ?? '—'}</span>
     </button>
 
     <div className="flex items-center gap-2">

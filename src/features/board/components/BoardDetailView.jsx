@@ -9,7 +9,7 @@ import { BoardPostContent } from './BoardPostContent'
  * 헤더, 본문, 액션바, 댓글 영역, 하단 입력창을 조합한다.
  *
  * @param {object} props
- * @param {import('../mocks/boardMocks').mockPostDetail} props.post 게시글 데이터
+ * @param {import('@/api/mapBoardPost').BoardPostViewModel} props.post 게시글 데이터
  * @param {() => void} [props.onBack] 뒤로가기 핸들러
  * @param {() => void} [props.onShare] 공유 핸들러
  * @param {() => void} [props.onLike] 게시글 공감 핸들러
