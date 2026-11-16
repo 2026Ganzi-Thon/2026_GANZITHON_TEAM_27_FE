@@ -9,32 +9,40 @@
 
 ## 라우트 표
 
-| 화면         | 주소                         | 페이지 컴포넌트        | 동적 파라미터            | 비고                                                                                                                                                  |
-| ------------ | ---------------------------- | ---------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 홈           | `/`                          | `HomePage`             | —                        | 진행 중인 사건이 있으면 재방문 모습(이어하기 카드)으로 바뀜                                                                                           |
-| 로그인       | `/login`                     | `LoginPage`            | —                        | 주소는 피그마 `화면 이동` 확인 필요                                                                                                                   |
-| 회원가입     | `/signup`                    | `SignupPage`           | —                        | 주소는 피그마 `화면 이동` 확인 필요                                                                                                                   |
-| 동의         | `/consent`                   | `ConsentPage`          | —                        | 주소는 피그마 `화면 이동` 확인 필요                                                                                                                   |
-| 사건 접수    | `/cases/new`                 | `CaseIntakePage`       | —                        | 홈에서 진입. 주소는 피그마 `화면 이동` 확인 필요                                                                                                      |
-| 사건 카드    | `/cases/:caseId/card`        | `CaseCardPage`         | `caseId` (API 확인 필요) | 사건 종결 후 진입. `/cases/sample/card`는 예시 사건으로 계속 유지(확인용)                                                                             |
-| 게시판 공유  | `/cases/:caseId/share`       | `CommunitySharePage`   | `caseId` (API 확인 필요) | 공개 범위와 비밀번호 설정. `/cases/sample/share`는 예시 사건으로 계속 유지(확인용)                                                                    |
-| 게시 완료    | `/community/shared`          | `CommunitySharedPage`  | —                        | 게시 후 진입. 확인을 누르면 게시판으로 이동                                                                                                           |
-| community    | `/community`                 | `CommunityPage`        | —                        | 하단 탭바. 게시판 메인(피그마 `4-1 게시판`): HOT ISSUE와 최근 글 3개. "VIEW ALL ↗" → 게시판 목록                                                      |
-| 게시판 목록  | `/community/posts`           | `CommunityPostsPage`   | —                        | 피그마 `4-1 게시판 목록`. "사건 유형", "공개 범위" 버튼으로 선택 시트를 열어 거른다. 필터를 URL 검색 파라미터(`tag`, `q`)로 둘지는 API 확인 필요      |
-| court        | `/court`                     | `CourtPage`            | —                        | 하단 탭바. 접수한 사건파일 전체 목록(사건 목록)                                                                                                       |
-| 기소         | `/cases/:caseId/prosecution` | `ProsecutionPage`      | `caseId` (API 확인 필요) | 피그마 `2-1 기소`. `/cases/sample/prosecution`은 목업 사건(확인용)                                                                                    |
-| 변론         | `/cases/:caseId/defense`     | `DefensePage`          | `caseId` (API 확인 필요) | 피그마 `Ai챗봇`. 기소 화면 "변론 시작"에서 진입. `/cases/sample/defense`는 목업 사건(확인용)                                                          |
-| 판결         | `/cases/:caseId/decision`    | `DecisionPage`         | `caseId` (API 확인 필요) | 피그마 `2-4 판결`. 변론 화면 "변론 종료"에서 진입. 화면이 열릴 때 판결 초안(`POST /cases/{caseId}/decision`)을 요청                                   |
-| 감정 변화    | `/cases/:caseId/emotion`     | `EmotionChangePage`    | `caseId` (API 확인 필요) | 피그마 `2-6 감정변화`. 판결 화면 "사건파일 저장하기"에서 진입. "다음"에서 판결을 확정(`PUT /cases/{caseId}/decision/final`)하고 종결로                |
-| 행동 제안    | `/cases/:caseId/action`      | `ActionSuggestionPage` | `caseId` (API 확인 필요) | 피그마 `2-7 행동제안`. 사건요약 "확인"에서 진입. "LET’S DO IT"·"오늘은 쉬기"는 `PUT /cases/{caseId}/follow-up` 후 홈. `/cases/sample/action`은 확인용 |
-| 위기 안내    | `/support`                   | `CrisisSupportPage`    | —                        | 피그마 `5-1 위기 안내`. 어느 화면에서든 서버가 `support_required`를 돌려주면 이동(법정 흐름 중단). 모든 버튼은 홈으로                                 |
-| 사건 종결    | `/cases/:caseId/closing`     | `CaseClosingPage`      | `caseId` (API 확인 필요) | 피그마 `2-8 종결`. 감정 변화 "다음"에서 진입. "확인" → 사건요약. 고정 문구 화면(API 없음)                                                             |
-| 사건요약     | `/cases/:caseId/summary`     | `CaseSummaryPage`      | `caseId` (API 확인 필요) | 피그마 `사건요약`. 종결 "확인"에서 진입. "확인" → 행동 제안, "사건카드 만들기" → 사건 카드                                                            |
-| 찾을 수 없음 | `*`                          | `NotFoundPage`         | —                        | 정의되지 않은 모든 주소                                                                                                                               |
+| 화면         | 주소                         | 페이지 컴포넌트         | 동적 파라미터            | 비고                                                                                                                                                  |
+| ------------ | ---------------------------- | ----------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 홈           | `/`                          | `HomePage`              | —                        | 진행 중인 사건이 있으면 재방문 모습(이어하기 카드)으로 바뀜                                                                                           |
+| 로그인       | `/login`                     | `LoginPage`             | —                        | 주소는 피그마 `화면 이동` 확인 필요                                                                                                                   |
+| 회원가입     | `/signup`                    | `SignupPage`            | —                        | 주소는 피그마 `화면 이동` 확인 필요                                                                                                                   |
+| 동의         | `/consent`                   | `ConsentPage`           | —                        | 주소는 피그마 `화면 이동` 확인 필요                                                                                                                   |
+| 사건 접수    | `/cases/new`                 | `CaseIntakePage`        | —                        | 홈에서 진입. 주소는 피그마 `화면 이동` 확인 필요                                                                                                      |
+| 사건 카드    | `/cases/:caseId/card`        | `CaseCardPage`          | `caseId` (API 확인 필요) | 사건 종결 후 진입. `/cases/sample/card`는 예시 사건으로 계속 유지(확인용)                                                                             |
+| 게시판 공유  | `/cases/:caseId/share`       | `CommunitySharePage`    | `caseId` (API 확인 필요) | 공개 범위와 비밀번호 설정. `/cases/sample/share`는 예시 사건으로 계속 유지(확인용)                                                                    |
+| 게시 완료    | `/community/shared`          | `CommunitySharedPage`   | —                        | 게시 후 진입. 확인을 누르면 게시판으로 이동                                                                                                           |
+| community    | `/community`                 | `CommunityPage`         | —                        | 하단 탭바. 게시판 메인(피그마 `4-1 게시판`): HOT ISSUE와 최근 글 3개. "VIEW ALL ↗" → 게시판 목록                                                      |
+| 게시판 목록  | `/community/posts`           | `CommunityPostsPage`    | —                        | 피그마 `4-1 게시판 목록`. "사건 유형", "공개 범위" 버튼으로 선택 시트를 열어 거른다. 필터를 URL 검색 파라미터(`tag`, `q`)로 둘지는 API 확인 필요      |
+| 게시판 상세  | `/community/:postId`         | `BoardDetailPage`       | `postId` (API: `pid`)    | 피그마 `4-2 게시판 상세`(node 71-20). URL의 postId로 GET /board/posts/{pid} 직접 조회. 응답 필드 확인 필요                                            |
+| 게시판 상세  | `/community/:postId`         | `BoardDetailPage`       | `postId` (API: `pid`)    | 피그마 `4-2 게시판 상세`(node 71-20). `/community/sample`은 목업 게시글(확인용)                                                                       |
+| 글쓰기       | `/community/write`           | `BoardWritePage`        | —                        | 연필 버튼에서 진입. 비공개 하위 라우트 이동 시 입력 유지                                                                                              |
+| 비공개 설정  | `/community/write/private`   | `BoardWritePrivatePage` | —                        | 비공개 선택 시 push 이동. 뒤로 이동 시 글쓰기 입력 유지                                                                                               |
+| court        | `/court`                     | `CourtPage`             | —                        | 하단 탭바. 접수한 사건파일 전체 목록(사건 목록)                                                                                                       |
+| 기소         | `/cases/:caseId/prosecution` | `ProsecutionPage`       | `caseId` (API 확인 필요) | 피그마 `2-1 기소`. `/cases/sample/prosecution`은 목업 사건(확인용)                                                                                    |
+| 변론         | `/cases/:caseId/defense`     | `DefensePage`           | `caseId` (API 확인 필요) | 피그마 `Ai챗봇`. 기소 화면 "변론 시작"에서 진입. `/cases/sample/defense`는 목업 사건(확인용)                                                          |
+| 판결         | `/cases/:caseId/decision`    | `DecisionPage`          | `caseId` (API 확인 필요) | 피그마 `2-4 판결`. 변론 화면 "변론 종료"에서 진입. 화면이 열릴 때 판결 초안(`POST /cases/{caseId}/decision`)을 요청                                   |
+| 감정 변화    | `/cases/:caseId/emotion`     | `EmotionChangePage`     | `caseId` (API 확인 필요) | 피그마 `2-6 감정변화`. 판결 화면 "사건파일 저장하기"에서 진입. "다음"에서 판결을 확정(`PUT /cases/{caseId}/decision/final`)하고 종결로                |
+| 행동 제안    | `/cases/:caseId/action`      | `ActionSuggestionPage`  | `caseId` (API 확인 필요) | 피그마 `2-7 행동제안`. 사건요약 "확인"에서 진입. "LET’S DO IT"·"오늘은 쉬기"는 `PUT /cases/{caseId}/follow-up` 후 홈. `/cases/sample/action`은 확인용 |
+| 위기 안내    | `/support`                   | `CrisisSupportPage`     | —                        | 피그마 `5-1 위기 안내`. 어느 화면에서든 서버가 `support_required`를 돌려주면 이동(법정 흐름 중단). 모든 버튼은 홈으로                                 |
+| 사건 종결    | `/cases/:caseId/closing`     | `CaseClosingPage`       | `caseId` (API 확인 필요) | 피그마 `2-8 종결`. 감정 변화 "다음"에서 진입. "확인" → 사건요약. 고정 문구 화면(API 없음)                                                             |
+| 사건요약     | `/cases/:caseId/summary`     | `CaseSummaryPage`       | `caseId` (API 확인 필요) | 피그마 `사건요약`. 종결 "확인"에서 진입. "확인" → 행동 제안, "사건카드 만들기" → 사건 카드                                                            |
+| 찾을 수 없음 | `*`                          | `NotFoundPage`          | —                        | 정의되지 않은 모든 주소                                                                                                                               |
 
 <!-- TODO(피그마 확인 필요): 피그마 `화면 이동` 페이지의 화면 주소를 이 표에 추가한다. -->
 
 ## 검색 파라미터
+
+글쓰기 화면은 `/community/write` (`BoardWritePage`)에서 확인한다. Figma `글쓰기` (71:88)의 UI와 목업 제출을 제공한다. 주소는 `화면 이동` 페이지 확인 후 확정한다. TODO(API 확인 필요) 사건 ID 전달 방식은 미확정이다.
+
+비공개 설정은 일반 글쓰기에서 비공개를 선택하면 `/community/write/private` (`BoardWritePrivatePage`)로 push 이동한다. 글쓰기의 하위 라우트이므로 부모의 제목·본문 입력은 뒤로 이동 시 유지되며, 비밀번호는 비공개 화면을 닫으면 지운다. 직접 접속이나 새로고침 시에는 새 입력 상태로 시작한다. 경로는 `화면 이동` 확인 후 확정한다. TODO(API 확인 필요) 캡처의 4자 안내, 기존 공유의 6자 제한, API의 8~64자 제한을 통일해야 한다.
 
 | 화면        | 쿼리 파라미터 | 값              | 기준 API           |
 | ----------- | ------------- | --------------- | ------------------ |
