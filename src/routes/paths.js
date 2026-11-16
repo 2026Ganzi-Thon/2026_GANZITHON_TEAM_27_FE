@@ -74,6 +74,21 @@ export const getCaseSummaryPath = (caseId) => `/cases/${caseId}/summary`
 /** 게시판 상세 화면 주소를 게시글 ID로 만든다. 예: `getCommunityPostPath('123')` → `/community/123` */
 export const getCommunityPostPath = (postId) => `/community/${encodeURIComponent(postId)}`
 
+/**
+ * 사건 상태(`status`)에 맞는 이어하기 화면 주소를 만든다. 종결된 사건은 사건요약 화면으로 간다.
+ * - `received`, `evidence_review` → 기소 / `defense` → 변론 / `decision_review` → 판결 / `closed` → 사건요약
+ * TODO(API 확인 필요): 서버가 같은 상태 이름을 쓰는지 확인한다. 모르는 상태는 기소 화면으로 보낸다.
+ *
+ * @param {string} caseId 사건 ID
+ * @param {string} status 사건 상태
+ */
+export const getCaseResumePath = (caseId, status) => {
+  if (status === 'defense') return getDefensePath(caseId)
+  if (status === 'decision_review') return getDecisionPath(caseId)
+  if (status === 'closed') return getCaseSummaryPath(caseId)
+  return getProsecutionPath(caseId)
+}
+
 /** 하단 탭바(BottomTabBar)에 넘기는 탭별 이동 주소. */
 export const TAB_PATHS = {
   home: ROUTE_PATHS.home,

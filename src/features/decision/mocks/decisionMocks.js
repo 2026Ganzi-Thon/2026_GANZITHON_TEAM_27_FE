@@ -1,6 +1,6 @@
 import { CRISIS_SCREEN_CONTACTS } from '@/constants/crisisContacts'
 import { includesCrisisWord } from '@/constants/crisisWords'
-import { saveMockCaseDecision } from '@/lib/mockCaseDecisions'
+import { advanceMockCaseStatus, saveMockCaseDecision } from '@/lib/mockCaseDecisions'
 
 /**
  * 판결 화면 목업 데이터. Figma `2-4 판결, 2-5 최종 진술문`(1:26) 화면의 내용을 그대로 담는다.
@@ -29,6 +29,16 @@ export const mockDecisionDraft = {
     next_action: null,
     version: 1,
   },
+}
+
+/**
+ * 판결 초안 목업: 초안을 받으면 사건이 `decision_review`로 넘어간다(홈의 이어하기가 판결 화면으로 간다).
+ * @param {string} caseId 사건 ID
+ * @returns {typeof mockDecisionDraft} 판결 초안
+ */
+export const recordMockDecisionDraft = (caseId) => {
+  advanceMockCaseStatus(caseId, 'decision_review')
+  return mockDecisionDraft
 }
 
 /**

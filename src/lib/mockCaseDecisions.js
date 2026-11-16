@@ -21,6 +21,50 @@ const readAll = () => {
   }
 }
 
+/** 사건 상태의 진행 순서. 목업이 상태를 앞으로만 옮기도록 순서를 둔다. */
+const STATUS_ORDER = ['received', 'evidence_review', 'defense', 'decision_review', 'closed']
+
+/** 단계별 진행 상태(홈의 이어하기용)를 따로 두는 저장소 키. 위의 법정 진행 기록과 섞이지 않는다. */
+const PROGRESS_KEY = 'mock-case-progress'
+
+/** 저장된 전체 진행 상태를 읽는다. 읽을 수 없으면 빈 객체다. */
+const readAllProgress = () => {
+  try {
+    const value = JSON.parse(localStorage.getItem(PROGRESS_KEY) ?? '{}')
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+  } catch {
+    return {}
+  }
+}
+
+/**
+ * 사건 하나의 진행 상태(`{ status, title? }`)를 읽는다. 없으면 null이다.
+ * @param {string} caseId 사건 ID
+ */
+export const readMockCaseProgress = (caseId) => readAllProgress()[caseId] ?? null
+
+/**
+ * 사건 하나의 진행 상태를 앞으로 옮긴다. 이미 더 나아간 상태면 그대로 둔다(뒤로 가지 않는다).
+ * 홈의 이어하기 카드가 "어디까지 했는지"를 알 수 있도록, 기소·판결 목업이 단계마다 부른다.
+ * 서버에서는 사건의 `status`가 이 역할을 한다.
+ * @param {string} caseId 사건 ID
+ * @param {string} status 옮길 상태
+ * @param {object} [extra] 함께 남길 값 (예: `{ title }`)
+ */
+export const advanceMockCaseStatus = (caseId, status, extra = {}) => {
+  const all = readAllProgress()
+  const current = all[caseId]?.status
+  if (current && STATUS_ORDER.indexOf(current) >= STATUS_ORDER.indexOf(status)) return
+  try {
+    localStorage.setItem(
+      PROGRESS_KEY,
+      JSON.stringify({ ...all, [caseId]: { ...all[caseId], status, ...extra } }),
+    )
+  } catch {
+    // 저장 공간을 쓸 수 없으면 이번 기록만 남지 않는다.
+  }
+}
+
 /**
  * 사건 하나의 법정 진행 기록을 읽는다.
  * @param {string} caseId 사건 ID
