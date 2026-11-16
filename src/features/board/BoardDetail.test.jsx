@@ -158,6 +158,17 @@ describe('BoardCommentInput', () => {
 })
 
 describe('BoardDetailView', () => {
+  it('댓글 이동은 프레임 안의 댓글 요소를 스크롤한다', () => {
+    render(<BoardDetailView post={mockPostDetail} />)
+    const comments = screen.getByRole('heading', { name: '댓글 8개' }).parentElement.parentElement
+    comments.scrollIntoView = vi.fn()
+
+    fireEvent.click(screen.getByRole('button', { name: '댓글로 이동' }))
+
+    expect(comments.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' })
+    expect(screen.queryByRole('main')).not.toBeInTheDocument()
+  })
+
   it('전체 게시글 상세 화면을 피그마 목업 데이터와 함께 정상 렌더링한다', () => {
     const handleBack = vi.fn()
     const handleAddComment = vi.fn()

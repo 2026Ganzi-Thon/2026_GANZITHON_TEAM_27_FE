@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { BoardActionBar } from './BoardActionBar'
 import { BoardCommentInput } from './BoardCommentInput'
 import { BoardCommentSection } from './BoardCommentSection'
@@ -17,16 +18,18 @@ import { BoardPostContent } from './BoardPostContent'
  * @param {(content: string) => void} [props.onAddComment] 댓글 등록 핸들러
  */
 export const BoardDetailView = ({ post, onBack, onShare, onLike, onBookmark, onAddComment }) => {
+  const commentsRef = useRef(null)
+
+  /** 프레임 안에서 댓글 영역으로 이동한다. */
   const handleCommentClick = () => {
-    // 댓글 영역으로 스크롤
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+    commentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-canvas px-4">
+    <div className="flex min-h-full flex-1 flex-col bg-canvas pt-status-bar">
       <BoardDetailHeader onBack={onBack} onShare={onShare} />
 
-      <main className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col px-4">
         <BoardPostContent
           title={post.title}
           content={post.content}
@@ -35,7 +38,7 @@ export const BoardDetailView = ({ post, onBack, onShare, onLike, onBookmark, onA
           likeCount={post.like_count}
         />
 
-        <div className="mt-6 h-[1px] w-full bg-[#e7e7e7]" aria-hidden="true" />
+        <div className="mt-6 h-px w-full shrink-0 bg-field" aria-hidden="true" />
 
         <BoardActionBar
           likeCount={post.like_count}
@@ -46,10 +49,14 @@ export const BoardDetailView = ({ post, onBack, onShare, onLike, onBookmark, onA
           onBookmark={onBookmark}
         />
 
-        <BoardCommentSection commentCount={post.comment_count} comments={post.comments} />
-      </main>
+        <div ref={commentsRef}>
+          <BoardCommentSection commentCount={post.comment_count} comments={post.comments} />
+        </div>
+      </div>
 
-      <BoardCommentInput onSubmit={onAddComment ?? (() => {})} />
+      <div className="sticky bottom-0 px-4">
+        <BoardCommentInput onSubmit={onAddComment ?? (() => {})} />
+      </div>
     </div>
   )
 }

@@ -11,7 +11,7 @@ import iconShareUrl from '@/assets/board/icon-share.svg'
  * @param {boolean} [props.showShare] 공유 버튼 표시 여부
  */
 export const BoardDetailHeader = ({ onBack, onShare, showShare = true }) => (
-  <header className="relative flex h-16 w-full items-center justify-between px-2 text-ink">
+  <header className="relative flex h-16 w-full shrink-0 items-center justify-between px-2 text-ink">
     <button
       type="button"
       onClick={onBack}

@@ -22,7 +22,7 @@ export const BoardCommentInput = ({ onSubmit, isSubmitting = false }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="sticky bottom-0 z-20 flex w-full items-center gap-2.5 bg-gradient-to-t from-canvas via-canvas/95 to-transparent pt-2 pb-6"
+      className="flex w-full shrink-0 items-center gap-2.5 bg-gradient-to-t from-canvas via-canvas/95 to-transparent pt-2 pb-6"
     >
       <div className="flex h-[58px] flex-1 items-center rounded-[5px] bg-field px-4">
         <input
@@ -30,8 +30,9 @@ export const BoardCommentInput = ({ onSubmit, isSubmitting = false }) => {
           value={content}
           onChange={(event) => setContent(event.target.value)}
           placeholder="댓글을 입력해주세요..."
+          aria-label="댓글"
           disabled={isSubmitting}
-          className="w-full bg-transparent text-xs text-black placeholder:text-black focus:outline-none"
+          className="min-w-0 w-full bg-transparent text-xs text-black placeholder:text-black"
         />
       </div>
 
