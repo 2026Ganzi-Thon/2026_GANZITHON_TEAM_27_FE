@@ -75,24 +75,26 @@ const FEED_TAG_LABEL = '# FREE TALK'
  * API 게시글 item을 화면에서 쓰는 모양으로 바꾼다.
  * 비밀번호가 필요한 남의 글은 제목과 본문을 가리고 안내 문구만 보여준다.
  *
- * TODO(API 확인 필요): 목록 item 필드(`hot`, `mine`, `likes`, `comments` 등)가 확정되면 이 함수만 고친다.
+ * TODO(API 확인 필요): 목록 item 필드(`is_hot`, `is_mine`, `like_count`, `comment_count`)는 명세에 없다. 확정되면 이 함수만 고친다.
+ * 글을 올린 시각은 게시 시각(`published_at`)을 쓰고, 검토 중이라 없으면 `created_at`을 쓴다.
  *
  * @param {object} post API 게시글 item
  * @param {number} [now] 기준 시각(ms)
- * @returns {{ id: string, title: string, body: string, tagLabel: string, likes: number, comments: number, timeLabel: string, isHot: boolean, isMine: boolean, isLocked: boolean }}
+ * @returns {{ id: string, title: string, body: string, visibility: string, tagLabel: string, likes: number, comments: number, timeLabel: string, isHot: boolean, isMine: boolean, isLocked: boolean }}
  */
 export const toPostView = (post, now = Date.now()) => {
-  const isLocked = post.visibility === VISIBILITY.passwordProtected && !post.mine
+  const isLocked = post.visibility === VISIBILITY.passwordProtected && !post.is_mine
   return {
     id: post.id,
     title: isLocked ? '비공개 글이에요' : post.title,
     body: isLocked ? '비밀번호가 필요합니다.' : (post.body ?? ''),
+    visibility: post.visibility,
     tagLabel: FEED_TAG_LABEL,
-    likes: post.likes ?? 0,
-    comments: post.comments ?? 0,
-    timeLabel: formatPostTime(post.created_at, now),
-    isHot: Boolean(post.hot),
-    isMine: Boolean(post.mine),
+    likes: post.like_count ?? 0,
+    comments: post.comment_count ?? 0,
+    timeLabel: formatPostTime(post.published_at ?? post.created_at, now),
+    isHot: Boolean(post.is_hot),
+    isMine: Boolean(post.is_mine),
     isLocked,
   }
 }

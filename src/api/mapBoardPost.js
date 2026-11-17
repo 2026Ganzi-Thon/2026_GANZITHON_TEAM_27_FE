@@ -7,6 +7,8 @@
  * @property {number} [like_count] 공감 수
  * @property {boolean} [is_liked] 공감 여부
  * @property {boolean} [is_bookmarked] 북마크 여부
+ * @property {boolean} [is_mine] 내가 쓴 글인지
+ * @property {string} [visibility] 공개 범위(`public` | `password_protected`)
  * @property {number} [comment_count] 댓글 수
  * @property {object[]} [comments] 댓글 목록
  */
@@ -29,6 +31,8 @@ export const mapBoardPost = (response) => {
     like_count: read('like_count', 'number'),
     is_liked: read('is_liked', 'boolean'),
     is_bookmarked: read('is_bookmarked', 'boolean'),
+    is_mine: read('is_mine', 'boolean'),
+    visibility: read('visibility', 'string'),
     comment_count: read('comment_count', 'number'),
     comments: Array.isArray(post?.comments)
       ? post.comments.filter((item) => item && typeof item === 'object')

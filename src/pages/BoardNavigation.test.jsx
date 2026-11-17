@@ -1,9 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, configure, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { beforeEach, expect, it, vi } from 'vitest'
 import { apiClient } from '@/lib/apiClient'
 import { routes } from '@/routes/router'
+
+configure({ asyncUtilTimeout: 5000 })
 
 vi.mock('@/lib/apiClient', () => ({ apiClient: { get: vi.fn(), post: vi.fn() } }))
 

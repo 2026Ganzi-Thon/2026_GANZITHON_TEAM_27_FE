@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { BoardWriteView } from './components/BoardWriteView'
 import { submitMockBoardPost } from './mocks/boardWriteMocks'
@@ -57,4 +57,39 @@ it('비공개 패널에서 비밀번호를 목업 요청으로 전달하고 닫�
   expect(screen.getByRole('textbox', { name: '제목' })).toHaveValue('제목')
   fireEvent.click(screen.getByRole('button', { name: '등록하기' }))
   expect(screen.getByLabelText('비밀번호')).toHaveValue('')
+})
+
+/** 제목·본문을 채운다. */
+const fillPost = () => {
+  fireEvent.change(screen.getByRole('textbox', { name: '제목' }), { target: { value: '제목' } })
+  fireEvent.change(screen.getByRole('textbox', { name: '본문' }), { target: { value: '본문' } })
+}
+
+it('공개 글을 등록하면 onSubmitted를 한 번 부르고, 연달아 눌러도 한 번만 등록한다', async () => {
+  vi.mocked(submitMockBoardPost).mockReset()
+  vi.mocked(submitMockBoardPost).mockResolvedValue({ id: 'post-1', status: 'pending_review' })
+  const onSubmitted = vi.fn()
+  render(<BoardWriteView onSubmitted={onSubmitted} />)
+  fillPost()
+  fireEvent.click(screen.getByRole('radio', { name: '공개', exact: true }))
+  const submit = screen.getByRole('button', { name: '등록하기' })
+
+  fireEvent.click(submit)
+  fireEvent.click(submit)
+
+  await waitFor(() => expect(onSubmitted).toHaveBeenCalledOnce())
+  expect(submitMockBoardPost).toHaveBeenCalledTimes(1)
+})
+
+it('비공개 글을 등록해도 onSubmitted를 부른다', async () => {
+  vi.mocked(submitMockBoardPost).mockReset()
+  vi.mocked(submitMockBoardPost).mockResolvedValue({ id: 'post-2', status: 'pending_review' })
+  const onSubmitted = vi.fn()
+  render(<BoardWriteView onSubmitted={onSubmitted} />)
+  fillPost()
+  fireEvent.click(screen.getByRole('radio', { name: '비공개' }))
+  fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: 'password' } })
+  fireEvent.click(screen.getByRole('button', { name: '등록하기' }))
+
+  await waitFor(() => expect(onSubmitted).toHaveBeenCalledOnce())
 })

@@ -1,7 +1,7 @@
 import { apiClient } from '@/lib/apiClient'
 import {
   createMockRephrase,
-  mockDecisionDraft,
+  recordMockDecisionDraft,
   recordMockFinal,
   resolveMock,
   USE_DECISION_MOCK,
@@ -29,7 +29,7 @@ import {
  * @returns {Promise<{status: string, decision: DecisionDraft}>} 판결 초안
  */
 export const requestDecision = async (caseId) => {
-  if (USE_DECISION_MOCK) return resolveMock(mockDecisionDraft)
+  if (USE_DECISION_MOCK) return resolveMock(recordMockDecisionDraft(caseId))
   const { data } = await apiClient.post(`/cases/${caseId}/decision`)
   return data
 }
