@@ -56,7 +56,7 @@ const getTitle = ({ title, thought, case_number: caseNumber }) => {
  * TODO(API 확인 필요): 목록 item 필드 구조가 확정되면 이 함수만 고친다.
  *
  * @param {object} item API 사건 item
- * @returns {{ id: string, title: string, dateLabel: string, dotDate: string, emotionChange: string, statusLabel: string, isInProgress: boolean }}
+ * @returns {{ id: string, title: string, dateLabel: string, dotDate: string, emotionChange: string, status: string, statusLabel: string, isInProgress: boolean }}
  */
 export const toCaseView = (item) => ({
   id: item.id,
@@ -64,6 +64,7 @@ export const toCaseView = (item) => ({
   dateLabel: formatCardDate(item.created_at),
   dotDate: formatDotDate(item.created_at),
   emotionChange: formatEmotion(item),
+  status: item.status,
   statusLabel: item.status === 'closed' ? '종결' : '진행중',
   isInProgress: item.status !== 'closed' && item.status !== 'support_required',
 })
