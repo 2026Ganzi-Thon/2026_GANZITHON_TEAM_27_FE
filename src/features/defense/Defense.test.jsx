@@ -32,13 +32,18 @@ describe('DefenseView', () => {
     vi.mocked(apiClient.put).mockReset()
   })
 
-  it('질문을 불러오는 동안 로딩 상태를 보여준다', () => {
+  it('질문을 불러오는 동안 로딩 상태를 보여준다', async () => {
     vi.mocked(apiClient.post).mockReturnValue(new Promise(() => {}))
     renderView()
 
     expect(screen.getByRole('heading', { name: '변론' })).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent('질문을 준비하고 있어요')
-    expect(apiClient.post).toHaveBeenCalledWith('/cases/case-1/defense/questions')
+    // 사건 상세로 지금까지의 대화를 읽고, 답할 질문이 없으면 다음 질문을 요청한다.
+    expect(apiClient.get).toHaveBeenCalledWith('/cases/case-1')
+    await waitFor(() =>
+      expect(apiClient.post).toHaveBeenCalledWith('/cases/case-1/defense/questions'),
+    )
+    expect(screen.getByRole('status')).toHaveTextContent('질문을 준비하고 있어요')
   })
 
   it('사건번호와 AI 질문 말풍선, 입력 영역을 보여준다', async () => {

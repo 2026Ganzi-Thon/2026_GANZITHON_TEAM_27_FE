@@ -1,22 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import { VISIBILITY } from '@/constants/visibility'
-import {
-  buildPostContent,
-  canPost,
-  formatPostTime,
-  toPostView,
-  validatePostPassword,
-} from './utils'
+import { buildPostContent, canPost, toPostView, validatePostPassword } from './utils'
 
 describe('validatePostPassword', () => {
-  it('6~64자이면 통과한다', () => {
-    expect(validatePostPassword('123456')).toBe('')
+  it('8~64자이면 통과한다', () => {
+    expect(validatePostPassword('12345678')).toBe('')
     expect(validatePostPassword('a'.repeat(64))).toBe('')
   })
 
-  it('비어 있거나 6자 미만이면 안내 문구를 돌려준다', () => {
+  it('비어 있거나 8자 미만이면 안내 문구를 돌려준다', () => {
     expect(validatePostPassword('')).toBe('비밀번호를 입력해주세요.')
-    expect(validatePostPassword('12345')).toBe('비밀번호는 6자 이상이어야 해요.')
+    expect(validatePostPassword('1234567')).toBe('비밀번호는 8자 이상이어야 해요.')
   })
 
   it('64자를 넘으면 안내 문구를 돌려준다', () => {
@@ -35,7 +29,7 @@ describe('canPost', () => {
 
   it('비공개는 비밀번호가 규칙에 맞을 때만 게시할 수 있다', () => {
     expect(canPost(VISIBILITY.passwordProtected, '')).toBe(false)
-    expect(canPost(VISIBILITY.passwordProtected, '12345')).toBe(false)
+    expect(canPost(VISIBILITY.passwordProtected, '1234567')).toBe(false)
     expect(canPost(VISIBILITY.passwordProtected, 'long-enough-pw')).toBe(true)
   })
 })
@@ -66,70 +60,59 @@ describe('buildPostContent', () => {
   })
 })
 
-const NOW = Date.parse('2026-11-16T12:00:00Z')
-const minutesAgo = (minutes) => new Date(NOW - minutes * 60 * 1000).toISOString()
-
-describe('formatPostTime', () => {
-  it('한 시간 안은 분, 하루 안은 시간으로 보여준다', () => {
-    expect(formatPostTime(minutesAgo(5), NOW)).toBe('5m ago')
-    expect(formatPostTime(minutesAgo(120), NOW)).toBe('2h ago')
-  })
-
-  it('하루가 넘으면 날짜로 보여준다', () => {
-    expect(formatPostTime(minutesAgo(60 * 24 * 3), NOW)).toBe('Nov 13')
-  })
-})
-
 describe('toPostView', () => {
-  const post = {
-    id: 'p1',
+  const now = Date.parse('2026-11-16T12:00:00Z')
+  const base = {
+    id: 'post-1',
     title: '제목',
     body: '본문',
+    tags: [],
+    pattern_tags: ['labeling'],
     visibility: VISIBILITY.public,
-    created_at: minutesAgo(10),
-    published_at: minutesAgo(5),
-    like_count: 24,
-    comment_count: 8,
+    status: 'published',
+    is_mine: false,
     is_hot: true,
-    is_mine: true,
+    like_count: 3,
+    comment_count: 1,
+    created_at: '2026-11-16T09:00:00Z',
+    published_at: '2026-11-16T10:00:00Z',
   }
 
-  it('목록 item을 화면용 모양으로 바꾼다', () => {
-    expect(toPostView(post, NOW)).toMatchObject({
-      id: 'p1',
+  it('서버 목록 필드(is_mine, is_hot, like_count, comment_count, created_at)를 화면 모양으로 바꾼다', () => {
+    expect(toPostView(base, now)).toMatchObject({
+      id: 'post-1',
       title: '제목',
-      likes: 24,
-      comments: 8,
+      body: '본문',
+      likes: 3,
+      comments: 1,
+      timeLabel: '3h ago',
       isHot: true,
-      isMine: true,
+      isMine: false,
       isLocked: false,
-      timeLabel: '5m ago',
     })
   })
 
-  it('게시 시각이 없으면 올린 시각으로 시간을 보여준다', () => {
-    expect(toPostView({ ...post, published_at: null }, NOW).timeLabel).toBe('10m ago')
+  it('작성 시각이 없으면 게시 시각을 쓴다', () => {
+    expect(toPostView({ ...base, created_at: null }, now).timeLabel).toBe('2h ago')
   })
 
-  it('필드가 없으면 0과 false로 채운다', () => {
+  it('남의 비공개 글은 서버가 제목·본문을 null로 주므로 안내 문구를 보여준다', () => {
     const view = toPostView(
-      { id: 'p2', title: 'a', visibility: 'public', created_at: post.created_at },
-      NOW,
+      { ...base, visibility: VISIBILITY.passwordProtected, title: null, body: null },
+      now,
     )
-    expect(view).toMatchObject({ likes: 0, comments: 0, isHot: false, isMine: false })
+    expect(view).toMatchObject({
+      title: '비공개 글이에요',
+      body: '비밀번호가 필요합니다.',
+      isLocked: true,
+    })
   })
 
-  it('남의 비밀번호 글은 제목과 본문을 가린다', () => {
+  it('내 비공개 글은 잠그지 않는다', () => {
     const view = toPostView(
-      { ...post, visibility: VISIBILITY.passwordProtected, is_mine: false },
-      NOW,
+      { ...base, visibility: VISIBILITY.passwordProtected, is_mine: true },
+      now,
     )
-    expect(view).toMatchObject({ title: '비공개 글이에요', isLocked: true })
-    expect(view.body).toBe('비밀번호가 필요합니다.')
-  })
-
-  it('내 비밀번호 글은 가리지 않는다', () => {
-    const view = toPostView({ ...post, visibility: VISIBILITY.passwordProtected }, NOW)
-    expect(view).toMatchObject({ title: '제목', isLocked: false })
+    expect(view).toMatchObject({ title: '제목', isLocked: false, isMine: true })
   })
 })

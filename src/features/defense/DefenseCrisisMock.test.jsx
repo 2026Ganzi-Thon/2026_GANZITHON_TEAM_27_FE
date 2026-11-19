@@ -1,8 +1,5 @@
-import { act, renderHook } from '@testing-library/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { CRISIS_WORDS, includesCrisisWord } from '@/constants/crisisWords'
-import { useCreateCase } from '@/features/case'
 import { answerMockQuestion, getMockThread, resetMockThread } from './mocks/defenseMocks'
 
 describe('변론 답변 목업: 서버처럼 위기 신호 판단', () => {
@@ -39,30 +36,16 @@ describe('변론 답변 목업: 서버처럼 위기 신호 판단', () => {
   })
 })
 
-describe('위기 단어 기준이 사건 접수 목업과 같다', () => {
-  const renderCreateCase = () =>
-    renderHook(() => useCreateCase(), {
-      wrapper: ({ children }) => (
-        <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider>
-      ),
-    })
-
-  beforeEach(() => {
-    localStorage.clear()
-  })
-
+// 사건 접수의 위기 판단은 이제 서버가 한다. 목업 답변은 같은 단어 기준(constants/crisisWords)을 쓴다.
+describe('위기 단어 기준', () => {
   it.each([
     ...CRISIS_WORDS.map((word) => [`요즘 ${word} 생각이 들어`, true]),
     ['회의에서 발표를 망쳤다', false],
     ['자존감이 낮아졌다', false],
-  ])('"%s" → 위기 %s (접수 목업과 판단이 같다)', async (text, expected) => {
-    const { result } = renderCreateCase()
-    let response
-    await act(async () => {
-      response = await result.current.mutateAsync({ thought: text, idempotencyKey: text })
-    })
-
+  ])('"%s" → 위기 %s', (text, expected) => {
     expect(includesCrisisWord(text)).toBe(expected)
-    expect(response.outcome === 'support_required').toBe(expected)
+    expect(
+      answerMockQuestion('q2', { action: 'answer', text }).outcome === 'support_required',
+    ).toBe(expected)
   })
 })

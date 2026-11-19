@@ -1,4 +1,4 @@
-import { advanceMockCaseStatus, saveMockCaseDecision } from '@/lib/mockCaseDecisions'
+import { saveMockCaseDecision } from '@/lib/mockCaseDecisions'
 
 /**
  * 기소 화면 목업 데이터. Figma `2-1 기소` 화면의 내용을 그대로 담는다.
@@ -34,16 +34,6 @@ export const mockProsecutionDraft = {
   ],
 }
 
-/**
- * 기소 초안 목업: 초안을 만들면 사건이 `evidence_review`로 넘어가고 사건명이 정해진다(홈·목록이 읽는다).
- * @param {string} caseId 사건 ID
- * @returns {typeof mockProsecutionDraft} 기소 초안
- */
-export const recordMockDraft = (caseId) => {
-  advanceMockCaseStatus(caseId, 'evidence_review', { title: mockProsecutionDraft.title })
-  return mockProsecutionDraft
-}
-
 /** `PUT /cases/{id}/evidence` 200 응답 목업 */
 export const mockEvidenceResult = { status: 'defense' }
 
@@ -55,7 +45,6 @@ export const mockEvidenceResult = { status: 'defense' }
  */
 export const recordMockEvidence = (caseId, body) => {
   saveMockCaseDecision(caseId, { pattern_tags: body.pattern_tags ?? [] })
-  advanceMockCaseStatus(caseId, 'defense')
   return mockEvidenceResult
 }
 

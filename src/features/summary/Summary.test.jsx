@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiClient } from '@/lib/apiClient'
 import { SummaryView } from './index'
 
-// 동료의 사건 조회(useCase)가 목업 저장소에서 300ms 기다린다.
+// 느린 환경(CI)에서도 통과하도록 비동기 대기 시간을 늘린다.
 configure({ asyncUtilTimeout: 5000 })
 
 vi.mock('@/lib/apiClient', () => ({
@@ -15,26 +15,19 @@ vi.mock('@/lib/apiClient', () => ({
 const LONG_THOUGHT =
   '회의에서 발표를 망쳐서 다들 나를 한심하게 봤을 것 같고 앞으로도 계속 이럴 것 같아서 나는 쓸모없는 사람 같다'
 
-/** 사건 접수 화면이 목업 저장소(localStorage `mock-case-files`)에 저장한 모양 그대로 넣는다. */
-const seedIntake = (overrides = {}) =>
-  localStorage.setItem(
-    'mock-case-files',
-    JSON.stringify([
-      {
-        id: 'case-1',
-        case_number: '2026-000007',
-        title: null,
-        thought: LONG_THOUGHT,
-        emotion: { type: 'anxiety', intensity: 80 },
-        emotion_after: null,
-        status: 'received',
-        created_at: '2026-11-13T00:00:00.000Z',
-        ...overrides,
-      },
-    ]),
-  )
+/** 사건 상세(`GET /cases/{caseId}`) 중 접수 정보 부분 */
+const intake = (overrides = {}) => ({
+  id: 'case-1',
+  case_number: '2026-000007',
+  title: null,
+  thought: LONG_THOUGHT,
+  emotion: { type: 'anxiety', intensity: 80 },
+  status: 'closed',
+  created_at: '2026-11-13T00:00:00.000Z',
+  ...overrides,
+})
 
-/** 법정 진행 결과(`GET /cases/{caseId}` 응답 중 사건요약이 읽는 부분) */
+/** 사건 상세(`GET /cases/{caseId}`) 중 법정 진행 결과 부분 */
 const result = {
   pattern_tags: ['labeling', 'all_or_nothing'],
   decision: { type: 'reframed', final_statement: '내가 고친 문장이다.' },
@@ -62,7 +55,6 @@ describe('SummaryView', () => {
   })
 
   it('불러오는 동안 로딩 상태를 보여준다', () => {
-    seedIntake()
     vi.mocked(apiClient.get).mockReturnValue(new Promise(() => {}))
     renderView()
     expect(screen.getByRole('heading', { name: '사건파일 요약' })).toBeInTheDocument()
@@ -70,8 +62,7 @@ describe('SummaryView', () => {
   })
 
   it('네 칸이 접수 글·확정한 진술문·대표 패턴 1개·접수 강도와 종결 강도로 채워진다', async () => {
-    seedIntake()
-    vi.mocked(apiClient.get).mockResolvedValue({ data: result })
+    vi.mocked(apiClient.get).mockResolvedValue({ data: { ...intake(), ...result } })
     renderView()
 
     expect(await screen.findByText('사건번호 #2026-000007')).toBeInTheDocument()
@@ -98,17 +89,20 @@ describe('SummaryView', () => {
     ],
     ['종결 감정이 없으면', {}, { ...result, emotion_after: null }],
   ])('%s 그래프 대신 비교할 수 없다는 문구를 보여준다', async (_, intakeOverrides, data) => {
-    seedIntake(intakeOverrides)
-    vi.mocked(apiClient.get).mockResolvedValue({ data })
+    vi.mocked(apiClient.get).mockResolvedValue({ data: { ...intake(intakeOverrides), ...data } })
     renderView()
     expect(await screen.findByText('재판 전과 후의 감정을 비교할 수 없어요.')).toBeInTheDocument()
     expect(screen.queryByText(/재판 전 /)).not.toBeInTheDocument()
   })
 
   it('판단 보류로 진술문 없이 확정했으면 보류 문구, 패턴이 없으면 없음 문구를 보여준다', async () => {
-    seedIntake()
     vi.mocked(apiClient.get).mockResolvedValue({
-      data: { ...result, pattern_tags: [], decision: { type: 'deferred', final_statement: null } },
+      data: {
+        ...intake(),
+        ...result,
+        pattern_tags: [],
+        decision: { type: 'deferred', final_statement: null },
+      },
     })
     renderView()
     expect(await screen.findByText('판단을 보류했어요.')).toBeInTheDocument()
@@ -129,24 +123,15 @@ describe('SummaryView', () => {
   })
 
   it('판결 결과를 불러오지 못하면 다시 시도할 수 있다', async () => {
-    seedIntake()
     vi.mocked(apiClient.get)
       .mockRejectedValueOnce(httpError(503))
-      .mockResolvedValueOnce({ data: result })
+      .mockResolvedValueOnce({ data: { ...intake(), ...result } })
     renderView()
     fireEvent.click(await screen.findByRole('button', { name: '다시 시도' }))
     expect(await screen.findByText('사건번호 #2026-000007')).toBeInTheDocument()
   })
 
-  it('사건 접수 기록이 없거나 서버가 404면 다시 시도 없이 찾을 수 없다고 보여준다', async () => {
-    vi.mocked(apiClient.get).mockResolvedValue({ data: result })
-    renderView()
-    expect(await screen.findByText('사건을 찾을 수 없어요.')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: '다시 시도' })).not.toBeInTheDocument()
-  })
-
-  it('서버가 404면 찾을 수 없다고 보여준다', async () => {
-    seedIntake()
+  it('서버가 404면 다시 시도 없이 찾을 수 없다고 보여준다', async () => {
     vi.mocked(apiClient.get).mockRejectedValue(httpError(404))
     renderView()
     expect(await screen.findByText('사건을 찾을 수 없어요.')).toBeInTheDocument()
@@ -154,8 +139,7 @@ describe('SummaryView', () => {
   })
 
   it('확인·사건카드 만들기는 링크, 뒤로가기는 버튼이고 공유는 동작이 없으면 비활성이다', async () => {
-    seedIntake()
-    vi.mocked(apiClient.get).mockResolvedValue({ data: result })
+    vi.mocked(apiClient.get).mockResolvedValue({ data: { ...intake(), ...result } })
     renderView()
     await screen.findByText('사건번호 #2026-000007')
 
@@ -166,8 +150,7 @@ describe('SummaryView', () => {
   })
 
   it('공유 핸들러가 있으면 공유 버튼을 누를 수 있다', () => {
-    seedIntake()
-    vi.mocked(apiClient.get).mockResolvedValue({ data: result })
+    vi.mocked(apiClient.get).mockResolvedValue({ data: { ...intake(), ...result } })
     const onShare = vi.fn()
     renderView({ onShare })
     fireEvent.click(screen.getByRole('button', { name: '공유하기' }))

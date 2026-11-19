@@ -2,6 +2,16 @@ import { getEmotionLabel } from '@/constants/emotions'
 
 const SEOUL = 'Asia/Seoul'
 
+/** 사건이 만들어졌음을 뜻하는 접수 응답 outcome. 예전 목업 값 `created`도 함께 받는다. */
+const CASE_CREATED_OUTCOMES = ['case_created', 'created']
+
+/**
+ * 사건 접수 응답이 "사건이 만들어짐"인지 확인한다. 위기 안내(`support_required`)면 false다.
+ * @param {{ outcome?: string } | undefined} result `POST /cases` 응답
+ * @returns {boolean}
+ */
+export const isCaseCreated = (result) => CASE_CREATED_OUTCOMES.includes(result?.outcome)
+
 /** 카드용 날짜. 예: `July 20,2026` */
 export const formatCardDate = (iso) => {
   const date = new Date(iso)
@@ -31,11 +41,14 @@ const formatEmotion = ({ emotion, emotion_after: emotionAfter, status }) => {
     : `${label} ${emotion.intensity}`
 }
 
-/** 접수 직후에는 사건명이 없으므로 생각의 앞부분을 임시 제목으로 쓴다. */
-const getTitle = ({ title, thought }) => {
+/** 접수 직후에는 사건명이 없으므로 생각의 앞부분 또는 사건번호를 임시 제목으로 쓴다. */
+const getTitle = ({ title, thought, case_number: caseNumber }) => {
   if (title) return title
-  const oneLine = thought.replace(/\s+/g, ' ').trim()
-  return oneLine.length > 14 ? `${oneLine.slice(0, 14)}…` : oneLine
+  if (typeof thought === 'string' && thought.trim()) {
+    const oneLine = thought.replace(/\s+/g, ' ').trim()
+    return oneLine.length > 14 ? `${oneLine.slice(0, 14)}…` : oneLine
+  }
+  return caseNumber ? `#${caseNumber} 사건` : '접수된 사건'
 }
 
 /**

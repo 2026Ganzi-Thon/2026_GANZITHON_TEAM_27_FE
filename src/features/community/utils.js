@@ -1,7 +1,8 @@
 import { POST_PASSWORD_LENGTH, VISIBILITY } from '@/constants/visibility'
+import { formatPostTime } from '@/lib/formatPostTime'
 
 /**
- * 게시글 비밀번호가 규칙(6~64자)에 맞는지 확인한다. 앞뒤 공백은 비밀번호의 일부이므로 그대로 센다.
+ * 게시글 비밀번호가 규칙(8~64자)에 맞는지 확인한다. 앞뒤 공백은 비밀번호의 일부이므로 그대로 센다.
  * @param {string} password 입력한 비밀번호
  * @returns {string} 규칙에 맞으면 빈 문자열, 아니면 안내 문구
  */
@@ -43,58 +44,32 @@ export const buildPostContent = (caseItem) => ({
   body: truncate(caseItem.final_statement ?? caseItem.thought, 2000),
 })
 
-const SEOUL = 'Asia/Seoul'
-const MINUTE = 60 * 1000
-const HOUR = 60 * MINUTE
-
-/**
- * 글을 올린 시각을 목록에 쓰는 짧은 문구로 바꾼다.
- * 한 시간 안이면 `5m ago`, 하루 안이면 `2h ago`, 그보다 오래되면 `Jul 20`처럼 보여준다.
- *
- * TODO(피그마 확인 필요): 시안에는 `2h ago`와 `02:31 AM` 두 가지가 보인다. 시각을 쓰는 기준이 정해지면 맞춘다.
- *
- * @param {string} iso 글을 올린 시각(UTC ISO 8601)
- * @param {number} [now] 기준 시각(ms). 기본은 지금이다
- * @returns {string}
- */
-export const formatPostTime = (iso, now = Date.now()) => {
-  const age = Math.max(0, now - new Date(iso).getTime())
-  if (age < HOUR) return `${Math.max(1, Math.floor(age / MINUTE))}m ago`
-  if (age < 24 * HOUR) return `${Math.floor(age / HOUR)}h ago`
-  return new Date(iso).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    timeZone: SEOUL,
-  })
-}
+export { formatPostTime }
 
 /** 게시판 메인 목록의 글 앞에 붙는 분류 문구. TODO(API 확인 필요): 글의 분류 필드가 확정되면 맞춘다. */
 const FEED_TAG_LABEL = '# FREE TALK'
 
 /**
- * API 게시글 item을 화면에서 쓰는 모양으로 바꾼다.
- * 비밀번호가 필요한 남의 글은 제목과 본문을 가리고 안내 문구만 보여준다.
- *
- * TODO(API 확인 필요): 목록 item 필드(`is_hot`, `is_mine`, `like_count`, `comment_count`)는 명세에 없다. 확정되면 이 함수만 고친다.
- * 글을 올린 시각은 게시 시각(`published_at`)을 쓰고, 검토 중이라 없으면 `created_at`을 쓴다.
+ * API 게시글 item(`GET /board/posts`, `GET /board/posts/mine`)을 화면에서 쓰는 모양으로 바꾼다.
+ * 비밀번호가 필요한 남의 글은 서버가 제목·본문을 `null`로 주므로, 안내 문구만 보여준다.
  *
  * @param {object} post API 게시글 item
  * @param {number} [now] 기준 시각(ms)
- * @returns {{ id: string, title: string, body: string, visibility: string, tagLabel: string, likes: number, comments: number, timeLabel: string, isHot: boolean, isMine: boolean, isLocked: boolean }}
+ * @returns {{ id: string, title: string, body: string, tagLabel: string, likes: number, comments: number, timeLabel: string, isHot: boolean, isMine: boolean, isLocked: boolean }}
  */
 export const toPostView = (post, now = Date.now()) => {
-  const isLocked = post.visibility === VISIBILITY.passwordProtected && !post.is_mine
+  const isMine = Boolean(post.is_mine)
+  const isLocked = post.visibility === VISIBILITY.passwordProtected && !isMine
   return {
     id: post.id,
-    title: isLocked ? '비공개 글이에요' : post.title,
+    title: isLocked ? '비공개 글이에요' : (post.title ?? ''),
     body: isLocked ? '비밀번호가 필요합니다.' : (post.body ?? ''),
-    visibility: post.visibility,
     tagLabel: FEED_TAG_LABEL,
     likes: post.like_count ?? 0,
     comments: post.comment_count ?? 0,
-    timeLabel: formatPostTime(post.published_at ?? post.created_at, now),
+    timeLabel: formatPostTime(post.created_at ?? post.published_at, now),
     isHot: Boolean(post.is_hot),
-    isMine: Boolean(post.is_mine),
+    isMine,
     isLocked,
   }
 }

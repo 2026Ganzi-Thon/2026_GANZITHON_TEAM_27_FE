@@ -1,11 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  deleteBoardPost,
   deleteComment,
   fetchPostDetail,
-  removePost,
   submitComment,
   toggleCommentLike,
+  togglePostBookmark,
   togglePostLike,
+  updateBoardPost,
   updateComment,
 } from '../api/board'
 
@@ -28,15 +30,29 @@ export const usePostDetail = (postId) =>
   })
 
 /**
- * 게시글 공감(좋아요) 토글 훅. 공감한 글이면 취소하고, 아니면 공감한다.
- * `mutate(baseLiked)`로 글에 원래 공감해 둔 상태를 넘긴다(목업에서만 쓴다).
+ * 게시글 공감(좋아요) 토글 훅.
  * @param {string | undefined} postId 게시글 ID
  */
 export const useTogglePostLike = (postId) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (baseLiked) => togglePostLike(postId, baseLiked),
+    mutationFn: (currentlyLiked = false) => togglePostLike(postId, currentlyLiked),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: boardKeys.detail(postId) })
+    },
+  })
+}
+
+/**
+ * 게시글 북마크 토글 훅.
+ * @param {string | undefined} postId 게시글 ID
+ */
+export const useTogglePostBookmark = (postId) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (currentlyBookmarked = false) => togglePostBookmark(postId, currentlyBookmarked),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: boardKeys.detail(postId) })
     },
@@ -52,69 +68,89 @@ export const useAddComment = (postId) => {
 
   return useMutation({
     mutationFn: (body) => submitComment(postId, body),
-    onSuccess: () => {
+    onSuccess: (result) => {
+      if (result?.outcome === 'support_required') return
       queryClient.invalidateQueries({ queryKey: boardKeys.detail(postId) })
     },
   })
 }
 
 /**
- * 내 댓글 수정 훅.
+ * 내가 작성한 게시글 수정 훅. 수정 성공 시 상세·목록 캐시를 새로 받는다.
  * @param {string | undefined} postId 게시글 ID
  */
-export const useUpdateComment = (postId) => {
+export const useUpdatePost = (postId) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ commentId, content }) => updateComment(postId, commentId, { content }),
-    onSuccess: () => {
+    mutationFn: (values) => updateBoardPost(postId, values),
+    onSuccess: (result) => {
+      if (result?.outcome === 'support_required') return
       queryClient.invalidateQueries({ queryKey: boardKeys.detail(postId) })
+      queryClient.invalidateQueries({ queryKey: ['board-posts'] })
     },
   })
 }
 
 /**
- * 내 댓글 삭제 훅. 댓글 수가 바뀌므로 게시판 목록도 다시 받게 한다.
- * @param {string | undefined} postId 게시글 ID
- */
-export const useDeleteComment = (postId) => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (commentId) => deleteComment(postId, commentId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: boardKeys.detail(postId) })
-    },
-  })
-}
-
-/**
- * 댓글 공감 토글 훅. 공감한 댓글이면 취소하고, 아니면 공감한다.
- * `mutate({ commentId, baseLiked })`로 댓글에 원래 공감해 둔 상태를 넘긴다(목업에서만 쓴다).
- * @param {string | undefined} postId 게시글 ID
- */
-export const useToggleCommentLike = (postId) => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({ commentId, baseLiked }) => toggleCommentLike(postId, commentId, baseLiked),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: boardKeys.detail(postId) })
-    },
-  })
-}
-
-/**
- * 내 게시글 삭제 훅. 지우면 그 글의 상세 캐시를 비운다.
+ * 내가 작성한 게시글 삭제 훅. 삭제 성공 시 목록 캐시를 새로 받는다.
  * @param {string | undefined} postId 게시글 ID
  */
 export const useDeleteBoardPost = (postId) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: () => removePost(postId),
+    mutationFn: () => deleteBoardPost(postId),
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: boardKeys.detail(postId) })
+      queryClient.invalidateQueries({ queryKey: ['board-posts'] })
+    },
+  })
+}
+
+/**
+ * 내가 작성한 댓글 수정 훅.
+ * @param {string | undefined} postId 게시글 ID
+ */
+export const useUpdateComment = (postId) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ commentId, content }) => updateComment(commentId, { content }),
+    onSuccess: (result) => {
+      if (result?.outcome === 'support_required') return
+      queryClient.invalidateQueries({ queryKey: boardKeys.detail(postId) })
+    },
+  })
+}
+
+/**
+ * 내가 작성한 댓글 삭제 훅.
+ * @param {string | undefined} postId 게시글 ID
+ */
+export const useDeleteComment = (postId) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (commentId) => deleteComment(commentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: boardKeys.detail(postId) })
+    },
+  })
+}
+
+/**
+ * 댓글 공감(좋아요) 토글 훅.
+ * @param {string | undefined} postId 게시글 ID
+ */
+export const useToggleCommentLike = (postId) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ commentId, currentlyLiked = false }) =>
+      toggleCommentLike(commentId, currentlyLiked),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: boardKeys.detail(postId) })
     },
   })
 }

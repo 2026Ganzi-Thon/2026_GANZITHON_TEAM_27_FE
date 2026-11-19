@@ -46,11 +46,10 @@ export const DefenseHeader = ({ homeTo = '/', onBack }) => {
         <img src={backArrowUrl} alt="" width={15} height={8} className="max-w-none rotate-90" />
       </button>
 
-      {/* 아이콘 중심: Figma (367.5, 74.5), 오른쪽 끝에서 17px */}
       <Link
         to={homeTo}
         aria-label="홈으로 이동"
-        className="absolute top-2 right-0.75 flex size-11.25 items-center justify-center"
+        className="absolute top-2 right-3 flex size-11.25 items-center justify-center"
       >
         <img src={homeIconUrl} alt="" width={17} height={19} />
       </Link>

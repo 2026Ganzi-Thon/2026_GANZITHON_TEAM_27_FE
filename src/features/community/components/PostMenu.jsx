@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 /**
  * 내 글 오른쪽 위의 "···" 메뉴. 누르면 "수정하기", "삭제하기"가 나온다. 바깥을 누르거나 Esc를 누르면 닫힌다.
  *
- * TODO(API 확인 필요): 게시글 수정 API가 명세에 없다. 수정을 지원하지 않으면 "수정하기"를 뺀다.
- *
- * @param {{ onEdit: () => void, onDelete: () => void }} props
- * - `onEdit`: "수정하기"를 누르면 호출한다
+ * @param {{ editTo?: string, onEdit?: () => void, onDelete: () => void }} props
+ * - `editTo`: "수정하기"를 눌렀을 때 이동할 게시글 수정 주소
+ * - `onEdit`: `editTo`가 없을 때 "수정하기" 클릭 핸들러
  * - `onDelete`: "삭제하기"를 누르면 호출한다
  */
-export const PostMenu = ({ onEdit, onDelete }) => {
+export const PostMenu = ({ editTo, onEdit, onDelete }) => {
   const [open, setOpen] = useState(false)
   const rootRef = useRef(null)
 
@@ -50,17 +50,29 @@ export const PostMenu = ({ onEdit, onDelete }) => {
           role="menu"
           className="absolute top-9 right-1.5 z-10 w-16.75 rounded-[9px] bg-[rgba(117,117,117,0.2)] px-3 py-1 text-xs leading-[normal] text-black backdrop-blur-sm"
         >
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false)
-              onEdit()
-            }}
-            className="block h-5 w-full text-left"
-          >
-            수정하기
-          </button>
+          {editTo ? (
+            <Link
+              to={editTo}
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className="flex h-5 w-full items-center text-left"
+            >
+              수정하기
+            </Link>
+          ) : (
+            <button
+              type="button"
+              role="menuitem"
+              disabled={!onEdit}
+              onClick={() => {
+                setOpen(false)
+                onEdit?.()
+              }}
+              className="block h-5 w-full text-left"
+            >
+              수정하기
+            </button>
+          )}
           <button
             type="button"
             role="menuitem"

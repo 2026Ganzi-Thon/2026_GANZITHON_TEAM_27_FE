@@ -5,39 +5,52 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiClient } from '@/lib/apiClient'
 import { routes } from '@/routes/router'
 
-// 동료의 사건 조회(getCase)가 목업 저장소에서 300ms 기다리므로 대기 시간을 넉넉히 둔다.
+// 느린 환경(CI)에서도 통과하도록 대기 시간을 넉넉히 둔다.
 configure({ asyncUtilTimeout: 5000 })
 
 vi.mock('@/lib/apiClient', () => ({
   apiClient: { get: vi.fn(), post: vi.fn(), put: vi.fn() },
 }))
 
-/** 사건 접수 화면이 목업 저장소(localStorage `mock-case-files`)에 저장한 모양 그대로 사건을 넣는다. */
-const seedCase = (item) =>
-  localStorage.setItem(
-    'mock-case-files',
-    JSON.stringify([
-      {
-        id: 'other-case',
-        case_number: '2026-000001',
-        title: null,
-        thought: '다른 사건',
-        emotion: { type: 'anger', intensity: 90 },
-        emotion_after: null,
-        status: 'received',
-        created_at: '2026-11-13T00:00:00.000Z',
-      },
-      {
-        case_number: '2026-000002',
-        title: null,
-        thought: '회의에서 발표를 망쳤다',
-        emotion_after: null,
-        status: 'received',
-        created_at: '2026-11-13T01:00:00.000Z',
-        ...item,
-      },
-    ]),
-  )
+/** 서버에 있는 사건들. `GET /cases/{id}`가 이 목록에서 찾고, 없으면 404를 돌려준다. */
+let serverCases = []
+
+/** 서버(사건 상세 `GET /cases/{id}`)에 사건을 넣는다. 다른 사건도 하나 함께 둔다. */
+const seedCase = (item) => {
+  serverCases = [
+    {
+      id: 'other-case',
+      case_number: '2026-000001',
+      title: null,
+      thought: '다른 사건',
+      emotion: { type: 'anger', intensity: 90 },
+      emotion_after: null,
+      status: 'decision_review',
+      created_at: '2026-11-13T00:00:00.000Z',
+    },
+    {
+      case_number: '2026-000002',
+      title: null,
+      thought: '회의에서 발표를 망쳤다',
+      emotion_after: null,
+      status: 'decision_review',
+      created_at: '2026-11-13T01:00:00.000Z',
+      ...item,
+    },
+  ]
+}
+
+/** `GET /cases/{id}`를 서버처럼 응답하게 한다. */
+const mockCaseDetail = () => {
+  serverCases = []
+  vi.mocked(apiClient.get)
+    .mockReset()
+    .mockImplementation(async (url) => {
+      const found = serverCases.find((item) => url === `/cases/${item.id}`)
+      if (found) return { data: found }
+      throw Object.assign(new Error('not found'), { response: { status: 404 } })
+    })
+}
 
 const renderAt = (path, state) => {
   const router = createMemoryRouter(routes, { initialEntries: [{ pathname: path, state }] })
@@ -54,6 +67,7 @@ const renderAt = (path, state) => {
 describe('감정 변화 화면: 접수 당시 감정', () => {
   beforeEach(() => {
     localStorage.clear()
+    mockCaseDetail()
     vi.mocked(apiClient.put)
       .mockReset()
       .mockResolvedValue({ data: { status: 'closed' } })
@@ -71,7 +85,7 @@ describe('감정 변화 화면: 접수 당시 감정', () => {
     expect(await screen.findByText('접수 당시: 기록 없음')).toBeInTheDocument()
   })
 
-  it('저장소에 없는 사건이면 "기록 없음"을 보여준다', async () => {
+  it('서버에 없는 사건(404)이면 "기록 없음"을 보여준다', async () => {
     renderAt('/cases/no-such-case/emotion')
     expect(await screen.findByText('접수 당시: 기록 없음')).toBeInTheDocument()
   })
@@ -118,6 +132,7 @@ describe('감정 변화 "다음": 판결 확정 응답이 위기 안내일 때',
   beforeEach(() => {
     localStorage.clear()
     sessionStorage.clear()
+    mockCaseDetail()
     seedCase({ id: 'case-risk', emotion: { type: 'anxiety', intensity: 70 } })
     vi.mocked(apiClient.put)
       .mockReset()

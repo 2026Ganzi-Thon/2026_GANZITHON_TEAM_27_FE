@@ -15,7 +15,7 @@ export const PATTERN_OPTIONS = [
   { key: 'labeling', label: '낙인찍기' },
   { key: 'should_statements', label: '당위적 사고' },
   { key: 'personalization', label: '개인화' },
-  { key: 'blaming_others', label: '타인비난' },
-  { key: 'comparison', label: '비교하기' },
+  { key: 'blaming', label: '타인비난' },
+  { key: 'comparing', label: '비교하기' },
   { key: 'mind_reading', label: '독심술' },
 ]

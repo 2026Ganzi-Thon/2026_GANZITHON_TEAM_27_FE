@@ -2,7 +2,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { configure, fireEvent, render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { apiClient } from '@/lib/apiClient'
 import { routes } from '@/routes/router'
+
+vi.mock('@/lib/apiClient', () => ({
+  apiClient: { get: vi.fn(), post: vi.fn(), put: vi.fn() },
+}))
 
 // jsdom에는 Canvas가 없으므로 카드 그리기는 가짜 PNG를 돌려주게 한다. 그리기 자체는 브라우저에서 확인한다.
 vi.mock('@/features/card/renderCaseCard', () => ({
@@ -46,7 +51,8 @@ describe('사건 카드 화면', () => {
       await screen.findByRole('img', { name: /#2026-031.*나는 쓸모없어.*불안 70% → 40%/ }),
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '이미지 저장' })).toBeEnabled()
-    expect(screen.getByRole('link', { name: '공유하기' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: '공유하기' })).toBeEnabled()
+    expect(screen.getByRole('link', { name: '게시판에 공유하기' })).toHaveAttribute(
       'href',
       '/cases/sample/share',
     )
@@ -63,19 +69,52 @@ describe('사건 카드 화면', () => {
     expect(await screen.findByText('이미지를 저장했어요.')).toBeInTheDocument()
   })
 
-  it('공유하기를 누르면 게시판 공유 화면으로 이동한다', async () => {
+  it('공유하기를 누르면 Web Share 파일 공유를 지원할 때 PNG 파일로 공유 시트를 연다', async () => {
+    const share = vi.fn().mockResolvedValue(undefined)
+    const canShare = vi.fn().mockReturnValue(true)
+    Object.defineProperty(navigator, 'share', { value: share, configurable: true })
+    Object.defineProperty(navigator, 'canShare', { value: canShare, configurable: true })
+
+    renderAt('/cases/sample/card')
+    fireEvent.click(await screen.findByRole('button', { name: '공유하기' }))
+
+    expect(await screen.findByText('공유를 완료했어요.')).toBeInTheDocument()
+    expect(share).toHaveBeenCalledTimes(1)
+    expect(share.mock.calls[0][0].files[0]).toBeInstanceOf(File)
+
+    delete navigator.share
+    delete navigator.canShare
+  })
+
+  it('파일 공유를 지원하지 않으면 카드를 저장하고 인스타 스토리 안내 문구를 보여준다', async () => {
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
     renderAt('/cases/sample/card')
 
-    fireEvent.click(await screen.findByRole('link', { name: '공유하기' }))
+    fireEvent.click(await screen.findByRole('button', { name: '공유하기' }))
+
+    expect(click).toHaveBeenCalledTimes(1)
+    expect(
+      await screen.findByText('카드를 저장했어요. 인스타그램 스토리에서 불러와 공유해 주세요.'),
+    ).toBeInTheDocument()
+  })
+
+  it('게시판에 공유하기를 누르면 게시판 공유 화면으로 이동한다', async () => {
+    renderAt('/cases/sample/card')
+
+    fireEvent.click(await screen.findByRole('link', { name: '게시판에 공유하기' }))
 
     expect(await screen.findByRole('heading', { name: '게시판 공유하기' })).toBeInTheDocument()
     expect(await screen.findByRole('radio', { name: /전체 공개/ })).toBeInTheDocument()
   })
 
-  it('없는 사건이면 안내 문구와 홈 링크를 보여준다', async () => {
+  it('없는 사건(서버 404)이면 안내 문구와 홈 링크를 보여준다', async () => {
+    vi.mocked(apiClient.get).mockRejectedValue(
+      Object.assign(new Error('not found'), { response: { status: 404 } }),
+    )
     renderAt('/cases/no-such-case/card')
 
     expect(await screen.findByText('사건을 찾을 수 없어요.')).toBeInTheDocument()
+    expect(apiClient.get).toHaveBeenCalledWith('/cases/no-such-case')
     expect(screen.getByRole('link', { name: '홈으로 가기' })).toHaveAttribute('href', '/')
   })
 })

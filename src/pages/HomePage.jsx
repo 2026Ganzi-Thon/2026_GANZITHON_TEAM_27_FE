@@ -11,7 +11,7 @@ import { getCaseResumePath, ROUTE_PATHS, TAB_PATHS } from '@/routes/paths'
  * 카드의 휴지통을 누르면 가장 최근 사건부터 하나씩 삭제되고, 모두 지우면 처음 방문 모습으로 돌아온다.
  * 사건파일은 사건 접수를 하면 만들어져서 최근 사건파일에 나타난다. 이어하기 카드와 사건 카드를 누르면 사건의 진행 상태에 맞는
  * 화면(기소·변론·판결, 종결된 사건은 사건요약)으로 간다.
- * TODO(API 확인 필요): 사건 데이터는 `GET /cases` 연동 전까지 임시 저장소(mock)를 쓴다.
+ * 사건 목록은 `GET /cases`, 삭제는 `DELETE /cases/{id}`로 서버와 주고받는다.
  */
 const HomePage = () => {
   const { data: cases = [], isPending, isError } = useCases()

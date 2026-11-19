@@ -22,7 +22,7 @@ const CaseCardPage = () => {
   const { data: caseItem, isPending, isError } = useCase(caseId)
   const content = useMemo(() => (caseItem ? buildCardContent(caseItem) : null), [caseItem])
   const image = useCaseCardImage(content)
-  const { save, message } = useCardActions(image.blob, content)
+  const { save, shareToStory, message } = useCardActions(image.blob, content)
 
   if (isPending || isError || !caseItem) {
     return (
@@ -42,7 +42,7 @@ const CaseCardPage = () => {
   }
 
   return (
-    <section className="flex min-h-full flex-1 flex-col items-center bg-canvas pt-21.75 pb-7">
+    <section className="flex min-h-full flex-1 flex-col items-center bg-canvas pt-21.75 pb-14">
       <h1 className="text-center text-headline leading-[normal] font-semibold text-black">
         사건 카드가
         <br />
@@ -61,19 +61,21 @@ const CaseCardPage = () => {
         description={getCardDescription(content)}
         className="mt-1.75"
       />
-      <div className="relative mt-10.25 w-full px-4.5">
-        <CardActions
-          onSave={save}
-          shareTo={getCommunitySharePath(caseId)}
-          saveDisabled={image.status !== 'ready'}
-        />
+      <div className="mt-10.25 w-full px-4.5">
+        <CardActions onSave={save} onShare={shareToStory} saveDisabled={image.status !== 'ready'} />
         <Link
           to={ROUTE_PATHS.home}
           className="mt-4 flex h-17 items-center justify-center rounded-[41px] bg-field text-base font-semibold text-black"
         >
           확인
         </Link>
-        <p role="status" className="absolute inset-x-0 top-full mt-1 text-center text-xs text-ink">
+        <Link
+          to={getCommunitySharePath(caseId)}
+          className="mt-3 flex min-h-11 items-center justify-center text-xs text-muted underline"
+        >
+          게시판에 공유하기
+        </Link>
+        <p role="status" className="mt-2 min-h-4 text-center text-xs text-ink">
           {message}
         </p>
       </div>

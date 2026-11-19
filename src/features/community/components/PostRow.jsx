@@ -8,14 +8,12 @@ import { PostMenu } from './PostMenu'
  *
  * @param {{ to: string,
  *   post: { id: string, title: string, body: string, likes: number, comments: number, timeLabel: string, isHot: boolean, isMine: boolean, isLocked: boolean },
- *   onEdit: (post: object) => void,
  *   onDelete: (postId: string) => void,
  * }} props
  * - `post`: 보여줄 글(`toPostView`의 결과)
- * - `onEdit`: 내 글 메뉴에서 "수정하기"를 누르면 글과 함께 호출한다
  * - `onDelete`: 내 글 메뉴에서 "삭제하기"를 누르면 글 ID와 함께 호출한다
  */
-export const PostRow = ({ post, onEdit, onDelete, to }) => (
+export const PostRow = ({ post, onDelete, to }) => (
   <article className={`relative px-4 pt-4.25 pb-3.5 text-black ${post.isLocked ? 'pl-6' : ''}`}>
     {post.isHot && (
       <span className="mb-1.75 flex h-6.5 w-fit items-center rounded-[21px] bg-sky px-3 text-base leading-[normal] font-semibold">
@@ -41,6 +39,8 @@ export const PostRow = ({ post, onEdit, onDelete, to }) => (
       </div>
     )}
 
-    {post.isMine && <PostMenu onEdit={() => onEdit(post)} onDelete={() => onDelete(post.id)} />}
+    {post.isMine && (
+      <PostMenu editTo={to ? `${to}?edit=1` : undefined} onDelete={() => onDelete(post.id)} />
+    )}
   </article>
 )

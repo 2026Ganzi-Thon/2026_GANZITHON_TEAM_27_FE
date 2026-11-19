@@ -1,9 +1,17 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { BigButton } from '@/components/BigButton'
 import lockUrl from '@/assets/share/lock-closed.svg'
+import { POST_PASSWORD_LENGTH } from '@/constants/visibility'
 
-/** 캡처 71:76의 비공개 설정 패널. 비밀번호는 패널이 열린 동안에만 보관한다. */
-export const BoardPrivateSettings = ({ onSubmit, onClose }) => {
+/**
+ * 캡처 71:76의 비공개 설정 패널. 비밀번호는 패널이 열린 동안에만 보관한다.
+ * @param {object} props
+ * @param {(password: string) => void} props.onSubmit "등록하기"를 누르면 비밀번호 원문과 함께 호출한다
+ * @param {() => void} [props.onClose] Escape로 닫을 때 호출한다
+ * @param {string | null} [props.error] 비밀번호 규칙 위반·등록 실패 안내 문구
+ * @param {boolean} [props.isPending] 등록 요청 중인지
+ */
+export const BoardPrivateSettings = ({ onSubmit, onClose, error = null, isPending = false }) => {
   const [password, setPassword] = useState('')
   const titleId = useId()
   const descriptionId = useId()
@@ -43,7 +51,7 @@ export const BoardPrivateSettings = ({ onSubmit, onClose }) => {
     }
   }
 
-  /** 유효성·완료 화면은 시안 확인 후 연결한다. 비밀번호 원문을 그대로 전달한다. */
+  /** 비밀번호 원문을 그대로 전달한다. 규칙 검사와 등록은 글쓰기 hook(`useBoardWrite`)이 한다. */
   const handleSubmit = (event) => {
     event.preventDefault()
     onSubmit(password)
@@ -92,15 +100,20 @@ export const BoardPrivateSettings = ({ onSubmit, onClose }) => {
             <input
               type="password"
               aria-label="비밀번호"
-              placeholder="비밀번호 입력 (4자 이상)"
+              placeholder={`비밀번호 입력 (${POST_PASSWORD_LENGTH.min}자 이상)`}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="new-password"
-              className="absolute top-private-password left-4 h-11 w-[calc(100%-2rem)] bg-transparent px-4 text-center text-base leading-auto placeholder:text-ink"
+              className="absolute top-private-password left-4 h-12 w-[calc(100%-2rem)] rounded-field border border-line bg-canvas px-4 text-center text-base leading-auto text-ink placeholder:text-muted focus:border-ink focus:bg-field"
             />
             <div className="absolute right-4 bottom-private-button left-private-button-left">
-              <BigButton type="submit">
-                <span className="text-field">등록하기</span>
+              {error && (
+                <p role="alert" className="mb-2 text-center text-sm text-danger">
+                  {error}
+                </p>
+              )}
+              <BigButton type="submit" disabled={isPending}>
+                <span className="text-field">{isPending ? '등록 중…' : '등록하기'}</span>
               </BigButton>
             </div>
           </form>

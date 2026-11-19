@@ -6,15 +6,18 @@ export { BoardCommentInput } from './components/BoardCommentInput'
 export { BoardDetailView } from './components/BoardDetailView'
 export { BoardWriteView } from './components/BoardWriteView'
 export { BoardPrivateSettings } from './components/BoardPrivateSettings'
+export { BoardUnlockForm } from './components/BoardUnlockForm'
 
 export {
-  useAddComment,
-  useDeleteBoardPost,
-  useDeleteComment,
-  useToggleCommentLike,
   usePostDetail,
   useTogglePostLike,
+  useTogglePostBookmark,
+  useAddComment,
+  useUpdatePost,
+  useDeleteBoardPost,
   useUpdateComment,
+  useDeleteComment,
+  useToggleCommentLike,
 } from './hooks/useBoard'
-export { BoardOptionsMenu } from './components/BoardOptionsMenu'
+export { useUnlockPost } from './hooks/useUnlockPost'
 export { mockPostDetail, DEMO_POST_ID } from './mocks/boardMocks'

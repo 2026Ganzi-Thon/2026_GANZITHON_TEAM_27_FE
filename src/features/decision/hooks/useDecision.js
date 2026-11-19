@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { caseKeys } from '@/features/case'
 import { finalizeDecision, rephraseDecision, requestDecision } from '../api/decision'
 
 /** 판결 도메인 Query key factory */
@@ -45,13 +46,20 @@ export const useRephraseDecision = (caseId) => {
 }
 
 /**
- * 판결 확정 mutation 훅.
- * TODO(API 확인 필요): 확정 후 사건 목록·통계 캐시 invalidate는 사건(case)·보관함 도메인 key가 생기면 추가한다.
+ * 판결 확정 mutation 훅. 확정하면 사건이 종결되므로(응답 = 종결된 사건 상세),
+ * 사건 목록·상세 캐시(`caseKeys.all`)를 새로 받아 감정 변화·요약·홈 화면이 종결 상태를 보게 한다.
+ * 위기 안내(`support_required`)여도 사건 status가 바뀌므로 함께 새로 받는다.
  * @param {string | undefined} caseId 사건 ID
  */
-export const useFinalizeDecision = (caseId) =>
-  useMutation({
+export const useFinalizeDecision = (caseId) => {
+  const queryClient = useQueryClient()
+  return useMutation({
     mutationFn: (body) => finalizeDecision(caseId, body),
     // 위기 안내(support_required)로 바뀌면 보낸 최종 진술문이 요청 기록에 남지 않도록, 화면이 reset하면 바로 지운다.
     gcTime: 0,
+    // 다음 화면 이동을 늦추지 않도록 새로 받기를 기다리지 않는다.
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: caseKeys.all })
+    },
   })
+}

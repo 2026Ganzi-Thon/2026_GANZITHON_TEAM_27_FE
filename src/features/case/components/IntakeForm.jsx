@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import titleUrl from '@/assets/intake/intake-title.svg'
 import { EMOTIONS, EMOTION_INTENSITY_RANGE } from '@/constants/emotions'
 import { useCreateCase } from '../hooks/useCreateCase'
+import { isCaseCreated } from '../utils'
 import { EmotionPicker } from './EmotionPicker'
 import { IntensitySlider } from './IntensitySlider'
 
@@ -27,11 +28,15 @@ export const IntakeForm = ({ onCreated }) => {
   const [emotionKey, setEmotionKey] = useState(null)
   const [intensity, setIntensity] = useState(EMOTION_INTENSITY_RANGE.default)
   const idempotencyKeyRef = useRef(crypto.randomUUID())
-  const { mutate, isPending, isError, data } = useCreateCase()
+  const { mutate, isPending, isError, error, data } = useCreateCase()
 
   const trimmed = thought.trim()
   const canSubmit = trimmed.length > 0 && !isPending
   const support = data?.outcome === 'support_required' ? data.support : null
+  const errorMessage =
+    error?.response?.status === 429
+      ? (error?.response?.data?.error?.message ?? '체험은 IP당 최대 3번까지 진행할 수 있어요.')
+      : '접수하지 못했어요. 작성한 내용은 그대로 있으니 다시 눌러 주세요.'
 
   /** 입력이 바뀌면 이전 제출과 다른 요청이므로 Idempotency-Key를 새로 만든다. */
   const changeInput = (setter) => (value) => {
@@ -53,7 +58,7 @@ export const IntakeForm = ({ onCreated }) => {
       },
       {
         onSuccess: (result) => {
-          if (result.outcome !== 'created') return
+          if (!isCaseCreated(result)) return
           idempotencyKeyRef.current = crypto.randomUUID()
           onCreated(result.case)
         },
@@ -110,15 +115,23 @@ export const IntakeForm = ({ onCreated }) => {
         <div role="alert" className="mx-4 mt-6 rounded-[10px] bg-field px-4 py-3 text-sm text-ink">
           <p>{support.message}</p>
           <ul className="mt-2 font-semibold">
-            {support.contacts.map((contact) => (
-              <li key={contact}>{contact}</li>
-            ))}
+            {(support.contacts ?? []).map((contact) => {
+              const text =
+                typeof contact === 'string'
+                  ? contact
+                  : [contact.label, contact.number].filter(Boolean).join(' ')
+              const key =
+                typeof contact === 'string'
+                  ? contact
+                  : `${contact.label ?? ''}-${contact.number ?? ''}`
+              return <li key={key}>{text}</li>
+            })}
           </ul>
         </div>
       )}
       {isError && (
         <p role="alert" className="mx-4 mt-6 text-sm text-danger">
-          접수하지 못했어요. 작성한 내용은 그대로 있으니 다시 눌러 주세요.
+          {errorMessage}
         </p>
       )}
 

@@ -1,7 +1,7 @@
 import { apiClient } from '@/lib/apiClient'
 import {
   mockCase,
-  recordMockDraft,
+  mockProsecutionDraft,
   recordMockEvidence,
   resolveMock,
   USE_PROSECUTION_MOCK,
@@ -38,7 +38,7 @@ export const fetchCase = async (caseId) => {
  * @returns {Promise<ProsecutionDraft>} 기소 초안
  */
 export const requestProsecution = async (caseId) => {
-  if (USE_PROSECUTION_MOCK) return resolveMock(recordMockDraft(caseId))
+  if (USE_PROSECUTION_MOCK) return resolveMock(mockProsecutionDraft)
   const { data } = await apiClient.post(`/cases/${caseId}/prosecution`)
   return data
 }

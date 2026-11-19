@@ -55,19 +55,21 @@ describe('기소 화면 뒤로가기 → 휴정 모달', () => {
     expect(router.state.location.pathname).toBe('/cases/case-1/prosecution')
   })
 
-  it('"휴정하기"를 누르면 서버 API 없이 홈(/)으로 간다', async () => {
+  it('"휴정하기"를 누르면 사건 API 없이 홈(/)으로 간다', async () => {
     const router = await renderProsecution()
-    const callsBefore = [apiClient.get, apiClient.post, apiClient.put].map(
-      (fn) => vi.mocked(fn).mock.calls.length,
-    )
+    /** 홈 화면이 그리는 사건 목록 조회(GET /cases)를 뺀 요청 수 */
+    const caseCallCounts = () => [
+      vi.mocked(apiClient.get).mock.calls.filter(([url]) => url !== '/cases').length,
+      vi.mocked(apiClient.post).mock.calls.length,
+      vi.mocked(apiClient.put).mock.calls.length,
+    ]
+    const callsBefore = caseCallCounts()
     const { dialog } = openRecess()
     fireEvent.click(within(dialog).getByRole('button', { name: '휴정하기' }))
 
     expect(router.state.location.pathname).toBe('/')
     expect(await screen.findByRole('heading', { name: 'Thought Court' })).toBeInTheDocument()
-    expect(
-      [apiClient.get, apiClient.post, apiClient.put].map((fn) => vi.mocked(fn).mock.calls.length),
-    ).toEqual(callsBefore)
+    expect(caseCallCounts()).toEqual(callsBefore)
   })
 
   it.each([

@@ -1,32 +1,26 @@
-import { VISIBILITY } from '@/constants/visibility'
-import { readPosts, wait, writePosts } from './mockPostStore'
+import { apiClient } from '@/lib/apiClient'
+
+/** 화면 확인용 예시 사건 ID. 서버에 없는 사건이라 게시 요청을 보내지 않는다. */
+const SAMPLE_CASE_ID = 'sample'
 
 /**
- * 사건을 게시판에 공유한다. `POST /cases/{id}/posts`와 같은 모양으로 응답한다.
- * 글은 `pending_review`(검토 중)로 시작한다.
+ * 종결된 사건을 게시판에 공유한다. `POST /cases/{id}/posts`
+ * → `201 { id, status: 'pending_review', visibility, created_at }`
+ * (서버가 `BOARD_AUTO_PUBLISH`면 바로 `published`일 수 있다)
  *
- * TODO(API 확인 필요): 서버가 준비되면 `apiClient.post(`/cases/${caseId}/posts`, { visibility, title, body, tags, password })`로 바꾼다.
- * TODO(API 확인 필요): 위기 상황이면 `outcome: "support_required"`가 올 수 있다. 응답 구조가 확정되면 처리한다.
+ * - 위기 신호가 감지되면 HTTP 200 `{ outcome: "support_required", support }`가 오므로 그대로 돌려준다.
+ * - 비밀번호는 요청 본문에만 담고 어디에도 저장하지 않는다.
+ * - 예시 사건(`sample`)은 서버에 없으므로 요청 없이 게시된 것처럼 돌려준다(화면 확인용).
  *
  * @param {string} caseId 공유할 사건 ID
  * @param {{ visibility: string, title: string, body: string, tags?: string[], password?: string }} values 게시글 내용
- * @returns {Promise<{ id: string, status: 'pending_review' }>}
+ * @returns {Promise<{ id: string, status: string } | { outcome: 'support_required', support: object }>}
  */
-export const createPost = async (caseId, { visibility, title, body, tags = [], password }) => {
-  await wait()
-
-  const post = {
-    id: crypto.randomUUID(),
-    case_id: caseId,
-    visibility,
-    title,
-    body,
-    tags,
-    // 비밀번호 자체는 저장하지 않는다.
-    has_password: visibility === VISIBILITY.passwordProtected && Boolean(password),
-    status: 'pending_review',
-    created_at: new Date().toISOString(),
-  }
-  writePosts([post, ...readPosts()])
-  return { id: post.id, status: post.status }
+export const createPost = async (caseId, { visibility, title, body, tags, password }) => {
+  if (caseId === SAMPLE_CASE_ID) return { id: 'sample-post', status: 'pending_review', visibility }
+  const payload = { visibility, title, body }
+  if (tags?.length) payload.tags = tags
+  if (password) payload.password = password
+  const { data } = await apiClient.post(`/cases/${caseId}/posts`, payload)
+  return data
 }
