@@ -2,7 +2,7 @@ import { POST_PASSWORD_LENGTH, VISIBILITY } from '@/constants/visibility'
 import { formatPostTime } from '@/lib/formatPostTime'
 
 /**
- * 게시글 비밀번호가 규칙(6~64자)에 맞는지 확인한다. 앞뒤 공백은 비밀번호의 일부이므로 그대로 센다.
+ * 게시글 비밀번호가 규칙(8~64자)에 맞는지 확인한다. 앞뒤 공백은 비밀번호의 일부이므로 그대로 센다.
  * @param {string} password 입력한 비밀번호
  * @returns {string} 규칙에 맞으면 빈 문자열, 아니면 안내 문구
  */

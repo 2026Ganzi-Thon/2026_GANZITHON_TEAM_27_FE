@@ -105,6 +105,15 @@ describe('toSummaryView', () => {
     expect(toSummaryView({ ...intake, emotion: null }, result).emotion).toBeNull()
     expect(toSummaryView(intake, { ...result, emotion_after: null }).emotion).toBeNull()
   })
+
+  it('v1.4 summary와 primary_pattern이 있으면 thought와 pattern_tags[0]보다 우선한다', () => {
+    const view = toSummaryView(
+      { ...intake, summary: '40자 이내 요약', primary_pattern: 'emotional_reasoning' },
+      { ...result, primary_pattern: 'should_statements' },
+    )
+    expect(view.thought).toBe('40자 이내 요약')
+    expect(view.caseType).toBe('당위적 사고')
+  })
 })
 
 describe('목업 저장소 기록 → 사건요약', () => {

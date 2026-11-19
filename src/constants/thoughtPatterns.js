@@ -10,6 +10,11 @@ export const THOUGHT_PATTERN_LABELS = {
   catastrophizing: '파국화',
   labeling: '낙인 찍기',
   discounting_positives: '긍정 격하',
+  emotional_reasoning: '감정적 추론',
+  should_statements: '당위적 사고',
+  personalization: '개인화',
+  blaming: '타인 비난',
+  comparing: '비교하기',
 }
 
 /**

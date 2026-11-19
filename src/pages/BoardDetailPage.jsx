@@ -1,9 +1,11 @@
 import { useNavigate, useParams } from 'react-router-dom'
+import { VISIBILITY } from '@/constants/visibility'
 import {
   BoardDetailView,
   BoardUnlockForm,
   useAddComment,
   usePostDetail,
+  useTogglePostBookmark,
   useTogglePostLike,
   useUnlockPost,
 } from '@/features/board'
@@ -29,8 +31,10 @@ const BoardDetailPage = () => {
   } = usePostDetail(postId)
   const unlocked = useUnlockPost(postId)
   const { mutate: toggleLike } = useTogglePostLike(postId)
+  const { mutate: toggleBookmark } = useTogglePostBookmark(postId)
   const { mutate: addComment } = useAddComment(postId)
   const post = unlocked.post ?? fetchedPost
+  const isProtected = post?.visibility === VISIBILITY.passwordProtected
 
   const handleBack = () => {
     if (window.history.length > 1) {
@@ -53,16 +57,25 @@ const BoardDetailPage = () => {
     }
   }
 
-  /** 공감 토글. 비밀번호로 연 글은 다시 조회할 수 없어 응답을 바로 반영한다. */
-  const handleLike = () =>
-    toggleLike(undefined, {
+  /** 공감 토글. 보호 글(`password_protected`)에서는 공감 API를 호출하지 않는다. */
+  const handleLike = () => {
+    if (isProtected) return
+    toggleLike(Boolean(post?.is_liked), {
       onSuccess: (result) => {
         if (unlocked.post) unlocked.applyLike(result)
       },
     })
+  }
 
-  /** 댓글 등록. 비밀번호로 연 글은 다시 조회할 수 없어 새 댓글을 바로 덧붙인다. */
-  const handleAddComment = (content) =>
+  /** 북마크 토글. 보호 글(`password_protected`)에서는 북마크 API를 호출하지 않는다. */
+  const handleBookmark = () => {
+    if (isProtected) return
+    toggleBookmark(Boolean(post?.is_bookmarked))
+  }
+
+  /** 댓글 등록. 보호 글(`password_protected`)에서는 댓글 API를 호출하지 않는다. */
+  const handleAddComment = (content) => {
+    if (isProtected) return
     addComment(
       { content },
       {
@@ -71,6 +84,7 @@ const BoardDetailPage = () => {
         },
       },
     )
+  }
 
   if (isPending && !unlocked.post) {
     return (
@@ -127,9 +141,7 @@ const BoardDetailPage = () => {
       onBack={handleBack}
       onShare={handleShare}
       onLike={handleLike}
-      onBookmark={() => {
-        // TODO(API 확인 필요): 북마크 기능 API 확정 시 연동
-      }}
+      onBookmark={handleBookmark}
       onAddComment={handleAddComment}
     />
   )

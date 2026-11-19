@@ -32,7 +32,7 @@ import {
 export const fetchCase = async (caseId) => {
   if (USE_DEFENSE_MOCK) return resolveMock({ ...mockCase, id: caseId })
   const { data } = await apiClient.get(`/cases/${caseId}`)
-  return data
+  return data?.case ?? data
 }
 
 /** 사건당 질문 최대 개수 (`POST /cases/{id}/defense/questions`가 3개 뒤에는 `409 DEFENSE_COMPLETED`) */
@@ -88,16 +88,27 @@ export const toDefenseThreadItem = (item) => {
 export const fetchDefenseThread = async (caseId) => {
   if (USE_DEFENSE_MOCK) return resolveMock(getMockThread())
   const { data: detail } = await apiClient.get(`/cases/${caseId}`)
-  const items = [...(Array.isArray(detail?.defense) ? detail.defense : [])]
+  const status = detail?.case ? detail.case.status : detail?.status
+  const rawTurns = Array.isArray(detail?.questions)
+    ? detail.questions
+    : Array.isArray(detail?.defense)
+      ? detail.defense
+      : []
+  const items = [...rawTurns]
   const openQuestion = detail?.open_question
   if (openQuestion && !items.some((item) => item.id === openQuestion.id)) items.push(openQuestion)
   items.sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0))
 
   const thread = items.map(toDefenseThreadItem)
   const hasOpenQuestion = thread.some((item) => !item.answer)
-  // 이미 다음 단계(판결 등)로 넘어간 사건이면 질문을 더 받지 않는다.
-  const isPastDefense = Boolean(detail?.status) && detail.status !== 'defense'
-  if (hasOpenQuestion || thread.length >= MAX_QUESTIONS || isPastDefense) {
+  // 이미 다음 단계(판결 등)로 넘어간 사건이거나 변론이 끝났으면 질문을 더 받지 않는다.
+  const isPastDefense = Boolean(status) && status !== 'defense'
+  if (
+    hasOpenQuestion ||
+    detail?.defense_completed ||
+    thread.length >= MAX_QUESTIONS ||
+    isPastDefense
+  ) {
     return thread
   }
 
@@ -119,10 +130,14 @@ export const fetchDefenseThread = async (caseId) => {
  * @returns {Promise<object>} 서버 응답. 자유 입력에 위기 신호가 있으면 HTTP 200 `{ outcome: "support_required", support }`
  */
 export const submitDefenseAnswer = async (caseId, questionId, body) => {
-  if (USE_DEFENSE_MOCK) return resolveMock(answerMockQuestion(questionId, body))
+  const payload =
+    body.action === 'answer'
+      ? { action: body.action, text: body.text, revision: body.revision }
+      : { action: body.action, revision: body.revision }
+  if (USE_DEFENSE_MOCK) return resolveMock(answerMockQuestion(questionId, payload))
   const { data } = await apiClient.put(
     `/cases/${caseId}/defense/questions/${questionId}/answer`,
-    body,
+    payload,
   )
   return data
 }

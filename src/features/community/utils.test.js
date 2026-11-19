@@ -3,14 +3,14 @@ import { VISIBILITY } from '@/constants/visibility'
 import { buildPostContent, canPost, toPostView, validatePostPassword } from './utils'
 
 describe('validatePostPassword', () => {
-  it('6~64자이면 통과한다', () => {
-    expect(validatePostPassword('123456')).toBe('')
+  it('8~64자이면 통과한다', () => {
+    expect(validatePostPassword('12345678')).toBe('')
     expect(validatePostPassword('a'.repeat(64))).toBe('')
   })
 
-  it('비어 있거나 6자 미만이면 안내 문구를 돌려준다', () => {
+  it('비어 있거나 8자 미만이면 안내 문구를 돌려준다', () => {
     expect(validatePostPassword('')).toBe('비밀번호를 입력해주세요.')
-    expect(validatePostPassword('12345')).toBe('비밀번호는 6자 이상이어야 해요.')
+    expect(validatePostPassword('1234567')).toBe('비밀번호는 8자 이상이어야 해요.')
   })
 
   it('64자를 넘으면 안내 문구를 돌려준다', () => {
@@ -29,7 +29,7 @@ describe('canPost', () => {
 
   it('비공개는 비밀번호가 규칙에 맞을 때만 게시할 수 있다', () => {
     expect(canPost(VISIBILITY.passwordProtected, '')).toBe(false)
-    expect(canPost(VISIBILITY.passwordProtected, '12345')).toBe(false)
+    expect(canPost(VISIBILITY.passwordProtected, '1234567')).toBe(false)
     expect(canPost(VISIBILITY.passwordProtected, 'long-enough-pw')).toBe(true)
   })
 })

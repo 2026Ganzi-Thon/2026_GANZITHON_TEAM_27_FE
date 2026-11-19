@@ -97,11 +97,11 @@ describe('게시판 공유 화면', () => {
     expect(screen.getByRole('button', { name: '게시하기' })).toBeDisabled()
 
     fireEvent.change(input, { target: { value: 'abc' } })
-    expect(await screen.findByText('비밀번호는 6자 이상이어야 해요.')).toBeInTheDocument()
+    expect(await screen.findByText('비밀번호는 8자 이상이어야 해요.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '게시하기' })).toBeDisabled()
 
     fireEvent.change(input, { target: { value: 'long-enough-pw' } })
-    expect(screen.queryByText('비밀번호는 6자 이상이어야 해요.')).not.toBeInTheDocument()
+    expect(screen.queryByText('비밀번호는 8자 이상이어야 해요.')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '게시하기' }))
 
     expect(await screen.findByRole('heading', { name: '게시가 완료되었어요!' })).toBeInTheDocument()

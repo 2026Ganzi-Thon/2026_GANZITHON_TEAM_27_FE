@@ -8,6 +8,11 @@ export { BoardWriteView } from './components/BoardWriteView'
 export { BoardPrivateSettings } from './components/BoardPrivateSettings'
 export { BoardUnlockForm } from './components/BoardUnlockForm'
 
-export { usePostDetail, useTogglePostLike, useAddComment } from './hooks/useBoard'
+export {
+  usePostDetail,
+  useTogglePostLike,
+  useTogglePostBookmark,
+  useAddComment,
+} from './hooks/useBoard'
 export { useUnlockPost } from './hooks/useUnlockPost'
 export { mockPostDetail, DEMO_POST_ID } from './mocks/boardMocks'

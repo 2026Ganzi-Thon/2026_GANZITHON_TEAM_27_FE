@@ -69,16 +69,16 @@ it('비공개 패널에서 비밀번호를 등록 요청으로 전달하고 닫�
   expect(screen.getByLabelText('비밀번호')).toHaveValue('')
 })
 
-it('비밀번호가 6자보다 짧으면 요청하지 않고 안내한다', () => {
+it('비밀번호가 8자보다 짧으면 요청하지 않고 안내한다', () => {
   render(<BoardWriteView />)
   fireEvent.change(screen.getByRole('textbox', { name: '제목' }), { target: { value: '제목' } })
   fireEvent.change(screen.getByRole('textbox', { name: '본문' }), { target: { value: '본문' } })
   fireEvent.click(screen.getByRole('radio', { name: '비공개' }))
-  fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: '1234' } })
+  fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: '1234567' } })
   fireEvent.click(screen.getByRole('button', { name: '등록하기' }))
 
   expect(createBoardPost).not.toHaveBeenCalled()
-  expect(screen.getByRole('alert')).toHaveTextContent('비밀번호는 6자 이상이어야 해요.')
+  expect(screen.getByRole('alert')).toHaveTextContent('비밀번호는 8자 이상이어야 해요.')
 })
 
 it('위기 안내(support_required) 응답이면 onSupportRequired를 부른다', async () => {

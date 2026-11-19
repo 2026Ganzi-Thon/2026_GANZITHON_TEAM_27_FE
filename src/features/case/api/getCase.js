@@ -17,6 +17,61 @@ export const SAMPLE_CASE = {
 }
 
 /**
+ * v1.4 사건 상세 응답(`{ case, evidence, questions, decision, can_request_decision, defense_completed }`)을
+ * 화면에서 공통으로 쓰는 평탄화된 사건 모양으로 정규화한다.
+ * 테스트·목업처럼 이미 평탄화된 객체(`data.case`가 없는 경우)는 그대로 돌려준다.
+ *
+ * @param {object | null | undefined} data `GET /cases/{id}` 응답 본문
+ * @returns {object | null | undefined}
+ */
+export const normalizeCaseDetail = (data) => {
+  if (!data || typeof data !== 'object' || !data.case) return data
+  const c = data.case
+  const decision = data.decision
+    ? {
+        ...data.decision,
+        draft_type: data.decision.type,
+        type: data.decision.final_type ?? data.decision.type,
+        version: c.version,
+      }
+    : null
+  const followUp = data.decision?.follow_up_choice
+    ? {
+        choice: data.decision.follow_up_choice,
+        action_text: data.decision.follow_up_action ?? null,
+        updated_at: data.decision.follow_up_updated_at ?? null,
+      }
+    : null
+  const questions = Array.isArray(data.questions) ? data.questions : []
+  return {
+    id: c.id,
+    case_number: c.case_number,
+    status: c.status,
+    version: c.version,
+    title: c.title,
+    claim: c.claim,
+    summary: c.summary,
+    thought: c.original_thought ?? c.thought,
+    pattern_candidates: c.pattern_candidates,
+    pattern_tags: c.pattern_tags,
+    primary_pattern: c.primary_pattern,
+    emotion: c.emotion,
+    emotion_after: c.emotion_after,
+    created_at: c.created_at,
+    updated_at: c.updated_at,
+    closed_at: c.closed_at,
+    evidence: data.evidence ?? [],
+    questions,
+    defense: questions,
+    decision,
+    final_statement: data.decision?.final_statement ?? null,
+    follow_up: followUp,
+    can_request_decision: data.can_request_decision,
+    defense_completed: data.defense_completed,
+  }
+}
+
+/**
  * 사건 하나 조회. `GET /cases/{id}` (사건 상세). 없는 사건(`404`)이면 `null`을 돌려준다.
  *
  * @param {string} id 사건 ID
@@ -26,7 +81,7 @@ export const getCase = async (id) => {
   if (id === SAMPLE_CASE.id) return SAMPLE_CASE
   try {
     const { data } = await apiClient.get(`/cases/${id}`)
-    return data
+    return normalizeCaseDetail(data)
   } catch (error) {
     if (error?.response?.status === 404) return null
     throw error

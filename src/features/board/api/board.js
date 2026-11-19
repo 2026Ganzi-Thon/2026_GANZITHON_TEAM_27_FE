@@ -1,17 +1,28 @@
-import { mapBoardPost } from '@/api/mapBoardPost'
+import { mapBoardComment, mapBoardPost } from '@/api/mapBoardPost'
 import { apiClient } from '@/lib/apiClient'
 import { resolveMock, USE_BOARD_MOCK } from '../mocks/boardMocks'
 
 /**
  * 게시글 상세 정보를 조회한다. `GET /board/posts/{pid}`
+ * 공개 게시 글(`visibility === 'public' && status === 'published'`)이면 댓글 목록도 함께 불러와 붙인다.
  * 남의 비공개·검토중·숨김 글은 `404`다(비공개 글은 `unlockPost`로 비밀번호를 보내 연다).
  *
  * @param {string} postId 게시글 ID
  * @returns {Promise<import('@/api/mapBoardPost').BoardPostViewModel>} 게시글 상세 정보
  */
 export const fetchPostDetail = async (postId) => {
-  const { data } = await apiClient.get(`/board/posts/${encodeURIComponent(postId)}`)
-  return mapBoardPost(data)
+  const encodedId = encodeURIComponent(postId)
+  const { data } = await apiClient.get(`/board/posts/${encodedId}`)
+  const mapped = mapBoardPost(data)
+  if (mapped.visibility === 'public' && mapped.status === 'published') {
+    const commentsRes = await apiClient.get(`/board/posts/${encodedId}/comments`)
+    const items = Array.isArray(commentsRes?.data?.items) ? commentsRes.data.items : []
+    return {
+      ...mapped,
+      comments: items.filter((item) => item && typeof item === 'object').map(mapBoardComment),
+    }
+  }
+  return mapped
 }
 
 /**
@@ -30,20 +41,49 @@ export const unlockPost = async (postId, password) => {
 }
 
 /**
- * 게시글 공감(좋아요) 토글 요청. `POST /board/posts/{pid}/like` → `{ is_liked, like_count }`
+ * 게시글 공감(좋아요) 설정·해제 요청.
+ * - 공감 추가: `PUT /board/posts/{pid}/like` → `{ liked: true, like_count }`
+ * - 공감 해제: `DELETE /board/posts/{pid}/like` → `{ liked: false, like_count }`
  *
  * @param {string} postId 게시글 ID
- * @returns {Promise<{ is_liked: boolean, like_count: number }>}
+ * @param {boolean} [currentlyLiked=false] 현재 공감 여부
+ * @returns {Promise<{ liked: boolean, is_liked: boolean, like_count: number }>}
  */
-export const togglePostLike = async (postId) => {
-  if (USE_BOARD_MOCK) return resolveMock({ success: true })
-  const { data } = await apiClient.post(`/board/posts/${encodeURIComponent(postId)}/like`)
-  return data
+export const togglePostLike = async (postId, currentlyLiked = false) => {
+  if (USE_BOARD_MOCK) {
+    return resolveMock({ liked: !currentlyLiked, is_liked: !currentlyLiked, like_count: 0 })
+  }
+  const path = `/board/posts/${encodeURIComponent(postId)}/like`
+  const { data } = currentlyLiked ? await apiClient.delete(path) : await apiClient.put(path)
+  return {
+    ...data,
+    is_liked: typeof data?.liked === 'boolean' ? data.liked : data?.is_liked,
+  }
 }
 
 /**
- * 댓글 등록 요청. `POST /board/posts/{pid}/comments` `{ content }` → `201` 댓글
- * (`{ id, author, content, created_at, is_mine }`)
+ * 게시글 북마크 설정·해제 요청.
+ * - 북마크 추가: `PUT /board/posts/{pid}/bookmark` → `{ bookmarked: true }`
+ * - 북마크 해제: `DELETE /board/posts/{pid}/bookmark` → `{ bookmarked: false }`
+ *
+ * @param {string} postId 게시글 ID
+ * @param {boolean} [currentlyBookmarked=false] 현재 북마크 여부
+ * @returns {Promise<{ bookmarked: boolean, is_bookmarked: boolean }>}
+ */
+export const togglePostBookmark = async (postId, currentlyBookmarked = false) => {
+  if (USE_BOARD_MOCK) {
+    return resolveMock({ bookmarked: !currentlyBookmarked, is_bookmarked: !currentlyBookmarked })
+  }
+  const path = `/board/posts/${encodeURIComponent(postId)}/bookmark`
+  const { data } = currentlyBookmarked ? await apiClient.delete(path) : await apiClient.put(path)
+  return {
+    ...data,
+    is_bookmarked: typeof data?.bookmarked === 'boolean' ? data.bookmarked : data?.is_bookmarked,
+  }
+}
+
+/**
+ * 댓글 등록 요청. `POST /board/posts/{pid}/comments` `{ body }` → `201` 댓글
  *
  * @param {string} postId 게시글 ID
  * @param {{ content: string }} body 댓글 내용
@@ -59,14 +99,17 @@ export const submitComment = async (postId, body) => {
       is_liked: false,
     })
   }
-  const { data } = await apiClient.post(`/board/posts/${encodeURIComponent(postId)}/comments`, body)
-  return data
+  const { data } = await apiClient.post(`/board/posts/${encodeURIComponent(postId)}/comments`, {
+    body: body.content,
+  })
+  if (data?.outcome === 'support_required') return data
+  return data && typeof data === 'object' ? mapBoardComment(data) : data
 }
 
 /**
  * 사건 없이 게시판에 바로 글을 쓴다. `POST /board/posts` `{ visibility, title, body, password? }`
- * → `201 { id, status, visibility, created_at }`. 위기 신호가 감지되면 HTTP 200 `{ outcome: "support_required" }`.
- * 비밀번호는 요청 본문에만 담는다.
+ * → `201 { id, status }`. 위기 신호가 감지되면 HTTP 200 `{ outcome: "support_required" }`.
+ * 공개 글에서는 `password`를 생략한다(`extra="forbid"`). 비밀번호는 요청 본문에만 담는다.
  *
  * @param {{ visibility: string, title: string, body: string, password?: string }} values 글 내용
  * @returns {Promise<object>} 서버 응답
@@ -74,7 +117,7 @@ export const submitComment = async (postId, body) => {
 export const createBoardPost = async ({ visibility, title, body, password }) => {
   if (USE_BOARD_MOCK) return resolveMock({ id: `post-${Date.now()}`, status: 'pending_review' })
   const payload = { visibility, title, body }
-  if (password) payload.password = password
+  if (visibility !== 'public' && password) payload.password = password
   const { data } = await apiClient.post('/board/posts', payload)
   return data
 }

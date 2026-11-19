@@ -111,9 +111,17 @@ export const IntakeForm = ({ onCreated }) => {
         <div role="alert" className="mx-4 mt-6 rounded-[10px] bg-field px-4 py-3 text-sm text-ink">
           <p>{support.message}</p>
           <ul className="mt-2 font-semibold">
-            {support.contacts.map((contact) => (
-              <li key={contact}>{contact}</li>
-            ))}
+            {(support.contacts ?? []).map((contact) => {
+              const text =
+                typeof contact === 'string'
+                  ? contact
+                  : [contact.label, contact.number].filter(Boolean).join(' ')
+              const key =
+                typeof contact === 'string'
+                  ? contact
+                  : `${contact.label ?? ''}-${contact.number ?? ''}`
+              return <li key={key}>{text}</li>
+            })}
           </ul>
         </div>
       )}

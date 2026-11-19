@@ -9,6 +9,6 @@ export const VISIBILITY = {
 }
 
 /**
- * 게시글 비밀번호 길이 제한(6~64자). 백엔드(`POST /cases/{id}/posts`, `POST /board/posts`)도 6~64자를 받는다.
+ * 게시글 비밀번호 길이 제한(8~64자). 백엔드(`POST /cases/{id}/posts`, `POST /board/posts`)도 8~64자를 받는다.
  */
-export const POST_PASSWORD_LENGTH = { min: 6, max: 64 }
+export const POST_PASSWORD_LENGTH = { min: 8, max: 64 }

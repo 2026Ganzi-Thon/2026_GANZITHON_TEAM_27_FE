@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiClient } from '@/lib/apiClient'
-import { fetchDefenseThread } from './api/defense'
+import { fetchDefenseThread, submitDefenseAnswer } from './api/defense'
 
 vi.mock('@/lib/apiClient', () => ({
   apiClient: { get: vi.fn(), post: vi.fn(), put: vi.fn() },
@@ -118,5 +118,27 @@ describe('fetchDefenseThread (실제 API)', () => {
     vi.mocked(apiClient.get).mockResolvedValue({ data: { status: 'defense', defense: [] } })
     vi.mocked(apiClient.post).mockRejectedValue(conflict('INVALID_CASE_STATE'))
     await expect(fetchDefenseThread('case-1')).rejects.toThrow('conflict')
+  })
+
+  it('v1.4 중첩 응답({ case, questions, defense_completed })을 읽고 완료 상태면 질문을 더 요청하지 않는다', async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: {
+        case: { id: 'case-1', status: 'defense' },
+        questions: [item(1), item(2)],
+        defense_completed: true,
+      },
+    })
+    const thread = await fetchDefenseThread('case-1')
+    expect(thread).toHaveLength(2)
+    expect(apiClient.post).not.toHaveBeenCalled()
+  })
+
+  it('submitDefenseAnswer는 skip/not_sure일 때 text 필드를 생략한다', async () => {
+    vi.mocked(apiClient.put).mockResolvedValue({ data: item(1, { answer_status: 'skipped' }) })
+    await submitDefenseAnswer('case-1', 'q1', { action: 'skip', text: '무시', revision: 0 })
+    expect(apiClient.put).toHaveBeenCalledWith('/cases/case-1/defense/questions/q1/answer', {
+      action: 'skip',
+      revision: 0,
+    })
   })
 })

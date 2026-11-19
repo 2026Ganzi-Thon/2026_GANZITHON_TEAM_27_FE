@@ -91,11 +91,15 @@ export const toSummaryView = (intake, result) => {
   )
   const label = canCompare ? getEmotionLabel(before.type) : null
   const decision = result?.decision
-  const firstPattern = result?.pattern_tags?.[0]
+  const firstPattern =
+    result?.primary_pattern ??
+    intake?.primary_pattern ??
+    result?.pattern_tags?.[0] ??
+    intake?.pattern_tags?.[0]
 
   return {
     caseNumber: intake?.case_number ?? null,
-    thought: intake?.thought ?? '',
+    thought: intake?.summary || result?.summary || intake?.thought || '',
     finalStatement:
       decision?.final_statement || (decision?.type === 'deferred' ? DEFERRED_STATEMENT : ''),
     caseType: firstPattern ? getThoughtPatternLabel(firstPattern) : NO_PATTERN,

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { fetchPostDetail, submitComment, togglePostLike } from '../api/board'
+import { fetchPostDetail, submitComment, togglePostBookmark, togglePostLike } from '../api/board'
 
 /** 게시판 도메인 Query key factory */
 export const boardKeys = {
@@ -27,7 +27,22 @@ export const useTogglePostLike = (postId) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: () => togglePostLike(postId),
+    mutationFn: (currentlyLiked = false) => togglePostLike(postId, currentlyLiked),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: boardKeys.detail(postId) })
+    },
+  })
+}
+
+/**
+ * 게시글 북마크 토글 훅.
+ * @param {string | undefined} postId 게시글 ID
+ */
+export const useTogglePostBookmark = (postId) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (currentlyBookmarked = false) => togglePostBookmark(postId, currentlyBookmarked),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: boardKeys.detail(postId) })
     },

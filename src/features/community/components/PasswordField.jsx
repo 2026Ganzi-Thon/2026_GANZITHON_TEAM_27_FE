@@ -1,7 +1,7 @@
 import { POST_PASSWORD_LENGTH } from '@/constants/visibility'
 
 /**
- * 비공개 글의 비밀번호 입력칸. 비밀번호 규칙(6~64자)에 맞지 않으면 안내 문구를 보여준다.
+ * 비공개 글의 비밀번호 입력칸. 비밀번호 규칙(8~64자)에 맞지 않으면 안내 문구를 보여준다.
  *
  * @param {{ value: string, onChange: (value: string) => void, error?: string }} props
  * - `value`: 입력한 비밀번호

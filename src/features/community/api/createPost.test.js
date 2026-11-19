@@ -63,17 +63,33 @@ describe('게시판 API', () => {
     expect(result.outcome).toBe('support_required')
   })
 
-  it('목록은 사건 유형마다 tag를 반복해서 GET /board/posts로 받는다', async () => {
+  it('사건 유형이 1개면 tag 문자열로 GET /board/posts를 호출한다', async () => {
     vi.mocked(apiClient.get).mockResolvedValue({
-      data: { items: [{ id: 'p1' }], next_cursor: null },
+      data: { items: [{ id: 'p1', tags: ['labeling'] }], next_cursor: null },
+    })
+    const result = await listPosts({ patterns: ['labeling'] })
+
+    expect(apiClient.get).toHaveBeenCalledWith('/board/posts', {
+      params: { tag: 'labeling' },
+    })
+    expect(result).toEqual({ items: [{ id: 'p1', tags: ['labeling'] }], next_cursor: null })
+  })
+
+  it('사건 유형이 2개 이상이면 tag 없이 조회한 뒤 클라이언트에서 거른다', async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: {
+        items: [
+          { id: 'p1', tags: ['labeling'] },
+          { id: 'p2', tags: ['catastrophizing'] },
+          { id: 'p3', tags: ['mind_reading'] },
+        ],
+        next_cursor: null,
+      },
     })
     const result = await listPosts({ patterns: ['labeling', 'mind_reading'] })
 
-    expect(apiClient.get).toHaveBeenCalledWith('/board/posts', {
-      params: { tag: ['labeling', 'mind_reading'] },
-      paramsSerializer: { indexes: null },
-    })
-    expect(result).toEqual({ items: [{ id: 'p1' }], next_cursor: null })
+    expect(apiClient.get).toHaveBeenCalledWith('/board/posts', { params: undefined })
+    expect(result.items.map((post) => post.id)).toEqual(['p1', 'p3'])
   })
 
   it('내 글만 보기는 GET /board/posts/mine으로 받고 사건 유형은 받은 뒤 거른다', async () => {

@@ -41,11 +41,14 @@ const formatEmotion = ({ emotion, emotion_after: emotionAfter, status }) => {
     : `${label} ${emotion.intensity}`
 }
 
-/** 접수 직후에는 사건명이 없으므로 생각의 앞부분을 임시 제목으로 쓴다. */
-const getTitle = ({ title, thought }) => {
+/** 접수 직후에는 사건명이 없으므로 생각의 앞부분 또는 사건번호를 임시 제목으로 쓴다. */
+const getTitle = ({ title, thought, case_number: caseNumber }) => {
   if (title) return title
-  const oneLine = thought.replace(/\s+/g, ' ').trim()
-  return oneLine.length > 14 ? `${oneLine.slice(0, 14)}…` : oneLine
+  if (typeof thought === 'string' && thought.trim()) {
+    const oneLine = thought.replace(/\s+/g, ' ').trim()
+    return oneLine.length > 14 ? `${oneLine.slice(0, 14)}…` : oneLine
+  }
+  return caseNumber ? `#${caseNumber} 사건` : '접수된 사건'
 }
 
 /**

@@ -65,4 +65,21 @@ describe('toCaseView', () => {
   it('감정 기록이 없으면 안내 문구를 보여준다', () => {
     expect(toCaseView({ ...baseCase, emotion: null }).emotionChange).toBe('감정 기록 없음')
   })
+
+  it('v1.4 목록 항목처럼 title과 thought, emotion이 없어도 안전하게 표시한다', () => {
+    const view = toCaseView({
+      id: 'case-2',
+      case_number: '2026-000042',
+      status: 'received',
+      title: null,
+      pattern_tags: [],
+      created_at: '2026-07-20T03:00:00.000Z',
+    })
+    expect(view.title).toBe('#2026-000042 사건')
+    expect(view.emotionChange).toBe('감정 기록 없음')
+    expect(
+      toCaseView({ id: 'case-3', status: 'received', created_at: '2026-07-20T03:00:00.000Z' })
+        .title,
+    ).toBe('접수된 사건')
+  })
 })

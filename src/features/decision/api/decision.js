@@ -31,6 +31,9 @@ import {
 export const requestDecision = async (caseId) => {
   if (USE_DECISION_MOCK) return resolveMock(mockDecisionDraft)
   const { data } = await apiClient.post(`/cases/${caseId}/decision`)
+  if (data?.decision && data.decision.version === undefined && data.version !== undefined) {
+    return { ...data, decision: { ...data.decision, version: data.version } }
+  }
   return data
 }
 
@@ -54,7 +57,7 @@ export const rephraseDecision = async (caseId, body) => {
  * TODO(API 확인 필요): emotion_after 형태(`{ type, intensity }`)가 명세에 예시로만 있다. 확정되면 맞춘다.
  * @param {string} caseId 사건 ID (UUID)
  * @param {{decision_type: DecisionType, final_statement?: string, emotion_after?: object}} body 확정할 내용
- * @returns {Promise<object>} 종결된 사건
+ * @returns {Promise<{ case: object, decision: object } | { outcome: 'support_required', support: object }>} 종결된 사건과 판결 (또는 위기 안내)
  */
 export const finalizeDecision = async (caseId, body) => {
   if (USE_DECISION_MOCK) return resolveMock(recordMockFinal(caseId, body))
