@@ -25,6 +25,7 @@ export const BoardPostContent = ({
   createdAtLabel,
   likeCount,
   isMine = false,
+  initialEditing = false,
   onOptionsClick,
   onEditPost,
   onDeletePost,
@@ -32,7 +33,7 @@ export const BoardPostContent = ({
   isDeleting = false,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(Boolean(initialEditing && isMine))
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [draftTitle, setDraftTitle] = useState(title ?? '')
   const [draftBody, setDraftBody] = useState(content ?? '')

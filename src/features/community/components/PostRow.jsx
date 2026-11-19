@@ -39,6 +39,8 @@ export const PostRow = ({ post, onDelete, to }) => (
       </div>
     )}
 
-    {post.isMine && <PostMenu onDelete={() => onDelete(post.id)} />}
+    {post.isMine && (
+      <PostMenu editTo={to ? `${to}?edit=1` : undefined} onDelete={() => onDelete(post.id)} />
+    )}
   </article>
 )

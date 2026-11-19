@@ -31,6 +31,7 @@ export const BoardDetailView = ({
   onBookmark,
   onEditPost,
   onDeletePost,
+  initialEditing = false,
   isUpdatingPost = false,
   isDeletingPost = false,
   onAddComment,
@@ -55,6 +56,7 @@ export const BoardDetailView = ({
           createdAtLabel={post.created_at_label}
           likeCount={post.like_count}
           isMine={Boolean(post.is_mine)}
+          initialEditing={initialEditing}
           onEditPost={onEditPost}
           onDeletePost={onDeletePost}
           isUpdating={isUpdatingPost}

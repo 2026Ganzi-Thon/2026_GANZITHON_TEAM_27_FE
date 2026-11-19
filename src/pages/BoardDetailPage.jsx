@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { VISIBILITY } from '@/constants/visibility'
 import {
   BoardDetailView,
@@ -25,6 +25,8 @@ import { ROUTE_PATHS } from '@/routes/paths'
 const BoardDetailPage = () => {
   const navigate = useNavigate()
   const { postId } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const initialEditing = searchParams.get('edit') === '1'
 
   const {
     data: fetchedPost,
@@ -89,6 +91,10 @@ const BoardDetailPage = () => {
       onSuccess: (result) => {
         if (result?.outcome === 'support_required') {
           navigate(ROUTE_PATHS.support, { replace: true })
+          return
+        }
+        if (searchParams.has('edit')) {
+          setSearchParams({}, { replace: true })
         }
       },
     })
@@ -205,6 +211,7 @@ const BoardDetailPage = () => {
       onBookmark={handleBookmark}
       onEditPost={handleEditPost}
       onDeletePost={handleDeletePost}
+      initialEditing={initialEditing}
       isUpdatingPost={isUpdatingPost}
       isDeletingPost={isDeletingPost}
       onAddComment={handleAddComment}
