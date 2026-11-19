@@ -92,17 +92,19 @@ describe('BoardDetailPage', () => {
     fireEvent.change(bodyInput, { target: { value: '수정된 본문' } })
     fireEvent.click(screen.getByRole('button', { name: '저장' }))
 
-    expect(apiClient.put).toHaveBeenCalledWith('/board/posts/post-1', {
-      title: '수정된 제목',
-      body: '수정된 본문',
+    await vi.waitFor(() => {
+      expect(apiClient.put).toHaveBeenCalledWith('/board/posts/post-1', {
+        title: '수정된 제목',
+        body: '수정된 본문',
+      })
     })
 
-    fireEvent.click(screen.getByRole('button', { name: '게시글 옵션 더보기' }))
+    fireEvent.click(await screen.findByRole('button', { name: '게시글 옵션 더보기' }))
     fireEvent.click(screen.getByRole('menuitem', { name: '글 삭제' }))
     fireEvent.click(screen.getByRole('button', { name: '삭제 확인' }))
 
-    expect(apiClient.delete).toHaveBeenCalledWith('/board/posts/post-1')
     await vi.waitFor(() => {
+      expect(apiClient.delete).toHaveBeenCalledWith('/board/posts/post-1')
       expect(router.state.location.pathname).toBe('/community')
     })
   })
@@ -131,17 +133,23 @@ describe('BoardDetailPage', () => {
 
     const likeButton = await screen.findByRole('button', { name: '댓글 공감' })
     fireEvent.click(likeButton)
-    expect(apiClient.put).toHaveBeenCalledWith('/board/comments/c-mine/like')
+    await vi.waitFor(() => {
+      expect(apiClient.put).toHaveBeenCalledWith('/board/comments/c-mine/like')
+    })
 
-    fireEvent.click(screen.getByRole('button', { name: '댓글 옵션 더보기' }))
+    fireEvent.click(await screen.findByRole('button', { name: '댓글 옵션 더보기' }))
     fireEvent.click(screen.getByRole('menuitem', { name: '댓글 수정' }))
     const editInput = screen.getByLabelText('댓글 수정 입력')
     fireEvent.change(editInput, { target: { value: '고친 댓글' } })
     fireEvent.click(screen.getByRole('button', { name: '저장' }))
-    expect(apiClient.put).toHaveBeenCalledWith('/board/comments/c-mine', { body: '고친 댓글' })
+    await vi.waitFor(() => {
+      expect(apiClient.put).toHaveBeenCalledWith('/board/comments/c-mine', { body: '고친 댓글' })
+    })
 
-    fireEvent.click(screen.getByRole('button', { name: '댓글 옵션 더보기' }))
+    fireEvent.click(await screen.findByRole('button', { name: '댓글 옵션 더보기' }))
     fireEvent.click(screen.getByRole('menuitem', { name: '댓글 삭제' }))
-    expect(apiClient.delete).toHaveBeenCalledWith('/board/comments/c-mine')
+    await vi.waitFor(() => {
+      expect(apiClient.delete).toHaveBeenCalledWith('/board/comments/c-mine')
+    })
   })
 })
