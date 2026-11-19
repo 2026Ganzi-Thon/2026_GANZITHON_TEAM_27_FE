@@ -78,22 +78,22 @@ describe('toPostView', () => {
     published_at: '2026-11-16T10:00:00Z',
   }
 
-  it('서버 목록 필드(is_mine, is_hot, like_count, comment_count, published_at)를 화면 모양으로 바꾼다', () => {
+  it('서버 목록 필드(is_mine, is_hot, like_count, comment_count, created_at)를 화면 모양으로 바꾼다', () => {
     expect(toPostView(base, now)).toMatchObject({
       id: 'post-1',
       title: '제목',
       body: '본문',
       likes: 3,
       comments: 1,
-      timeLabel: '2h ago',
+      timeLabel: '3h ago',
       isHot: true,
       isMine: false,
       isLocked: false,
     })
   })
 
-  it('게시 시각이 없으면 작성 시각을 쓴다', () => {
-    expect(toPostView({ ...base, published_at: null }, now).timeLabel).toBe('3h ago')
+  it('작성 시각이 없으면 게시 시각을 쓴다', () => {
+    expect(toPostView({ ...base, created_at: null }, now).timeLabel).toBe('2h ago')
   })
 
   it('남의 비공개 글은 서버가 제목·본문을 null로 주므로 안내 문구를 보여준다', () => {

@@ -57,7 +57,7 @@ export const mapBoardPost = (response) => {
     title: read('title', 'string'),
     content: read('body', 'string') ?? read('content', 'string'),
     author: read('author_label', 'string') ?? read('author', 'string'),
-    created_at_label: toTimeLabel(post, 'published_at', 'created_at'),
+    created_at_label: toTimeLabel(post, 'created_at', 'published_at'),
     like_count: read('like_count', 'number'),
     is_liked: read('liked_by_me', 'boolean') ?? read('is_liked', 'boolean'),
     is_bookmarked: read('bookmarked_by_me', 'boolean') ?? read('is_bookmarked', 'boolean'),

@@ -67,7 +67,7 @@ export const toPostView = (post, now = Date.now()) => {
     tagLabel: FEED_TAG_LABEL,
     likes: post.like_count ?? 0,
     comments: post.comment_count ?? 0,
-    timeLabel: formatPostTime(post.published_at ?? post.created_at, now),
+    timeLabel: formatPostTime(post.created_at ?? post.published_at, now),
     isHot: Boolean(post.is_hot),
     isMine,
     isLocked,
