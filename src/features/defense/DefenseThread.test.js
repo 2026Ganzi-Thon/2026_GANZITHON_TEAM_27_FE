@@ -88,12 +88,12 @@ describe('fetchDefenseThread (실제 API)', () => {
     expect(thread[1].question.id).toBe('q2')
   })
 
-  it('질문을 3개 처리했으면 더 요청하지 않는다', async () => {
+  it('질문을 5개 처리했으면 더 요청하지 않는다', async () => {
     vi.mocked(apiClient.get).mockResolvedValue({
-      data: { status: 'defense', defense: [item(1), item(2), item(3)] },
+      data: { status: 'defense', defense: [item(1), item(2), item(3), item(4), item(5)] },
     })
     const thread = await fetchDefenseThread('case-1')
-    expect(thread).toHaveLength(3)
+    expect(thread).toHaveLength(5)
     expect(apiClient.post).not.toHaveBeenCalled()
   })
 

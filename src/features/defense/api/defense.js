@@ -35,8 +35,8 @@ export const fetchCase = async (caseId) => {
   return data?.case ?? data
 }
 
-/** 사건당 질문 최대 개수 (`POST /cases/{id}/defense/questions`가 3개 뒤에는 `409 DEFENSE_COMPLETED`) */
-const MAX_QUESTIONS = 3
+/** 사건당 질문 최대 개수 (`POST /cases/{id}/defense/questions`가 5개 뒤에는 `409 DEFENSE_COMPLETED`) */
+const MAX_QUESTIONS = 5
 
 /** 서버 `answer_status`를 화면 답변 action으로 바꾸는 표 */
 const ANSWER_ACTIONS = { answered: 'answer', not_sure: 'not_sure', skipped: 'skip' }
