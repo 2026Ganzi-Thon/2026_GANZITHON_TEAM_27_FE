@@ -14,9 +14,30 @@ import { BoardPostContent } from './BoardPostContent'
  * @param {() => void} [props.onShare] 공유 핸들러
  * @param {() => void} [props.onLike] 게시글 공감 핸들러
  * @param {() => void} [props.onBookmark] 북마크 핸들러
+ * @param {(values: { title: string, body: string }) => void} [props.onEditPost] 게시글 수정 핸들러
+ * @param {() => void} [props.onDeletePost] 게시글 삭제 핸들러
+ * @param {boolean} [props.isUpdatingPost] 게시글 수정 중 여부
+ * @param {boolean} [props.isDeletingPost] 게시글 삭제 중 여부
  * @param {(content: string) => void} [props.onAddComment] 댓글 등록 핸들러
+ * @param {(commentId: string, currentlyLiked: boolean) => void} [props.onCommentLike] 댓글 공감 핸들러
+ * @param {(commentId: string, content: string) => void} [props.onEditComment] 댓글 수정 핸들러
+ * @param {(commentId: string) => void} [props.onDeleteComment] 댓글 삭제 핸들러
  */
-export const BoardDetailView = ({ post, onBack, onShare, onLike, onBookmark, onAddComment }) => {
+export const BoardDetailView = ({
+  post,
+  onBack,
+  onShare,
+  onLike,
+  onBookmark,
+  onEditPost,
+  onDeletePost,
+  isUpdatingPost = false,
+  isDeletingPost = false,
+  onAddComment,
+  onCommentLike,
+  onEditComment,
+  onDeleteComment,
+}) => {
   const handleCommentClick = () => {
     // 댓글 영역으로 스크롤
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
@@ -33,6 +54,11 @@ export const BoardDetailView = ({ post, onBack, onShare, onLike, onBookmark, onA
           author={post.author}
           createdAtLabel={post.created_at_label}
           likeCount={post.like_count}
+          isMine={Boolean(post.is_mine)}
+          onEditPost={onEditPost}
+          onDeletePost={onDeletePost}
+          isUpdating={isUpdatingPost}
+          isDeleting={isDeletingPost}
         />
 
         <div className="mt-6 h-[1px] w-full bg-[#e7e7e7]" aria-hidden="true" />
@@ -46,7 +72,13 @@ export const BoardDetailView = ({ post, onBack, onShare, onLike, onBookmark, onA
           onBookmark={onBookmark}
         />
 
-        <BoardCommentSection commentCount={post.comment_count} comments={post.comments} />
+        <BoardCommentSection
+          commentCount={post.comment_count}
+          comments={post.comments}
+          onCommentLike={onCommentLike}
+          onEditComment={onEditComment}
+          onDeleteComment={onDeleteComment}
+        />
       </main>
 
       <BoardCommentInput onSubmit={onAddComment ?? (() => {})} />

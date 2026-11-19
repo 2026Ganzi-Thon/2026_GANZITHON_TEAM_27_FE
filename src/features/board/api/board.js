@@ -121,3 +121,82 @@ export const createBoardPost = async ({ visibility, title, body, password }) => 
   const { data } = await apiClient.post('/board/posts', payload)
   return data
 }
+
+/**
+ * 내가 작성한 게시글을 수정한다. `PUT /board/posts/{pid}` `{ title, body }`
+ * → `200 { id, status: "pending_review" }`. 위기 신호가 감지되면 HTTP 200 `{ outcome: "support_required" }`.
+ *
+ * @param {string} postId 게시글 ID
+ * @param {{ title: string, body: string }} values 수정할 제목과 본문
+ * @returns {Promise<object>} 서버 응답
+ */
+export const updateBoardPost = async (postId, { title, body }) => {
+  if (USE_BOARD_MOCK) return resolveMock({ id: postId, status: 'pending_review' })
+  const { data } = await apiClient.put(`/board/posts/${encodeURIComponent(postId)}`, {
+    title: title.trim(),
+    body: body.trim(),
+  })
+  return data
+}
+
+/**
+ * 내가 작성한 게시글을 삭제한다. `DELETE /board/posts/{pid}` → `204`
+ *
+ * @param {string} postId 게시글 ID
+ * @returns {Promise<void>}
+ */
+export const deleteBoardPost = async (postId) => {
+  if (USE_BOARD_MOCK) return resolveMock(undefined)
+  await apiClient.delete(`/board/posts/${encodeURIComponent(postId)}`)
+}
+
+/**
+ * 내가 작성한 댓글을 수정한다. `PUT /board/comments/{cid}` `{ body }` → `200` 댓글
+ * 위기 신호가 감지되면 HTTP 200 `{ outcome: "support_required" }`.
+ *
+ * @param {string} commentId 댓글 ID
+ * @param {{ content: string }} values 수정할 댓글 내용
+ * @returns {Promise<object>} 수정된 댓글 또는 위기 안내 응답
+ */
+export const updateComment = async (commentId, { content }) => {
+  if (USE_BOARD_MOCK) {
+    return resolveMock({ id: commentId, author: '익명', content: content.trim() })
+  }
+  const { data } = await apiClient.put(`/board/comments/${encodeURIComponent(commentId)}`, {
+    body: content.trim(),
+  })
+  if (data?.outcome === 'support_required') return data
+  return data && typeof data === 'object' ? mapBoardComment(data) : data
+}
+
+/**
+ * 내가 작성한 댓글을 삭제한다. `DELETE /board/comments/{cid}` → `204`
+ *
+ * @param {string} commentId 댓글 ID
+ * @returns {Promise<void>}
+ */
+export const deleteComment = async (commentId) => {
+  if (USE_BOARD_MOCK) return resolveMock(undefined)
+  await apiClient.delete(`/board/comments/${encodeURIComponent(commentId)}`)
+}
+
+/**
+ * 댓글 공감(좋아요) 설정·해제 요청.
+ * - 공감 추가: `PUT /board/comments/{cid}/like` → `{ liked: true, like_count }`
+ * - 공감 해제: `DELETE /board/comments/{cid}/like` → `{ liked: false, like_count }`
+ *
+ * @param {string} commentId 댓글 ID
+ * @param {boolean} [currentlyLiked=false] 현재 공감 여부
+ * @returns {Promise<{ liked: boolean, is_liked: boolean, like_count: number }>}
+ */
+export const toggleCommentLike = async (commentId, currentlyLiked = false) => {
+  if (USE_BOARD_MOCK) {
+    return resolveMock({ liked: !currentlyLiked, is_liked: !currentlyLiked, like_count: 0 })
+  }
+  const path = `/board/comments/${encodeURIComponent(commentId)}/like`
+  const { data } = currentlyLiked ? await apiClient.delete(path) : await apiClient.put(path)
+  return {
+    ...data,
+    is_liked: typeof data?.liked === 'boolean' ? data.liked : data?.is_liked,
+  }
+}

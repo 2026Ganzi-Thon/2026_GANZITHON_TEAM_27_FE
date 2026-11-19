@@ -13,6 +13,11 @@ export {
   useTogglePostLike,
   useTogglePostBookmark,
   useAddComment,
+  useUpdatePost,
+  useDeleteBoardPost,
+  useUpdateComment,
+  useDeleteComment,
+  useToggleCommentLike,
 } from './hooks/useBoard'
 export { useUnlockPost } from './hooks/useUnlockPost'
 export { mockPostDetail, DEMO_POST_ID } from './mocks/boardMocks'

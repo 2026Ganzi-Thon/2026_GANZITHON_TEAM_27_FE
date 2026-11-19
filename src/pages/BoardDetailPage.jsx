@@ -4,10 +4,15 @@ import {
   BoardDetailView,
   BoardUnlockForm,
   useAddComment,
+  useDeleteBoardPost,
+  useDeleteComment,
   usePostDetail,
+  useToggleCommentLike,
   useTogglePostBookmark,
   useTogglePostLike,
   useUnlockPost,
+  useUpdateComment,
+  useUpdatePost,
 } from '@/features/board'
 import { ROUTE_PATHS } from '@/routes/paths'
 
@@ -32,7 +37,12 @@ const BoardDetailPage = () => {
   const unlocked = useUnlockPost(postId)
   const { mutate: toggleLike } = useTogglePostLike(postId)
   const { mutate: toggleBookmark } = useTogglePostBookmark(postId)
+  const { mutate: updatePost, isPending: isUpdatingPost } = useUpdatePost(postId)
+  const { mutate: deletePost, isPending: isDeletingPost } = useDeleteBoardPost(postId)
   const { mutate: addComment } = useAddComment(postId)
+  const { mutate: updateComment } = useUpdateComment(postId)
+  const { mutate: deleteComment } = useDeleteComment(postId)
+  const { mutate: toggleCommentLike } = useToggleCommentLike(postId)
   const post = unlocked.post ?? fetchedPost
   const isProtected = post?.visibility === VISIBILITY.passwordProtected
 
@@ -73,6 +83,26 @@ const BoardDetailPage = () => {
     toggleBookmark(Boolean(post?.is_bookmarked))
   }
 
+  /** 내 글 수정. 위기 안내 응답이면 지원 안내 화면으로 이동한다. */
+  const handleEditPost = (values) => {
+    updatePost(values, {
+      onSuccess: (result) => {
+        if (result?.outcome === 'support_required') {
+          navigate(ROUTE_PATHS.support, { replace: true })
+        }
+      },
+    })
+  }
+
+  /** 내 글 삭제. 성공하면 게시판 목록으로 돌아간다. */
+  const handleDeletePost = () => {
+    deletePost(undefined, {
+      onSuccess: () => {
+        navigate(ROUTE_PATHS.community, { replace: true })
+      },
+    })
+  }
+
   /** 댓글 등록. 보호 글(`password_protected`)에서는 댓글 API를 호출하지 않는다. */
   const handleAddComment = (content) => {
     if (isProtected) return
@@ -80,10 +110,41 @@ const BoardDetailPage = () => {
       { content },
       {
         onSuccess: (comment) => {
+          if (comment?.outcome === 'support_required') {
+            navigate(ROUTE_PATHS.support, { replace: true })
+            return
+          }
           if (unlocked.post) unlocked.appendComment(comment)
         },
       },
     )
+  }
+
+  /** 댓글 공감 토글. 보호 글에서는 호출하지 않는다. */
+  const handleCommentLike = (commentId, currentlyLiked) => {
+    if (isProtected) return
+    toggleCommentLike({ commentId, currentlyLiked })
+  }
+
+  /** 내 댓글 수정. 위기 안내 응답이면 지원 안내 화면으로 이동한다. */
+  const handleEditComment = (commentId, content) => {
+    if (isProtected) return
+    updateComment(
+      { commentId, content },
+      {
+        onSuccess: (result) => {
+          if (result?.outcome === 'support_required') {
+            navigate(ROUTE_PATHS.support, { replace: true })
+          }
+        },
+      },
+    )
+  }
+
+  /** 내 댓글 삭제. 보호 글에서는 호출하지 않는다. */
+  const handleDeleteComment = (commentId) => {
+    if (isProtected) return
+    deleteComment(commentId)
   }
 
   if (isPending && !unlocked.post) {
@@ -142,7 +203,14 @@ const BoardDetailPage = () => {
       onShare={handleShare}
       onLike={handleLike}
       onBookmark={handleBookmark}
+      onEditPost={handleEditPost}
+      onDeletePost={handleDeletePost}
+      isUpdatingPost={isUpdatingPost}
+      isDeletingPost={isDeletingPost}
       onAddComment={handleAddComment}
+      onCommentLike={handleCommentLike}
+      onEditComment={handleEditComment}
+      onDeleteComment={handleDeleteComment}
     />
   )
 }
