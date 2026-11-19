@@ -32,7 +32,7 @@ export const BoardUnlockForm = ({ onUnlock, isPending = false, error = null }) =
         value={password}
         onChange={(event) => setPassword(event.target.value)}
         autoComplete="off"
-        className="h-11 w-full rounded-field bg-field px-4 text-center text-base text-ink"
+        className="h-12 w-full rounded-field border border-line bg-field px-4 text-center text-base text-ink placeholder:text-muted focus:border-ink"
       />
       {error && (
         <p id={errorId} role="alert" className="text-sm text-danger">

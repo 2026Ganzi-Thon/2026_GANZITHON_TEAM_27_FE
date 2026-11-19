@@ -104,7 +104,7 @@ export const BoardPrivateSettings = ({ onSubmit, onClose, error = null, isPendin
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="new-password"
-              className="absolute top-private-password left-4 h-11 w-[calc(100%-2rem)] bg-transparent px-4 text-center text-base leading-auto placeholder:text-ink"
+              className="absolute top-private-password left-4 h-12 w-[calc(100%-2rem)] rounded-field border border-line bg-canvas px-4 text-center text-base leading-auto text-ink placeholder:text-muted focus:border-ink focus:bg-field"
             />
             <div className="absolute right-4 bottom-private-button left-private-button-left">
               {error && (

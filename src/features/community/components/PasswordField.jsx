@@ -26,7 +26,7 @@ export const PasswordField = ({ value, onChange, error = '' }) => (
       autoComplete="new-password"
       aria-invalid={error ? 'true' : undefined}
       aria-describedby={error ? 'post-password-error' : undefined}
-      className="mx-4.5 mt-2.75 block h-13.5 w-[calc(100%-36px)] rounded-[5px] bg-field px-4.75 text-xs text-ink placeholder:text-ink"
+      className="mx-4.5 mt-2.75 block h-13.5 w-[calc(100%-36px)] rounded-[5px] border border-line bg-field px-4.75 text-xs text-ink placeholder:text-muted focus:border-ink"
     />
     {error && (
       <p id="post-password-error" role="alert" className="mx-4.5 mt-2 text-xs text-danger">
