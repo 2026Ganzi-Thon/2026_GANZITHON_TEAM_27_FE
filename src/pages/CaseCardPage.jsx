@@ -22,7 +22,7 @@ const CaseCardPage = () => {
   const { data: caseItem, isPending, isError } = useCase(caseId)
   const content = useMemo(() => (caseItem ? buildCardContent(caseItem) : null), [caseItem])
   const image = useCaseCardImage(content)
-  const { save, message } = useCardActions(image.blob, content)
+  const { save, shareToStory, message } = useCardActions(image.blob, content)
 
   if (isPending || isError || !caseItem) {
     return (
@@ -62,16 +62,18 @@ const CaseCardPage = () => {
         className="mt-1.75"
       />
       <div className="relative mt-10.25 w-full px-4.5">
-        <CardActions
-          onSave={save}
-          shareTo={getCommunitySharePath(caseId)}
-          saveDisabled={image.status !== 'ready'}
-        />
+        <CardActions onSave={save} onShare={shareToStory} saveDisabled={image.status !== 'ready'} />
         <Link
           to={ROUTE_PATHS.home}
           className="mt-4 flex h-17 items-center justify-center rounded-[41px] bg-field text-base font-semibold text-black"
         >
           확인
+        </Link>
+        <Link
+          to={getCommunitySharePath(caseId)}
+          className="mt-2 flex min-h-11 items-center justify-center text-xs text-muted underline"
+        >
+          게시판에 공유하기
         </Link>
         <p role="status" className="absolute inset-x-0 top-full mt-1 text-center text-xs text-ink">
           {message}

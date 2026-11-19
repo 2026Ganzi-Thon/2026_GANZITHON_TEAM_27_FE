@@ -5,23 +5,31 @@ const ACTION_BUTTON =
 
 /**
  * 사건 카드 아래의 "이미지 저장", "공유하기" 버튼.
- * "이미지 저장"은 카드 이미지를 파일로 저장하고, "공유하기"는 게시판 공유 화면으로 이동한다(페이지 이동이라 `Link`).
+ * "이미지 저장"은 카드 이미지를 파일로 저장하고, "공유하기"는 `onShare`가 있으면 인스타 스토리 공유를 실행한다.
  *
  * @param {{
  *   onSave: () => void,
- *   shareTo: string,
+ *   onShare?: () => void,
+ *   shareTo?: string,
  *   saveDisabled?: boolean,
  * }} props
- * - `shareTo`: "공유하기"가 이동할 게시판 공유 화면 주소
- * - `saveDisabled`: 카드 이미지가 아직 없으면 `true`로 두어 저장할 수 없게 한다
+ * - `onShare`: 인스타 스토리 공유 핸들러
+ * - `shareTo`: `onShare`가 없을 때 이동할 주소
+ * - `saveDisabled`: 카드 이미지가 아직 없으면 `true`로 두어 비활성화한다
  */
-export const CardActions = ({ onSave, shareTo, saveDisabled = false }) => (
+export const CardActions = ({ onSave, onShare, shareTo, saveDisabled = false }) => (
   <div className="grid grid-cols-2 gap-1.75">
     <button type="button" onClick={onSave} disabled={saveDisabled} className={ACTION_BUTTON}>
       이미지 저장
     </button>
-    <Link to={shareTo} className={ACTION_BUTTON}>
-      공유하기
-    </Link>
+    {onShare ? (
+      <button type="button" onClick={onShare} disabled={saveDisabled} className={ACTION_BUTTON}>
+        공유하기
+      </button>
+    ) : (
+      <Link to={shareTo} className={ACTION_BUTTON}>
+        공유하기
+      </Link>
+    )}
   </div>
 )

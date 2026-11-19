@@ -51,7 +51,8 @@ describe('사건 카드 화면', () => {
       await screen.findByRole('img', { name: /#2026-031.*나는 쓸모없어.*불안 70% → 40%/ }),
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '이미지 저장' })).toBeEnabled()
-    expect(screen.getByRole('link', { name: '공유하기' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: '공유하기' })).toBeEnabled()
+    expect(screen.getByRole('link', { name: '게시판에 공유하기' })).toHaveAttribute(
       'href',
       '/cases/sample/share',
     )
@@ -68,10 +69,39 @@ describe('사건 카드 화면', () => {
     expect(await screen.findByText('이미지를 저장했어요.')).toBeInTheDocument()
   })
 
-  it('공유하기를 누르면 게시판 공유 화면으로 이동한다', async () => {
+  it('공유하기를 누르면 Web Share 파일 공유를 지원할 때 PNG 파일로 공유 시트를 연다', async () => {
+    const share = vi.fn().mockResolvedValue(undefined)
+    const canShare = vi.fn().mockReturnValue(true)
+    Object.defineProperty(navigator, 'share', { value: share, configurable: true })
+    Object.defineProperty(navigator, 'canShare', { value: canShare, configurable: true })
+
+    renderAt('/cases/sample/card')
+    fireEvent.click(await screen.findByRole('button', { name: '공유하기' }))
+
+    expect(await screen.findByText('공유를 완료했어요.')).toBeInTheDocument()
+    expect(share).toHaveBeenCalledTimes(1)
+    expect(share.mock.calls[0][0].files[0]).toBeInstanceOf(File)
+
+    delete navigator.share
+    delete navigator.canShare
+  })
+
+  it('파일 공유를 지원하지 않으면 카드를 저장하고 인스타 스토리 안내 문구를 보여준다', async () => {
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
     renderAt('/cases/sample/card')
 
-    fireEvent.click(await screen.findByRole('link', { name: '공유하기' }))
+    fireEvent.click(await screen.findByRole('button', { name: '공유하기' }))
+
+    expect(click).toHaveBeenCalledTimes(1)
+    expect(
+      await screen.findByText('카드를 저장했어요. 인스타그램 스토리에서 불러와 공유해 주세요.'),
+    ).toBeInTheDocument()
+  })
+
+  it('게시판에 공유하기를 누르면 게시판 공유 화면으로 이동한다', async () => {
+    renderAt('/cases/sample/card')
+
+    fireEvent.click(await screen.findByRole('link', { name: '게시판에 공유하기' }))
 
     expect(await screen.findByRole('heading', { name: '게시판 공유하기' })).toBeInTheDocument()
     expect(await screen.findByRole('radio', { name: /전체 공개/ })).toBeInTheDocument()
